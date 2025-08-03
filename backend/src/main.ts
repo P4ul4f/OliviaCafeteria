@@ -10,7 +10,12 @@ async function bootstrap() {
   
   // Configurar CORS
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: [
+      'http://localhost:3000', 
+      'http://localhost:3001',
+      'https://olivia-frontend.vercel.app', // Frontend en Vercel
+      process.env.FRONTEND_URL // URL dinámica del frontend
+    ].filter(Boolean),
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -32,7 +37,8 @@ async function bootstrap() {
   // Configurar interceptor de logging
   app.useGlobalInterceptors(new LoggingInterceptor());
 
-  await app.listen(3001);
-  console.log('Backend running on http://localhost:3001');
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+  console.log(`Backend running on port ${port}`);
 }
 bootstrap();
