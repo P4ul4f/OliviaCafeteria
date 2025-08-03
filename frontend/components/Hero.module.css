@@ -1,0 +1,336 @@
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: 'Montserrat', sans-serif;
+  /* El fondo ahora lo maneja el inline style en el componente */
+}
+
+/* Elimino .carousel y .carouselImg porque ya no se usan */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.overlayContent {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 5vw;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.bgSliderWrapper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+}
+.bgSliderImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: transform 0.7s cubic-bezier(.77,0,.18,1), opacity 0.7s cubic-bezier(.77,0,.18,1);
+}
+.bgSliderImgActive {
+  transform: translateX(0);
+  opacity: 1;
+}
+.bgSliderImgIn {
+  transform: translateX(100%);
+  opacity: 1;
+  animation: slideInHero 0.7s forwards;
+}
+.bgSliderImgOut {
+  transform: translateX(0);
+  opacity: 1;
+  animation: slideOutHero 0.7s forwards;
+}
+@keyframes slideInHero {
+  from { transform: translateX(100%); opacity: 1; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideOutHero {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-100%); opacity: 1; }
+} 
+
+.bgGridWrapper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr;
+  gap: 3px;
+  overflow: hidden;
+}
+.bgGridCell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.bgGridImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: transform 0.7s cubic-bezier(.77,0,.18,1), opacity 0.7s cubic-bezier(.77,0,.18,1);
+  border-radius: 4px;
+}
+.bgGridImgActive {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 2;
+}
+.bgGridImgIn {
+  transform: translateX(100%);
+  opacity: 1;
+  z-index: 3;
+  animation: slideInHero 0.7s forwards;
+}
+.bgGridImgOut {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 2;
+  animation: slideOutHero 0.7s forwards;
+}
+@keyframes slideInHero {
+  from { transform: translateX(100%); opacity: 1; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideOutHero {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-100%); opacity: 1; }
+} 
+
+.bgGridImgIn_right {
+  transform: translateX(100%);
+  opacity: 1;
+  z-index: 3;
+  animation: slideInHeroRight 0.7s forwards;
+}
+.bgGridImgOut_right {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 2;
+  animation: slideOutHeroRight 0.7s forwards;
+}
+@keyframes slideInHeroRight {
+  from { transform: translateX(100%); opacity: 1; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideOutHeroRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-100%); opacity: 1; }
+}
+
+.bgGridImgIn_left {
+  transform: translateX(-100%);
+  opacity: 1;
+  z-index: 3;
+  animation: slideInHeroLeft 0.7s forwards;
+}
+.bgGridImgOut_left {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 2;
+  animation: slideOutHeroLeft 0.7s forwards;
+}
+@keyframes slideInHeroLeft {
+  from { transform: translateX(-100%); opacity: 1; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideOutHeroLeft {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 1; }
+}
+
+.bgGridImgIn_up {
+  transform: translateY(100%);
+  opacity: 1;
+  z-index: 3;
+  animation: slideInHeroUp 0.7s forwards;
+}
+.bgGridImgOut_up {
+  transform: translateY(0);
+  opacity: 1;
+  z-index: 2;
+  animation: slideOutHeroUp 0.7s forwards;
+}
+@keyframes slideInHeroUp {
+  from { transform: translateY(100%); opacity: 1; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes slideOutHeroUp {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(-100%); opacity: 1; }
+}
+
+.bgGridImgIn_down {
+  transform: translateY(-100%);
+  opacity: 1;
+  z-index: 3;
+  animation: slideInHeroDown 0.7s forwards;
+}
+.bgGridImgOut_down {
+  transform: translateY(0);
+  opacity: 1;
+  z-index: 2;
+  animation: slideOutHeroDown 0.7s forwards;
+}
+@keyframes slideInHeroDown {
+  from { transform: translateY(-100%); opacity: 1; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes slideOutHeroDown {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(100%); opacity: 1; }
+} 
+
+.bgGridImgIn_subtle {
+  transform: translateX(40%);
+  opacity: 1;
+  z-index: 3;
+  animation: slideInHeroSubtle 1.2s forwards;
+}
+.bgGridImgOut_subtle {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 2;
+  animation: slideOutHeroSubtle 1.2s forwards;
+}
+@keyframes slideInHeroSubtle {
+  from { transform: translateX(40%); opacity: 1; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideOutHeroSubtle {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-40%); opacity: 1; }
+} 
+
+.bgGridImgIn_verySubtle {
+  transform: translateX(20%);
+  opacity: 1;
+  z-index: 3;
+  animation: slideInHeroVerySubtle 0.7s forwards;
+}
+.bgGridImgOut_verySubtle {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 2;
+  animation: slideOutHeroVerySubtle 0.7s forwards;
+}
+@keyframes slideInHeroVerySubtle {
+  from { transform: translateX(20%); opacity: 1; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideOutHeroVerySubtle {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-20%); opacity: 1; }
+}
+
+/* Efecto de aparición sobre la imagen actual - sin desvanecimiento */
+.bgGridImgFadeIn {
+  opacity: 0;
+  z-index: 3;
+  animation: appearOnTop 1.2s ease-out forwards;
+}
+
+.bgGridImgFadeOut {
+  opacity: 1;
+  z-index: 2;
+  /* La imagen de abajo NO se desvanece, se mantiene visible */
+}
+
+@keyframes appearOnTop {
+  0% { 
+    opacity: 0;
+  }
+  100% { 
+    opacity: 1;
+  }
+}
+
+/* Imagen base que siempre permanece visible */
+.bgGridImgBase {
+  opacity: 1;
+  z-index: 2;
+}
+
+/* Imagen de transición que aparece encima con fade */
+.bgGridImgTransition {
+  opacity: 0;
+  z-index: 3;
+  animation: fadeInSmooth 0.8s ease-in-out forwards;
+}
+
+@keyframes fadeInSmooth {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Media queries para responsive design del collage */
+
+/* Para pantallas menores a 900px: 1 fila, 2 columnas (solo 2 imágenes lado a lado) */
+@media (max-width: 900px) {
+  .bgGridWrapper {
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr !important;
+    gap: 3px !important;
+  }
+  
+  .bgGridCell:nth-child(3) {
+    display: none !important;
+  }
+  
+  .overlayContent {
+    justify-content: center;
+    padding-right: 0;
+    padding: 0 2rem;
+  }
+}
+
+/* Para pantallas menores a 650px: 2 filas, 1 columna (2 imágenes apiladas) */
+@media (max-width: 650px) {
+  .bgGridWrapper {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    gap: 3px !important;
+  }
+  
+  .bgGridCell:nth-child(3) {
+    display: none !important;
+  }
+  
+  .overlayContent {
+    padding: 0 1rem;
+  }
+}

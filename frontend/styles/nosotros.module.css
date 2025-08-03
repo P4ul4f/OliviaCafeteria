@@ -1,0 +1,512 @@
+/* Página Nosotros - Diseño elegante y acorde a Olivia */
+.bgBeige {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8efdc 0%, #f0e6d2 100%);
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Sección Hero con logo */
+.heroSection {
+  text-align: center;
+  padding: 4rem 2rem 6rem;
+  background: linear-gradient(135deg, #f8efdc 0%, #f5ebd8 100%);
+}
+
+.logoContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.mainLogo {
+  height: 8rem;
+  width: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.mainLogo:hover {
+  transform: scale(1.05);
+}
+
+.mainTitle {
+  font-family: 'RhymeTH', 'Sacramento', cursive;
+  font-size: 4rem;
+  color: #c1d29b;
+  margin: 0;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.decorativeLine {
+  width: 120px;
+  height: 3px;
+  background: linear-gradient(90deg, #ccbb94, #c1d29b);
+  margin: 0 auto;
+  border-radius: 2px;
+}
+
+/* Sección de contenido */
+.contentSection {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem 6rem;
+}
+
+/* Card de historia */
+.storyCard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  background: #fff;
+  padding: 4rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  margin-bottom: 6rem;
+  border-top: 4px solid #c1d29b;
+}
+
+.textContent {
+  padding-right: 2rem;
+}
+
+.sectionTitle {
+  font-family: 'RhymeTH', 'Sacramento', cursive;
+  font-size: 2.5rem;
+  color: #8b816a;
+  margin-bottom: 2rem;
+  line-height: 1.2;
+}
+
+.storyText {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #8b816a;
+  margin-bottom: 1.5rem;
+  text-align: justify;
+}
+
+.imageContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.cafeGallery {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 0.8rem;
+  width: 100%;
+  height: 400px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.galleryImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  cursor: pointer;
+}
+
+.galleryImage:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+  z-index: 2;
+}
+
+.desktopOnly {
+  display: block;
+}
+
+
+
+/* Sección de invitación */
+.invitationSection {
+  text-align: center;
+}
+
+.invitationCard {
+  background: linear-gradient(135deg, #c1d29b 0%, #a8b87a 100%);
+  color: #fff;
+  padding: 4rem 3rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.invitationTitle {
+  font-family: 'RhymeTH', 'Sacramento', cursive;
+  font-size: 2.8rem;
+  margin-bottom: 2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.invitationText {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  opacity: 0.95;
+}
+
+.signatureText {
+  font-family: 'RhymeTH', 'Sacramento', cursive;
+  font-size: 1.5rem;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+/* Responsive Design para pantallas medianas (tablets) - Una fila, dos columnas */
+@media (max-width: 900px) {
+  .desktopOnly {
+    display: none !important;
+  }
+  
+  .cafeGallery {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr !important;
+    height: 200px !important;
+    gap: 0.8rem !important;
+  }
+
+  .heroSection {
+    padding: 3rem 1.5rem 4rem;
+  }
+
+  .mainLogo {
+    height: 6rem;
+  }
+
+  .mainTitle {
+    font-size: 3rem;
+  }
+
+  .storyCard {
+    gap: 2rem;
+    padding: 3rem;
+  }
+
+  .sectionTitle {
+    font-size: 2rem;
+  }
+
+  .storyText {
+    font-size: 1rem;
+  }
+}
+
+/* Responsive Design para móviles (menú hamburguesa) */
+@media (max-width: 768px) {
+  .heroSection {
+    padding: 2rem 1rem 3rem;
+  }
+  
+  .mainLogo {
+    height: 5rem;
+  }
+
+  .mainTitle {
+    font-size: 2.5rem;
+  }
+
+  .decorativeLine {
+    width: 80px;
+    height: 2px;
+  }
+
+  .contentSection {
+    padding: 0 1rem 2rem;
+  }
+
+  .storyCard {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .textContent {
+    order: 1;
+    padding-right: 0;
+  }
+
+  .imageContainer {
+    order: 2;
+  }
+
+  .sectionTitle {
+    font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .storyText {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 0.8rem;
+  }
+
+  .invitationCard {
+    padding: 2rem 1rem;
+    margin: 0 1rem;
+  }
+
+  .invitationTitle {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .invitationText {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 0.8rem;
+  }
+
+  .cafeGallery {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    height: 300px !important;
+    gap: 0.5rem !important;
+  }
+
+  .cafeImage {
+    object-fit: cover !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* Responsive Design para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .heroSection {
+    padding: 1.5rem 0.5rem 2rem;
+  }
+
+  .mainLogo {
+    height: 4rem;
+  }
+
+  .mainTitle {
+    font-size: 2rem;
+  }
+
+  .decorativeLine {
+    width: 60px;
+    height: 2px;
+  }
+
+  .contentSection {
+    padding: 0 0.5rem 1.5rem;
+  }
+
+  .storyCard {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .textContent {
+    order: 1;
+    padding-right: 0;
+  }
+
+  .imageContainer {
+    order: 2;
+  }
+
+  .sectionTitle {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 0.8rem;
+  }
+
+  .storyText {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 0.6rem;
+  }
+
+  .invitationCard {
+    padding: 1.5rem 0.75rem;
+    margin: 0 0.5rem;
+  }
+
+  .invitationTitle {
+    font-size: 1.5rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .invitationText {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 0.6rem;
+  }
+
+  .cafeGallery {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    height: 250px !important;
+    gap: 0.4rem !important;
+  }
+}
+
+/* Responsive Design para pantallas muy pequeñas */
+@media (max-width: 360px) {
+  .heroSection {
+    padding: 1rem 0.25rem 1.5rem;
+  }
+
+  .mainLogo {
+    height: 2.5rem;
+  }
+
+  .mainTitle {
+    font-size: 1.5rem;
+  }
+
+  .decorativeLine {
+    width: 50px;
+    height: 1.5px;
+  }
+
+  .contentSection {
+    padding: 0 0.25rem 1.5rem;
+  }
+
+  .storyCard {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+  }
+
+  .textContent {
+    order: 1;
+    padding-right: 0;
+  }
+
+  .imageContainer {
+    order: 2;
+  }
+
+  .sectionTitle {
+    font-size: 1.3rem;
+    text-align: center;
+    margin-bottom: 0.8rem;
+  }
+
+  .storyText {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 0.6rem;
+  }
+
+  .invitationCard {
+    padding: 1.5rem 0.75rem;
+    margin: 0 0.25rem;
+  }
+
+  .invitationTitle {
+    font-size: 1.4rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .invitationText {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 0.6rem;
+  }
+
+  .cafeGallery {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    height: 200px !important;
+    gap: 0.3rem !important;
+  }
+}
+
+/* Mejoras adicionales para móvil */
+@media (max-width: 768px) {
+  /* Mejorar la legibilidad del texto */
+  .storyText {
+    text-align: justify;
+    hyphens: auto;
+    word-wrap: break-word;
+  }
+
+  /* Optimizar la galería en móvil */
+  .cafeGallery {
+    border-radius: 12px;
+  }
+
+  .galleryImage {
+    border-radius: 8px;
+  }
+
+  /* Mejorar el espaciado general */
+  .bgBeige {
+    min-height: auto;
+  }
+
+  /* Optimizar las tarjetas */
+  .storyCard,
+  .invitationCard {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Optimizaciones para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  /* Reducir el padding en móviles muy pequeños */
+  .storyCard {
+    margin: 0 0.5rem 1.5rem;
+  }
+
+  .invitationCard {
+    margin: 0 0.5rem;
+  }
+
+  /* Mejorar la galería */
+  .cafeGallery {
+    border-radius: 8px;
+  }
+
+  .galleryImage {
+    border-radius: 4px;
+  }
+}
+
+/* Optimizaciones para pantallas extremadamente pequeñas */
+@media (max-width: 360px) {
+  /* Reducir aún más el espaciado */
+  .storyCard {
+    margin: 0 0.25rem 1rem;
+  }
+
+  .invitationCard {
+    margin: 0 0.25rem;
+  }
+
+  /* Ajustar la galería */
+  .cafeGallery {
+    border-radius: 6px;
+  }
+
+  .galleryImage {
+    border-radius: 3px;
+  }
+} 

@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Parisienne&family=Great+Vibes&family=Alex+Brush&family=Allura&family=Sacramento&family=Satisfy&family=Quicksand:wght@400;500;600&display=swap');
+
+/* Animación para el loading */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Definición de fuentes personalizadas */
+@font-face {
+  font-family: 'RhymeTH';
+  src: url('/rhyme-casual.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Canter';
+  src: url('/canter-bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+html, body {
+  padding: 0;
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  background: #ccbb94;
+  color: #444;
+}
+* {
+  box-sizing: border-box;
+} 

@@ -1,0 +1,941 @@
+/* Página Meriendas Libres - Diseño ultra elegante y sofisticado */
+.bgBeige {
+  min-height: 100vh;
+  background: linear-gradient(135deg, 
+    #f9f3e7 0%, 
+    #f4ede1 25%,
+    #ebe3d5 50%,
+    #e8dfd1 75%,
+    #e3d8c8 100%
+  );
+  font-family: 'Montserrat', sans-serif;
+  position: relative;
+}
+
+.bgBeige::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 50%, rgba(194, 210, 155, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(204, 187, 148, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 40% 80%, rgba(139, 129, 106, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Hero Section con imagen de fondo */
+.hero {
+  position: relative;
+  height: 60vh;
+  min-height: 500px;
+  background: linear-gradient(135deg, 
+    rgba(194, 210, 155, 0.9) 0%, 
+    rgba(204, 187, 148, 0.8) 50%,
+    rgba(139, 129, 106, 0.9) 100%
+  ),
+  url('/cafe26.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(248, 239, 220, 0.1);
+  backdrop-filter: blur(1px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heroContent {
+  text-align: center;
+  color: #fff;
+  max-width: 600px;
+  padding: 2rem;
+  animation: heroFadeIn 1s ease-out;
+}
+
+.heroIcon {
+  margin-bottom: 1.5rem;
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+.heroTitle {
+  font-family: 'RhymeTH', 'Sacramento', cursive;
+  font-size: 4.5rem;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1.1;
+}
+
+.heroSubtitle {
+  font-size: 1.4rem;
+  margin-bottom: 2rem;
+  opacity: 0.95;
+  font-weight: 300;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.heroPrice {
+  font-family: 'Canter', 'Quicksand', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 900;
+  background: linear-gradient(45deg, #fff, #f8efdc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+}
+
+.heroPrice span {
+  font-size: 1rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.8);
+  display: block;
+  margin-top: 0.5rem;
+}
+
+/* Container principal */
+.container {
+  max-width: 1100px;
+  margin: -4rem auto 0;
+  padding: 0 2rem 4rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* Cards de sección */
+.sectionCard {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(1.3);
+  border-radius: 25px;
+  padding: 3rem;
+  margin-bottom: 3rem;
+  box-shadow: 0 20px 60px rgba(139, 129, 106, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
+}
+
+.sectionCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(194, 210, 155, 0.1) 50%, 
+    transparent 100%
+  );
+  transition: left 0.6s ease;
+}
+
+.sectionCard:hover::before {
+  left: 100%;
+}
+
+.sectionCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 80px rgba(139, 129, 106, 0.2);
+  border-color: rgba(194, 210, 155, 0.4);
+}
+
+.sectionTitle {
+  font-family: 'RhymeTH', 'Sacramento', cursive;
+  font-size: 2.5rem;
+  color: #68604c;
+  margin-bottom: 2.5rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  position: relative;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sectionTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #c2d29b 50%, transparent 100%);
+}
+
+/* Sección Fechas y Turnos */
+.fechasSection {
+  margin-bottom: 4rem;
+}
+
+.fechasGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.fechaGrupo {
+  background: linear-gradient(135deg, 
+    rgba(248, 239, 220, 0.8) 0%, 
+    rgba(245, 235, 216, 0.9) 100%
+  );
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border: 2px solid rgba(194, 210, 155, 0.3);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
+}
+
+.fechaGrupo::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(194, 210, 155, 0.1) 90deg, transparent 180deg);
+  animation: rotate 8s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.fechaGrupo:hover::before {
+  opacity: 1;
+}
+
+.fechaGrupo:hover {
+  border-color: #c2d29b;
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(194, 210, 155, 0.3);
+}
+
+.fechaItem {
+  font-size: 1.2rem;
+  color: #68604c;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  position: relative;
+  z-index: 1;
+  letter-spacing: 0.3px;
+}
+
+.fechaItem:last-child {
+  margin-bottom: 0;
+}
+
+.separadorDecorativo {
+  display: flex;
+  justify-content: center;
+  margin: 3rem 0;
+  position: relative;
+}
+
+.separadorDecorativo::before,
+.separadorDecorativo::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #c2d29b 50%, transparent 100%);
+}
+
+.separadorDecorativo::before {
+  left: -60px;
+}
+
+.separadorDecorativo::after {
+  right: -60px;
+}
+
+.turnosGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.turnoCard {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.95) 0%, 
+    rgba(248, 239, 220, 0.9) 100%
+  );
+  backdrop-filter: blur(20px);
+  color: #68604c;
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(139, 129, 106, 0.15);
+  border: 2px solid rgba(194, 210, 155, 0.3);
+}
+
+.turnoCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #c2d29b 0%, #a8b87a 50%, #c2d29b 100%);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.turnoCard::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(194, 210, 155, 0.1) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  transition: all 0.4s ease;
+}
+
+.turnoCard:hover::before {
+  transform: scaleX(1);
+}
+
+.turnoCard:hover::after {
+  width: 200px;
+  height: 200px;
+}
+
+.turnoCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(139, 129, 106, 0.25);
+  border-color: rgba(194, 210, 155, 0.6);
+}
+
+.turnoHora {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  color: #68604c;
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(135deg, #68604c 0%, #8b816a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.turnoLabel {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: #a8b87a;
+  position: relative;
+  z-index: 2;
+}
+
+.reservarBtnWrapper {
+  text-align: center;
+  margin-top: 2.5rem;
+}
+
+.reservarBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, #c2d29b 0%, #a8b87a 50%, #8b816a 100%);
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 650;
+  padding: 1rem 2.5rem;
+  border: none;
+  border-radius: 55px;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(194, 210, 155, 0.4);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.reservarBtn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+  transition: left 0.6s ease;
+}
+
+.reservarBtn:hover::before {
+  left: 100%;
+}
+
+.reservarBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 35px rgba(194, 210, 155, 0.6);
+  background: linear-gradient(135deg, #a8b87a 0%, #8b816a 50%, #68604c 100%);
+}
+
+/* Sección Cómo Reservar */
+.pasosList {
+  display: grid;
+  gap: 2rem;
+}
+
+.pasoItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, 
+    rgba(194, 210, 155, 0.08) 0%, 
+    rgba(248, 239, 220, 0.5) 50%,
+    rgba(255, 255, 255, 0.7) 100%
+  );
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+  border-left: 5px solid #c2d29b;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.pasoItem::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #c2d29b 0%, transparent 100%);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.pasoItem:hover::before {
+  transform: scaleX(1);
+}
+
+.pasoItem:hover {
+  transform: translateX(8px);
+  box-shadow: 0 10px 30px rgba(194, 210, 155, 0.2);
+}
+
+.pasoNumero {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #c2d29b 0%, #a8b87a 100%);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 15px rgba(194, 210, 155, 0.4);
+  transition: all 0.3s ease;
+}
+
+.pasoItem:hover .pasoNumero {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(194, 210, 155, 0.6);
+}
+
+.pasoTexto {
+  font-size: 1.1rem;
+  color: #68604c;
+  line-height: 1.7;
+  letter-spacing: 0.3px;
+}
+
+.ninosInfo {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-top: 2.5rem;
+  padding: 1.5rem;
+  background: rgba(204, 187, 148, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  font-style: italic;
+  color: #68604c;
+  border-left: 4px solid #ccbb94;
+  font-size: 1.05rem;
+}
+
+/* Sección Qué Incluye - Rediseñada */
+.categoriasGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2.5rem;
+}
+
+.categoriaCard {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.9) 0%, 
+    rgba(248, 239, 220, 0.8) 50%,
+    rgba(255, 255, 255, 0.9) 100%
+  );
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 2.5rem;
+  border: 2px solid rgba(194, 210, 155, 0.2);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
+}
+
+.categoriaCard:nth-child(1) {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.9) 0%, 
+    rgba(248, 239, 220, 0.8) 50%,
+    rgba(255, 255, 255, 0.9) 100%
+  ),
+  url('/cafe14.JPG');
+  background-size: cover;
+  background-position: center;
+}
+
+.categoriaCard:nth-child(2) {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.9) 0%, 
+    rgba(248, 239, 220, 0.8) 50%,
+    rgba(255, 255, 255, 0.9) 100%
+  ),
+  url('/cafe13.JPG');
+  background-size: cover;
+  background-position: center;
+}
+
+.categoriaCard:nth-child(3) {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.9) 0%, 
+    rgba(248, 239, 220, 0.8) 50%,
+    rgba(255, 255, 255, 0.9) 100%
+  ),
+  url('/tardeste2.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.categoriaCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #c2d29b 0%, #a8b87a 50%, #c2d29b 100%);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.categoriaCard:hover::before {
+  transform: scaleX(1);
+}
+
+.categoriaCard:hover {
+  border-color: rgba(194, 210, 155, 0.5);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 50px rgba(194, 210, 155, 0.2);
+}
+
+.categoriaHeader {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 2px solid rgba(194, 210, 155, 0.3);
+  position: relative;
+}
+
+.categoriaHeader::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 30%;
+  height: 2px;
+  background: linear-gradient(90deg, #c2d29b 0%, transparent 100%);
+}
+
+.categoriaHeader h3 {
+  font-family: 'Canter', 'Quicksand', sans-serif;
+  font-size: 1.5rem;
+  color: #68604c;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.5px;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+  position: relative;
+  z-index: 2;
+}
+
+.categoriaList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.categoriaList li {
+  padding: 0.8rem 0;
+  color: #68604c;
+  border-bottom: 1px solid rgba(194, 210, 155, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  padding-left: 1.5rem;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7);
+  z-index: 2;
+}
+
+.categoriaList li:last-child {
+  border-bottom: none;
+}
+
+.categoriaList li:hover {
+  padding-left: 2rem;
+}
+
+.categoriaList li::before {
+  content: "✦";
+  color: #c2d29b;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+  transition: all 0.3s ease;
+}
+
+.categoriaList li:hover::before {
+  transform: scale(1.2);
+}
+
+/* Información Importante */
+.infoCard {
+  background: linear-gradient(135deg, 
+    rgba(204, 187, 148, 0.08) 0%, 
+    rgba(248, 239, 220, 0.4) 50%,
+    rgba(255, 255, 255, 0.6) 100%
+  ) !important;
+  border-color: rgba(204, 187, 148, 0.3) !important;
+}
+
+.infoGrid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.infoItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.infoItem:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-left-color: #ccbb94;
+  transform: translateX(5px);
+}
+
+.infoItem span {
+  color: #68604c;
+  line-height: 1.6;
+  font-size: 1.05rem;
+}
+
+.restriccionesInfo {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-top: 2.5rem;
+  padding: 1.5rem;
+  background: rgba(204, 187, 148, 0.25);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  font-style: italic;
+  color: #68604c;
+  border-left: 4px solid #ccbb94;
+  font-size: 1.05rem;
+}
+
+/* Animaciones */
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes iconFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(2deg);
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero {
+    height: 50vh;
+    min-height: 400px;
+    background-attachment: scroll;
+  }
+  
+  .heroTitle {
+    font-size: 3rem;
+  }
+  
+  .heroSubtitle {
+    font-size: 1.2rem;
+  }
+  
+  .heroPrice {
+    font-size: 1.8rem;
+  }
+  
+  .container {
+    margin-top: -2rem;
+    padding: 0 1rem 2rem;
+  }
+  
+  .sectionCard {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.8rem;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1.8rem;
+  }
+  
+  .fechasGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .fechaGrupo {
+    padding: 1.2rem 1rem;
+  }
+  
+  .fechaItem {
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  .separadorDecorativo {
+    margin: 1.5rem 0;
+  }
+  
+  .turnosGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .turnoCard {
+    padding: 1.5rem 1.2rem;
+  }
+  
+  .turnoHora {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .turnoLabel {
+    font-size: 0.85rem;
+  }
+  
+  .categoriasGrid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .categoriaCard {
+    padding: 1.5rem;
+  }
+  
+  .pasoItem {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+    padding: 1.2rem 1rem;
+  }
+  
+  .pasoNumero {
+    align-self: center;
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+  
+  .pasoTexto {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  
+  .ninosInfo {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .infoItem {
+    padding: 1rem;
+    gap: 0.8rem;
+  }
+  
+  .infoItem span {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  
+  .restriccionesInfo {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .reservarBtn {
+    font-size: 1rem;
+    padding: 0.9rem 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroTitle {
+    font-size: 2.5rem;
+  }
+  
+  .heroSubtitle {
+    font-size: 1rem;
+  }
+  
+  .heroPrice {
+    font-size: 1.5rem;
+  }
+  
+  .sectionCard {
+    padding: 1rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .fechaGrupo {
+    padding: 1rem 0.8rem;
+  }
+  
+  .fechaItem {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  .turnoCard {
+    padding: 1.2rem 1rem;
+  }
+  
+  .turnoHora {
+    font-size: 1.1rem;
+  }
+  
+  .turnoLabel {
+    font-size: 0.8rem;
+  }
+  
+  .pasoItem {
+    padding: 1rem 0.8rem;
+    gap: 0.8rem;
+  }
+  
+  .pasoNumero {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+  
+  .pasoTexto {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  
+  .ninosInfo {
+    padding: 0.8rem;
+    font-size: 0.85rem;
+  }
+  
+  .infoItem {
+    padding: 0.8rem;
+    gap: 0.6rem;
+  }
+  
+  .infoItem span {
+    font-size: 0.85rem;
+    line-height: 1.3;
+  }
+  
+  .restriccionesInfo {
+    margin-top: 1.2rem;
+    padding: 0.8rem;
+    font-size: 0.85rem;
+  }
+  
+  .reservarBtn {
+    font-size: 0.9rem;
+    padding: 0.8rem 1.8rem;
+  }
+  
+  .categoriaHeader {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.8rem;
+  }
+} 

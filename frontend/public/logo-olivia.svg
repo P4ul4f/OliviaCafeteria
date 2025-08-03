@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Fondo circular -->
+  <circle cx="100" cy="100" r="95" fill="#f8efdc" stroke="#c1d29b" stroke-width="2"/>
+  
+  <!-- Círculo interior -->
+  <circle cx="100" cy="100" r="75" fill="#c1d29b" opacity="0.8"/>
+  
+  <!-- Letra O estilizada -->
+  <path d="M70 60 Q60 60 60 80 Q60 100 70 120 Q80 130 100 130 Q120 130 130 120 Q140 100 140 80 Q140 60 130 60 Q120 50 100 50 Q80 50 70 60 Z" 
+        fill="#8b816a" stroke="#8b816a" stroke-width="2"/>
+  
+  <!-- Interior de la O -->
+  <circle cx="100" cy="100" r="25" fill="#f8efdc"/>
+  
+  <!-- Detalles decorativos -->
+  <circle cx="85" cy="85" r="3" fill="#c1d29b"/>
+  <circle cx="115" cy="85" r="3" fill="#c1d29b"/>
+  <circle cx="100" cy="115" r="3" fill="#c1d29b"/>
+  
+  <!-- Líneas decorativas -->
+  <line x1="75" y1="75" x2="85" y2="85" stroke="#8b816a" stroke-width="1.5"/>
+  <line x1="125" y1="75" x2="115" y2="85" stroke="#8b816a" stroke-width="1.5"/>
+  <line x1="100" y1="125" x2="100" y2="115" stroke="#8b816a" stroke-width="1.5"/>
+</svg> 

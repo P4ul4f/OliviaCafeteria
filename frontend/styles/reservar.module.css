@@ -1,0 +1,927 @@
+.bgBeige {
+  background-color: #f8efdc;
+  min-height: 100vh;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.headerDecor {
+  height: 4px;
+  background: linear-gradient(90deg, #c2d29b 0%, #8b816a 50%, #ffd6cd 100%);
+  margin-bottom: 2rem;
+  border-radius: 2px;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.tituloPrincipal {
+  font-family: 'Parisienne', cursive;
+  font-size: 3.5rem;
+  color: #8b816a;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.promoOliviaWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1.5rem 0;
+  gap: 1rem;
+}
+
+.promoLinea {
+  width: 80px;
+  height: 2px;
+  background-color: #8b816a;
+}
+
+.promoCorazon {
+  color: #8b816a;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #8b816a;
+  margin-bottom: 2.5rem;
+  font-weight: 500;
+}
+
+.formularioContainer {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  padding: 1.5rem 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  border-top: 1rem solid #c2d29b;
+}
+
+.formularioTitulo {
+  font-family: 'Parisienne', cursive;
+  font-size: 2.5rem;
+  color: #8b816a;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  font-weight: 600;
+  color: #8b816a;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid #ccbb94;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Montserrat', sans-serif;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  color: #8b816a !important;
+  background-color: #fefefe !important;
+  background: #fefefe !important;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #c2d29b;
+  box-shadow: 0 0 0 3px rgba(194, 210, 155, 0.1);
+  color: #8b816a !important;
+  background-color: #fefefe !important;
+  background: #fefefe !important;
+}
+
+.input:hover {
+  border-color: #c2d29b;
+  background-color: #fefefe !important;
+  background: #fefefe !important;
+}
+
+.input:active {
+  background-color: #fefefe !important;
+  background: #fefefe !important;
+  color: #8b816a !important;
+}
+
+.input:valid {
+  background-color: #fefefe !important;
+  background: #fefefe !important;
+  color: #8b816a !important;
+}
+
+.input::placeholder {
+  color: #999 !important;
+}
+
+/* Eliminar el autofill azul del navegador */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus,
+.input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #fefefe inset !important;
+  -webkit-text-fill-color: #8b816a !important;
+  background-color: #fefefe !important;
+  background: #fefefe !important;
+}
+
+.input:-moz-autofill {
+  background-color: #fefefe !important;
+  background: #fefefe !important;
+  color: #8b816a !important;
+}
+
+.select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid #ccbb94;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Montserrat', sans-serif;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  appearance: none; /* Remove default browser styling */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%238b816a' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  background-size: 12px;
+  padding-right: 2.5rem; /* Make space for the arrow */
+  box-sizing: border-box;
+}
+
+.select:hover {
+  border-color: #c2d29b;
+  background-color: #fefefe;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(194, 210, 155, 0.15);
+}
+
+.select:focus {
+  outline: none;
+  border-color: #c2d29b;
+  box-shadow: 0 0 0 3px rgba(194, 210, 155, 0.1);
+  background-color: #fefefe;
+}
+
+.select:active {
+  transform: translateY(0);
+}
+
+/* Style for select options */
+.select option {
+  padding: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+  background-color: #fff;
+  color: #8b816a;
+}
+
+.select option:hover {
+  background-color: #f8efdc;
+}
+
+.select option:checked {
+  background-color: #c2d29b;
+  color: #fff;
+}
+
+/* Enhanced styling for the quantity select specifically */
+.cantidadSelect {
+  background-image: url("/grupo.png"), url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b816a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6,9 12,15 18,9'></polyline></svg>");
+  background-repeat: no-repeat, no-repeat;
+  background-position: right 2.5rem center, right 0.8rem center;
+  background-size: 16px, 12px;
+  font-weight: 500;
+  background-color: #fefefe;
+  border: 2px solid #ccbb94;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  padding-right: 4rem;
+}
+
+.cantidadSelect:hover {
+  border-color: #c2d29b;
+  background-color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(194, 210, 155, 0.2);
+}
+
+.cantidadSelect:focus {
+  border-color: #c2d29b;
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(194, 210, 155, 0.15), 0 2px 8px rgba(194, 210, 155, 0.1);
+  transform: translateY(-1px);
+}
+
+.cantidadSelect:active {
+  transform: translateY(0);
+  box-shadow: 0 0 0 2px rgba(194, 210, 155, 0.2);
+}
+
+/* Add a subtle glow effect */
+.cantidadSelect[value=""]:not(:focus) {
+  background-color: #f9f6f0;
+  border-color: #d4c5a0;
+}
+
+/* Style for when an option is selected */
+.cantidadSelect:not([value=""]) {
+  background-color: #fff;
+  border-color: #c2d29b;
+  color: #8b816a;
+  font-weight: 600;
+}
+
+.datePickerContainer {
+  position: relative;
+}
+
+.turnosContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.turnoButton {
+  padding: 0.8rem;
+  border: 2px solid #ccbb94;
+  border-radius: 8px;
+  background-color: #fefefe;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  color: #8b816a;
+  font-weight: 500;
+}
+
+.turnoButton:hover {
+  border-color: #c2d29b;
+  background-color: #f8efdc;
+  color: #8b816a;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(194, 210, 155, 0.15);
+}
+
+.turnoButtonActive {
+  border-color: #c2d29b;
+  background-color: #c2d29b;
+  color: #fff;
+  font-weight: 600;
+}
+
+.horariosContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.horarioButton {
+  padding: 0.6rem;
+  border: 2px solid #ccbb94;
+  border-radius: 8px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  color: #8b816a;
+}
+
+.horarioButton:hover {
+  border-color: #c2d29b;
+  background-color: rgba(194, 210, 155, 0.05);
+}
+
+.horarioButtonActive {
+  border-color: #c2d29b;
+  background-color: #c2d29b;
+  color: #fff;
+}
+
+.noHorarios {
+  background-color: rgba(255, 152, 0, 0.1);
+  border: 1px solid #ff9800;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  color: #f57c00;
+}
+
+.noHorarios p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.seleccionaFecha {
+  color: #8b816a;
+  font-style: italic;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.infoRestricciones {
+  background-color: #f8efdc;
+  border: 1px solid #ccbb94;
+  border-radius: 6px;
+  padding: 0.8rem;
+  margin-top: 1rem;
+  margin-bottom: 0.8rem;
+  color: #8b816a !important;
+  font-size: 0.9rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.infoRestricciones p {
+  margin: 0;
+  color: #8b816a !important;
+  line-height: 1.4;
+}
+
+.fechasDisponibles {
+  background-color: #f8efdc;
+  border: none;
+  border-radius: 15px;
+  padding: 0.1rem 1rem 1.5rem 1rem;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.fechasDisponibles h3 {
+  font-family: 'Parisienne', cursive;
+  color: #8b816a;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  font-weight: normal;
+}
+
+.fechasDecorador {
+  width: 80px;
+  height: 2px;
+  background-color: #8b816a;
+  margin: 0.5rem auto;
+  border-radius: 1px;
+}
+
+.fechasList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.fechasGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.fechaItem {
+  color: #8b816a;
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+  margin: 0.25rem;
+  display: inline-block;
+  min-width: 120px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.fechaItem:hover {
+  /* Sin efectos hover para texto simple */
+}
+
+.fechaItemContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.fechaNoDisponible {
+  color: #999 !important;
+  opacity: 0.6;
+}
+
+.fechaNoDisponible:hover {
+  /* Sin efectos hover para texto simple */
+}
+
+.cuposInfo {
+  font-size: 0.75rem;
+  color: #8b816a;
+  font-weight: 500;
+  background: rgba(194, 210, 155, 0.2);
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  margin-top: 0.25rem;
+}
+
+.cuposAgotados {
+  font-size: 0.75rem;
+  color: #d32f2f;
+  font-weight: 500;
+  background: rgba(211, 47, 47, 0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  margin-top: 0.25rem;
+}
+
+.optionDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+  color: #999;
+}
+
+.optionDisabled:hover {
+  background-color: #f5f5f5;
+  color: #999;
+}
+
+.fechaSeparator {
+  width: 50px;
+  height: 2px;
+  background-color: #8b816a;
+  margin: 0.3rem 0;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 1rem 2.5rem;
+  background: linear-gradient(135deg, #c2d29b 0%, #a8b87a 50%, #8b816a 100%);
+  color: #fff;
+  border: none;
+  border-radius: 55px;
+  font-size: 1.15rem;
+  font-weight: 650;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  box-shadow: 0 6px 20px rgba(194, 210, 155, 0.4);
+  margin-top: 1rem;
+}
+
+.submitButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 35px rgba(194, 210, 155, 0.6);
+  background: linear-gradient(135deg, #a8b87a 0%, #8b816a 50%, #68604c 100%);
+}
+
+.submitButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.infoReserva {
+  background-color: rgba(194, 210, 155, 0.1);
+  border: 1px solid #c2d29b;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+}
+
+.infoReserva h3 {
+  color: #8b816a;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.infoReserva p {
+  color: #8b816a;
+  font-size: 0.9rem;
+  margin: 0.3rem 0;
+}
+
+.error {
+  color: #d32f2f;
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+.success {
+  color: #2e7d32;
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+/* Estilos para react-datepicker */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker__input-container {
+  width: 100%;
+}
+
+.react-datepicker {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.react-datepicker__header {
+  background-color: #c2d29b;
+}
+
+.react-datepicker__current-month {
+  color: #fff;
+}
+
+.react-datepicker__day-name {
+  color: #fff;
+}
+
+.react-datepicker__day {
+  color: #8b816a;
+}
+
+.react-datepicker__day:hover {
+  background-color: rgba(194, 210, 155, 0.2);
+}
+
+.react-datepicker__day--selected {
+  background-color: #c2d29b;
+  color: #fff;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background-color: #c2d29b;
+  color: #fff;
+}
+
+.react-datepicker__navigation {
+  color: #fff;
+}
+
+.react-datepicker__navigation:hover {
+  color: #fff;
+}
+
+/* Custom Select Dropdown */
+.customSelectWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.customSelect {
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid #ccbb94;
+  border-radius: 8px;
+  background-color: #fefefe;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+}
+
+.customSelect:hover {
+  border-color: #c2d29b;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(194, 210, 155, 0.15);
+}
+
+.customSelectSelected {
+  border-color: #ccbb94;
+  color: #8b816a;
+}
+
+.customSelectValue {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex: 1;
+}
+
+.selectIconLeft {
+  width: 16px;
+  height: 16px;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+.selectIconEmoji {
+  font-size: 16px;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+  display: inline-block;
+  width: 16px;
+  text-align: center;
+}
+
+.customSelect:hover .selectIconLeft,
+.customSelect:hover .selectIconEmoji {
+  opacity: 1;
+}
+
+.customSelectArrow {
+  color: #8b816a;
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.customSelectDropdown.show ~ .customSelect .customSelectArrow,
+.customSelectWrapper:has(.customSelectDropdown.show) .customSelectArrow {
+  transform: rotate(180deg);
+}
+
+.customSelectDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border: 2px solid #ccbb94;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+  box-shadow: 0 4px 12px rgba(194, 210, 155, 0.2);
+}
+
+.customSelectDropdown.show {
+  display: block;
+}
+
+.customSelectOption {
+  padding: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  color: #8b816a;
+}
+
+.customSelectOption:hover {
+  background-color: #f8efdc;
+}
+
+.customSelectOption:active {
+  background-color: #c2d29b;
+  color: #fff;
+}
+
+/* Scrollbar personalizado para el dropdown */
+.customSelectDropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.customSelectDropdown::-webkit-scrollbar-track {
+  background: #f8efdc;
+}
+
+.customSelectDropdown::-webkit-scrollbar-thumb {
+  background: #ccbb94;
+  border-radius: 3px;
+}
+
+.customSelectDropdown::-webkit-scrollbar-thumb:hover {
+  background: #c2d29b;
+}
+
+/* Personalización del calendario desplegable */
+.datePickerContainer :global(.react-datepicker) {
+  font-family: 'Montserrat', sans-serif;
+  border: 2px solid #ccbb94;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(194, 210, 155, 0.2);
+}
+
+.datePickerContainer :global(.react-datepicker__header) {
+  background-color: #c2d29b;
+  border-bottom: 1px solid #ccbb94;
+  border-radius: 6px 6px 0 0;
+}
+
+.datePickerContainer :global(.react-datepicker__current-month) {
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.datePickerContainer :global(.react-datepicker__day-name) {
+  color: #fff;
+  font-weight: 500;
+}
+
+.datePickerContainer :global(.react-datepicker__navigation) {
+  top: 10px;
+}
+
+.datePickerContainer :global(.react-datepicker__navigation--previous) {
+  border-right-color: #fff;
+}
+
+.datePickerContainer :global(.react-datepicker__navigation--next) {
+  border-left-color: #fff;
+}
+
+.datePickerContainer :global(.react-datepicker__day) {
+  color: #8b816a;
+  font-weight: 500;
+  border-radius: 4px;
+  margin: 1px;
+  transition: all 0.2s ease;
+}
+
+.datePickerContainer :global(.react-datepicker__day:hover) {
+  background-color: #f8efdc;
+  color: #8b816a;
+}
+
+.datePickerContainer :global(.react-datepicker__day--selected) {
+  background-color: #c2d29b;
+  color: #fff;
+  font-weight: 600;
+}
+
+.datePickerContainer :global(.react-datepicker__day--selected:hover) {
+  background-color: #8b816a;
+}
+
+.datePickerContainer :global(.react-datepicker__day--today) {
+  background-color: #f8efdc;
+  color: #8b816a;
+  font-weight: 600;
+}
+
+.datePickerContainer :global(.react-datepicker__day--disabled) {
+  color: #d4c5a0;
+  cursor: not-allowed;
+}
+
+.datePickerContainer :global(.react-datepicker__day--disabled:hover) {
+  background-color: transparent;
+  color: #d4c5a0;
+}
+
+.datePickerContainer :global(.react-datepicker__day--outside-month) {
+  color: #d4c5a0;
+}
+
+.datePickerContainer :global(.react-datepicker__triangle) {
+  border-bottom-color: #ccbb94;
+}
+
+.datePickerContainer :global(.react-datepicker__month-container) {
+  background-color: #fff;
+}
+
+/* Estilo para los botones de navegación de mes */
+.datePickerContainer :global(.react-datepicker__navigation:hover) {
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Estilo para el año en el header */
+.datePickerContainer :global(.react-datepicker__year-read-view--down-arrow),
+.datePickerContainer :global(.react-datepicker__month-read-view--down-arrow) {
+  border-top-color: #fff;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .formularioContainer {
+    padding: 1rem;
+  }
+
+  .tituloPrincipal {
+    font-size: 2.5rem;
+  }
+
+  .turnosContainer,
+  .horariosContainer {
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  }
+
+  .datePickerContainer :global(.react-datepicker) {
+    font-size: 0.9rem;
+  }
+  
+  .datePickerContainer :global(.react-datepicker__day) {
+    margin: 0.5px;
+  }
+} 
+
+/* Estilos personalizados para el DatePicker */
+.datePicker {
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid #ccbb94;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Montserrat', sans-serif;
+  background-color: #fefefe;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #8b816a !important;
+}
+
+.datePicker:focus {
+  outline: none;
+  border-color: #c2d29b;
+  box-shadow: 0 0 0 3px rgba(194, 210, 155, 0.1);
+  background-color: #fefefe;
+  color: #8b816a !important;
+}
+
+.datePicker:hover {
+  border-color: #c2d29b;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(194, 210, 155, 0.15);
+  background-color: #fefefe;
+}
+
+.datePicker::placeholder {
+  color: #999 !important;
+}
+
+/* Estilos para fechas disponibles */
+.availableDates {
+  background-color: #f8efdc;
+  border-radius: 12px;
+  padding: 14px;
+  margin: 20px 0;
+  border: 1px solid #ccbb94;
+}
+
+.availableDatesTitle {
+  font-family: 'Parisienne', cursive;
+  font-size: 2rem;
+  color: #8b816a;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.dateGroup {
+  margin-bottom: 6px;
+}
+
+.dateGroup:not(:last-child)::after {
+  content: '';
+  display: block;
+  width: 60%;
+  height: 1px;
+  background-color: #ccbb94;
+  margin: 6px auto;
+}
+
+/* Media queries para botón responsive */
+@media (max-width: 768px) {
+  .submitButton {
+    font-size: 1rem;
+    padding: 0.9rem 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .submitButton {
+    font-size: 0.9rem;
+    padding: 0.8rem 1.8rem;
+  }
+}
+
+.availableDateItem {
+  color: #8b816a;
+  font-weight: 500;
+  margin: 1px 0;
+  text-align: center;
+}
