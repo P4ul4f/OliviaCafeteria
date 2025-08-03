@@ -13,7 +13,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         {/* SDK de Mercado Pago para checkout transparente */}
-        <script src="https://sdk.mercadopago.com/js/v2" />
+        <script src="https://sdk.mercadopago.com/js/v2" async />
       </Head>
       
       {isAdminRoute ? (

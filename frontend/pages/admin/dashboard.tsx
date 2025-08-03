@@ -37,7 +37,7 @@ function ChangePasswordModal({ open, onClose, onSuccess, admin }: any) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
     setIsSubmitting(true);
@@ -423,16 +423,16 @@ function InfoSection() {
           const h = config.horarios?.[dia] || {};
           let manana = '';
           let noche = '';
-          // Si viene un solo string con coma, dividirlo
-          if (typeof h.horario === 'string') {
-            const partes = h.horario.split(',').map(s => s.trim());
+          // Si viene un solo string con coma, dividirlo (compatibilidad con formato anterior)
+          if (typeof (h as any).horario === 'string') {
+            const partes = (h as any).horario.split(',').map((s: string) => s.trim());
             manana = partes[0] || '';
             noche = partes[1] || '';
           }
           acc[dia] = {
-            abierto: h.abierto ?? false,
-            manana: typeof h.manana === 'string' ? h.manana : manana,
-            noche: typeof h.noche === 'string' ? h.noche : noche
+            abierto: (h as any).abierto ?? false,
+            manana: typeof (h as any).manana === 'string' ? (h as any).manana : manana,
+            noche: typeof (h as any).noche === 'string' ? (h as any).noche : noche
           };
           return acc;
         }, {} as Horarios);

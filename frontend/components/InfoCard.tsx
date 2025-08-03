@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styles from './InfoCard.module.css';
-import { FaFacebookF, FaInstagram, FaWhatsapp } from 'react-icons/fa';
+import { FaInstagram, FaWhatsapp } from 'react-icons/fa';
 import { apiService } from '../services/api';
 import type { SiteConfig } from '../services/api';
 
@@ -12,11 +12,11 @@ const InfoCard = () => {
   }, []);
 
   // Agrupar horarios de lunes a sábado
-  let horariosManana: string[] = [];
-  let horariosNoche: string[] = [];
+  const horariosManana: string[] = [];
+  const horariosNoche: string[] = [];
   let domingo = null;
   if (config) {
-    const dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+    const dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'] as const;
     dias.forEach(dia => {
       const h = config.horarios[dia];
       if (h?.abierto) {

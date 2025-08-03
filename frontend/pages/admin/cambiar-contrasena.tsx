@@ -4,7 +4,7 @@ import { useAuth, withAuth } from '../../contexts/AuthContext';
 import styles from '../../styles/admin.module.css';
 
 function CambiarContrasena() {
-  const { admin } = useAuth();
+  // const { admin } = useAuth(); // Variable no utilizada
   const router = useRouter();
   const [formData, setFormData] = useState({
     contrasenaActual: '',
@@ -111,6 +111,7 @@ function CambiarContrasena() {
         }
       }
     } catch (error) {
+      // console.log('Error:', error); // Variable no utilizada
       setErrors({ submit: 'Error de conexión. Verifica que el servidor esté ejecutándose.' });
     } finally {
       setIsSubmitting(false);

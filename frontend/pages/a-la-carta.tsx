@@ -49,18 +49,19 @@ function IconoInfo() {
   );
 }
 
-function SeparadorDecorativo() {
-  return (
-    <div className={styles.separadorDecorativo}>
-      <svg width="120" height="20" viewBox="0 0 120 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10 10H110" stroke="#c2d29b" strokeWidth="2" strokeLinecap="round"/>
-        <circle cx="60" cy="10" r="4" fill="#c2d29b"/>
-        <circle cx="40" cy="10" r="2" fill="#c2d29b" fillOpacity="0.6"/>
-        <circle cx="80" cy="10" r="2" fill="#c2d29b" fillOpacity="0.6"/>
-      </svg>
-    </div>
-  );
-}
+// Componente separador decorativo (no utilizado actualmente)
+// function SeparadorDecorativo() {
+//   return (
+//     <div className={styles.separadorDecorativo}>
+//       <svg width="120" height="20" viewBox="0 0 120 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+//         <path d="M10 10H110" stroke="#c2d29b" strokeWidth="2" strokeLinecap="round"/>
+//         <circle cx="60" cy="10" r="4" fill="#c2d29b"/>
+//         <circle cx="40" cy="10" r="2" fill="#c2d29b" fillOpacity="0.6"/>
+//         <circle cx="80" cy="10" r="2" fill="#c2d29b" fillOpacity="0.6"/>
+//       </svg>
+//     </div>
+//   );
+// }
 
 const comoReservarItems = [
   "Nombre completo",
@@ -153,7 +154,7 @@ export default function ALaCarta() {
               </div>
               <div className={styles.infoItem}>
                 <IconoInfo />
-                <span>Puedes ver nuestra carta completa haciendo clic en "Carta" en el menú principal.</span>
+                <span>Puedes ver nuestra carta completa haciendo clic en &quot;Carta&quot; en el menú principal.</span>
               </div>
               <div className={styles.infoItem}>
                 <IconoInfo />

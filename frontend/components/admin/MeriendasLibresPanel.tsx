@@ -502,7 +502,7 @@ export default function MeriendasLibresPanel() {
                   <div className={reservarStyles.datePickerContainer}>
                     <DatePicker
                       selected={f.fecha ? new Date(f.fecha) : null}
-                      onChange={(date) => handleFechaEdit(f.id, date || new Date())}
+                      onChange={(date: Date | null) => handleFechaEdit(f.id, date || new Date())}
                       className={reservarStyles.datePicker}
                       placeholderText="Seleccionar fecha"
                       dateFormat="yyyy-MM-dd"
@@ -570,7 +570,7 @@ export default function MeriendasLibresPanel() {
                   <div className={reservarStyles.datePickerContainer}>
                     <DatePicker
                       selected={nuevaFecha.fecha ? new Date(nuevaFecha.fecha) : null}
-                      onChange={(date) => handleNuevaFechaChange('fecha', date || new Date())}
+                      onChange={(date: Date | null) => handleNuevaFechaChange('fecha', date || new Date())}
                       className={reservarStyles.datePicker}
                       placeholderText="Seleccionar fecha"
                       dateFormat="yyyy-MM-dd"
