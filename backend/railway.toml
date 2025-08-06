@@ -1,3 +1,6 @@
+# Railway configuration for Olivia Backend
+# URGENT: Force Railway to detect changes
+
 [build]
 builder = "dockerfile"
 
