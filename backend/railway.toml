@@ -1,5 +1,6 @@
 [build]
 builder = "dockerfile"
+buildCommand = "docker build -t olivia-backend ."
 
 [deploy]
 startCommand = "npm run start:railway"
