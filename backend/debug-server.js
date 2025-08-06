@@ -3,6 +3,7 @@ const express = require('express');
 console.log('🚀 Starting debug server...');
 console.log('📊 Environment:', process.env.NODE_ENV);
 console.log('🔧 Port:', process.env.PORT);
+console.log('🔥 URGENT: Debug server for Railway deployment');
 
 const app = express();
 
