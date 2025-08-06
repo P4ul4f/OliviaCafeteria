@@ -1,6 +1,7 @@
 # Railway configuration for Olivia Backend
 # URGENT: Force Railway to detect changes
 # Last update: 2025-01-08 18:30
+# CRITICAL: Railway must use this start command
 
 [build]
 builder = "dockerfile"
