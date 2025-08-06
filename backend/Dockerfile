@@ -2,20 +2,20 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copiar package.json y package-lock.json
+# Copy package files
 COPY package*.json ./
 
-# Instalar dependencias
+# Install dependencies
 RUN npm install
 
-# Copiar el código fuente
+# Copy source code
 COPY . .
 
-# Construir la aplicación
+# Build the app
 RUN npm run build
 
-# Exponer el puerto
+# Expose port
 EXPOSE 3001
 
-# Comando para ejecutar la aplicación
-CMD ["node", "dist/main.js"] 
+# Start the app
+CMD ["npm", "run", "start:debug"] 
