@@ -8,19 +8,32 @@ import { MenuPdf } from './menu-pdf.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Response, Request } from 'express';
 import * as fs from 'fs';
+import * as path from 'path';
 
 @Controller('menu-pdf')
 export class MenuPdfController {
   constructor(
     @InjectRepository(MenuPdf)
     private menuPdfRepo: Repository<MenuPdf>,
-  ) {}
+  ) {
+    // Crear directorio uploads si no existe
+    const uploadsDir = path.join(process.cwd(), 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+  }
 
   @UseGuards(JwtAuthGuard)
   @Post('upload')
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
-      destination: './uploads',
+      destination: (req, file, cb) => {
+        const uploadsDir = path.join(process.cwd(), 'uploads');
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+        cb(null, uploadsDir);
+      },
       filename: (req, file, cb) => {
         const ext = extname(file.originalname);
         cb(null, `carta-olivia${ext}`);
@@ -65,7 +78,7 @@ export class MenuPdfController {
     if (!pdf) {
       return res.status(404).json({ message: 'No hay carta PDF disponible' });
     }
-    const filePath = `.${pdf.rutaArchivo}`;
+    const filePath = path.join(process.cwd(), pdf.rutaArchivo);
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ message: 'Archivo no encontrado' });
     }
