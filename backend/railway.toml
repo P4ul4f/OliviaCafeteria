@@ -9,6 +9,6 @@
 builder = "dockerfile"
 
 [deploy]
-startCommand = "npm run start:railway"
+startCommand = "npm run start:with-migrations"
 healthcheckPath = "/health"
 healthcheckTimeout = 300 
