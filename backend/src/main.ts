@@ -7,6 +7,10 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 async function bootstrap() {
   try {
+    console.log('🚀 Starting Olivia Backend...');
+    console.log('📊 Environment:', process.env.NODE_ENV || 'development');
+    console.log('🔧 Port from env:', process.env.PORT);
+    
     const app = await NestFactory.create(AppModule);
     
     // Configurar CORS
@@ -39,10 +43,13 @@ async function bootstrap() {
     app.useGlobalInterceptors(new LoggingInterceptor());
 
     const port = process.env.PORT || 3001;
-    await app.listen(port);
-    console.log(`🚀 Backend running on port ${port}`);
-    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log('🎯 Attempting to listen on port:', port);
+    
+    await app.listen(port, '0.0.0.0'); // Escuchar en todas las interfaces
+    
+    console.log(`✅ Backend running on port ${port}`);
     console.log(`🌐 CORS origins: ${app.getHttpAdapter().getInstance()._origins}`);
+    console.log(`🔗 Healthcheck URL: http://0.0.0.0:${port}/`);
   } catch (error) {
     console.error('❌ Failed to start application:', error);
     process.exit(1);
