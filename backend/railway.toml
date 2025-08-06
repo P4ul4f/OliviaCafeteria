@@ -4,6 +4,4 @@ builder = "dockerfile"
 [deploy]
 startCommand = "npm run start:debug"
 healthcheckPath = "/health"
-healthcheckTimeout = 300
-restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 10 
+healthcheckTimeout = 300 
