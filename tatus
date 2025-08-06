@@ -1,0 +1,20 @@
+[33me54af3d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m TEST: Verify if Railway detects automatic deploys
+[33mfb17bc6[m ACTIVATE: Add autoDeploy=true and railway.json to enable automatic deploys
+[33m18b66a2[m FORCE: Remove .nixpacks and force Dockerfile usage
+[33meade87d[m FIX: Remove duplicate start:debug script that was causing conflicts
+[33m60f1ca8[m FIX: Remove Procfile that was interfering with Railway deploys
+[33m8fd9468[m FIX: Restore simple start command to fix automatic deploys
+[33mfb043da[m FIX: Clean railway.toml to restore automatic deploys
+[33m7c72d7f[m FIX: Remove problematic file outside backend directory
+[33ma53696d[m FORCE: Update Dockerfile CMD to trigger Railway deploy
+[33m06f518a[m FASE 2: Add database migrations to Railway deployment
+[33m7e88e79[m FIX: Remove Nixpacks and force Dockerfile usage
+[33mbb93e4a[m WEBHOOK: Add webhook trigger script to force Railway detection
+[33mbdf47a8[m URGENT: Add deployment status README to force Railway detection
+[33mec8c5f8[m fix
+[33m46ae65e[m fix manual deploy
+[33ma826223[m MAJOR: Add new railway script and update all configs
+[33m327578d[m FORCE: Add timestamp to trigger Railway deploy
+[33md8ff26b[m URGENT: Force Railway to detect new commits
+[33md894dbb[m FIX: Simplify Dockerfile and railway.toml for Railway deployment
+[33m2f8b43f[m MANUAL: Add manual deploy script

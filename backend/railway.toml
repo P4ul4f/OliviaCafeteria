@@ -1,9 +1,7 @@
 [build]
 builder = "dockerfile"
-buildCommand = "docker build -t olivia-backend ."
 
 [deploy]
 startCommand = "npm run start:railway"
 healthcheckPath = "/health"
-healthcheckTimeout = 300
-autoDeploy = true 
+healthcheckTimeout = 300 
