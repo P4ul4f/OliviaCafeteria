@@ -19,7 +19,6 @@
     "start:hybrid": "node hybrid-server.js",
     "start:nestjs-like": "node express-with-nestjs.js",
     "start:with-db": "node express-with-db.js",
-    "start:debug": "node debug-server.js",
     "start:manual": "echo 'MANUAL DEPLOY TRIGGER' && node debug-server.js",
     "start:railway": "echo '🚀 RAILWAY DEPLOYMENT TRIGGER' && node debug-server.js",
     "start:with-migrations": "npm run migration:run && npm run start:railway",
