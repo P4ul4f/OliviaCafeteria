@@ -3,6 +3,7 @@
 # Last update: 2025-01-08 18:30
 # CRITICAL: Railway must use this start command
 # DEPLOY MANUAL REQUIRED - Railway not detecting commits after 65a3cc5
+# FORCE DOCKERFILE - Remove Nixpacks configuration
 
 [build]
 builder = "dockerfile"
