@@ -10,6 +10,15 @@ const dbConfig = {
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 };
 
+// Debug: Mostrar configuración (sin password)
+console.log('🔧 Database configuration:');
+console.log('  Host:', dbConfig.host);
+console.log('  Port:', dbConfig.port);
+console.log('  User:', dbConfig.user);
+console.log('  Database:', dbConfig.database);
+console.log('  SSL:', dbConfig.ssl ? 'enabled' : 'disabled');
+console.log('  Password set:', dbConfig.password ? 'YES' : 'NO');
+
 // Crear pool de conexiones
 const pool = new Pool(dbConfig);
 
@@ -24,6 +33,7 @@ async function testConnection() {
     return true;
   } catch (error) {
     console.error('❌ Database connection failed:', error.message);
+    console.error('❌ Error details:', error);
     return false;
   }
 }
