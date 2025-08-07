@@ -262,7 +262,34 @@ export class DatabaseInitializer {
       );
     `);
 
-    // Crear tabla gift_card
+    // Crear tabla gift_card con verificación de estructura
+    try {
+      // Verificar si la tabla gift_card existe y tiene las columnas correctas
+      const tableExists = await this.dataSource.query(`
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'gift_card';
+      `);
+      
+      if (tableExists.length > 0) {
+        // Verificar si tiene las columnas correctas
+        const hasCorrectColumns = await this.dataSource.query(`
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'gift_card' 
+          AND column_name IN ('nombreDestinatario', 'telefonoDestinatario')
+          HAVING COUNT(*) = 2;
+        `);
+        
+        if (hasCorrectColumns.length === 0) {
+          this.logger.log('🔄 Tabla gift_card existe pero no tiene las columnas correctas. Recreando...');
+          await this.dataSource.query(`DROP TABLE IF EXISTS "gift_card" CASCADE`);
+        } else {
+          this.logger.log('ℹ️  Tabla gift_card ya existe con estructura correcta');
+        }
+      }
+    } catch (error) {
+      this.logger.warn(`⚠️ Error verificando estructura de gift_card: ${error.message}`);
+    }
+    
     await this.dataSource.query(`
       CREATE TABLE IF NOT EXISTS "gift_card" (
         "id" SERIAL NOT NULL,

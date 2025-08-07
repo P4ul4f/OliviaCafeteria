@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { config } from 'dotenv';
 import { seedInitialData } from './seeds/initial-data.seed';
 import { seedContenidoConfig } from './seeds/contenido-config.seed';
+import { seedGiftCard } from './seeds/giftcard.seed';
 
 // Cargar variables de entorno
 config();
@@ -14,6 +15,7 @@ import { Reserva } from '../reserva/reserva.entity';
 import { Pago } from '../pago/pago.entity';
 import { Administrador } from '../administrador/administrador.entity';
 import { ContenidoConfig } from '../contenido-config/contenido-config.entity';
+import { GiftCard } from '../giftcard/giftcard.entity';
 
 async function runSeed() {
   // Debug: mostrar variables de entorno
@@ -40,7 +42,8 @@ async function runSeed() {
       PreciosConfig, 
       FechasConfig, 
       MenuPdf,
-      ContenidoConfig
+      ContenidoConfig,
+      GiftCard
     ],
     synchronize: false, // No crear/modificar tablas automáticamente
     logging: true,
@@ -53,6 +56,7 @@ async function runSeed() {
 
     await seedInitialData(dataSource);
     await seedContenidoConfig(dataSource);
+    await seedGiftCard(dataSource);
 
     await dataSource.destroy();
     console.log('🔌 Conexión cerrada');
