@@ -7,12 +7,15 @@ import { UpdateReservaDto } from './dto/update-reserva.dto';
 import { CheckAvailabilityDto } from './dto/check-availability.dto';
 import { CreateReservaConPagoDto } from './dto/create-reserva.dto';
 import { PreciosConfigService } from '../precios-config/precios-config.service';
+import { FechasConfig } from '../fechas-config/fechas-config.entity';
 
 @Injectable()
 export class ReservaService {
   constructor(
     @InjectRepository(Reserva)
     private reservaRepository: Repository<Reserva>,
+    @InjectRepository(FechasConfig)
+    private fechasConfigRepository: Repository<FechasConfig>,
     private preciosConfigService: PreciosConfigService,
   ) {}
 
@@ -221,16 +224,29 @@ export class ReservaService {
   }
 
   async getFechasDisponibles(tipoReserva: TipoReserva): Promise<Date[]> {
-    // Para meriendas libres, fechas específicas
+    // Para meriendas libres, obtener fechas de la base de datos
     if (tipoReserva === TipoReserva.MERIENDA_LIBRE) {
-      return [
-        new Date(2025, 7, 8), // 8 de Agosto
-        new Date(2025, 7, 9), // 9 de Agosto
-        new Date(2025, 7, 15), // 15 de Agosto
-        new Date(2025, 7, 16), // 16 de Agosto
-        new Date(2025, 7, 29), // 29 de Agosto
-        new Date(2025, 7, 30), // 30 de Agosto
-      ];
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      
+      // Obtener fechas activas y futuras de la base de datos
+      const fechasConfig = await this.fechasConfigRepository.find({
+        where: {
+          activo: true,
+          fecha: Between(hoy, new Date(hoy.getTime() + 90 * 24 * 60 * 60 * 1000)) // 90 días hacia adelante
+        },
+        order: {
+          fecha: 'ASC'
+        }
+      });
+      
+      // Convertir a objetos Date y filtrar solo fechas futuras
+      const fechasDisponibles = fechasConfig
+        .map(fechaConfig => new Date(fechaConfig.fecha))
+        .filter(fecha => fecha >= hoy)
+        .sort((a, b) => a.getTime() - b.getTime());
+      
+      return fechasDisponibles;
     }
 
     // Para a la carta y tardes de té, generar fechas disponibles (excluyendo domingos y fechas pasadas)

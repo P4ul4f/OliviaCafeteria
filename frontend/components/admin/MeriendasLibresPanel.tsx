@@ -651,10 +651,15 @@ export default function MeriendasLibresPanel() {
           </button>
           <button 
             onClick={() => {
-              console.log('Estado actual del contenido:', contenido);
-              console.log('Dulces en estado:', contenido?.dulces);
-              console.log('Salados en estado:', contenido?.salados);
-              console.log('Bebidas en estado:', contenido?.bebidas);
+              // Actualizar el estado con el nuevo contenido
+              setContenido(updatedContenido);
+              
+              // Guardar en la base de datos
+              await apiService.updateContenidoConfig('meriendas-libres', updatedContenido);
+              
+              setEditing(false);
+              setMessage('Contenido actualizado exitosamente');
+              setMessageType('success');
             }}
             style={{
               padding: '8px 16px',

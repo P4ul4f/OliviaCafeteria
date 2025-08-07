@@ -188,16 +188,11 @@ export default function Pago() {
           reservaData.tipoReserva === 'tarde-te' ? 'Tarde de Té' : 'Merienda Libre'
         } - ${reservaData.nombre}`;
         
-        console.log('🚀 Creando preferencia de Mercado Pago...');
-        console.log('📊 Datos enviados:', { reservaData, total, descripcion });
-        
         const preferencia = await apiService.crearPreferenciaPago(
           reservaData,
           total,
           descripcion
         );
-
-        console.log('✅ Preferencia creada:', preferencia);
 
         if (preferencia.init_point) {
           // Guardar datos adicionales en localStorage por si acaso
@@ -209,51 +204,22 @@ export default function Pago() {
         } else {
           throw new Error('No se pudo obtener el enlace de pago de Mercado Pago');
         }
-      } else {
-        // Procesar pago con tarjeta usando Mercado Pago Checkout Transparente
-        console.log('💳 Procesando pago con tarjeta...');
-        
-        if (!mp) {
-          console.log('🎭 SDK de Mercado Pago no disponible, usando simulación');
-          
-          // Fallback a simulación
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          const comprobantePago = `TARJETA_SIMULATED_${Date.now()}`;
-          console.log('✅ Pago simulado exitoso');
-          router.push(`/pago/success?payment_id=${comprobantePago}&status=approved`);
-          return;
-        }
-
+      } else if (formData.metodoPago === 'tarjeta') {
+        // Procesar pago con tarjeta
         try {
-          // Crear token de la tarjeta
-          const cardToken = await mp.createCardToken({
-            cardNumber: formData.numeroTarjeta?.replace(/\s/g, ''),
-            cardholderName: formData.nombreTitular,
-            cardExpirationMonth: formData.vencimiento?.split('/')[0],
-            cardExpirationYear: '20' + formData.vencimiento?.split('/')[1],
-            securityCode: formData.codigoSeguridad,
-            identificationType: 'DNI', // En Argentina se usa DNI
-            identificationNumber: '12345678', // En producción, solicitar este dato
-          });
-
-          console.log('🔐 Token de tarjeta creado:', cardToken.id);
-
-          // Preparar datos para el backend
-          const datosLarjeta = {
-            token: cardToken.id,
-            payment_method_id: cardToken.payment_method_id,
-            issuer_id: cardToken.issuer_id,
-            installments: 1, // Por ahora, solo pago en 1 cuota
-            email: 'test@example.com', // Email no requerido por el backend
-            identificationType: 'DNI',
-            identificationNumber: '12345678',
-          };
-
           const descripcion = `Reserva ${
             reservaData.tipoReserva === 'tarde-te' ? 'Tarde de Té' : 'Merienda Libre'
           } - ${reservaData.nombre}`;
 
-          console.log('🚀 Enviando pago al backend...');
+          const datosLarjeta = {
+            cardNumber: formData.numeroTarjeta?.replace(/\s/g, '') || '',
+            cardholderName: formData.nombreTitular || '',
+            expirationMonth: formData.vencimiento?.split('/')[0] || '',
+            expirationYear: '20' + (formData.vencimiento?.split('/')[1] || ''),
+            securityCode: formData.codigoSeguridad || '',
+            identificationType: 'DNI',
+            identificationNumber: '12345678',
+          };
 
           // Enviar al backend para procesar el pago
           const resultado = await apiService.pagarConTarjeta(
@@ -262,8 +228,6 @@ export default function Pago() {
             descripcion,
             datosLarjeta
           );
-
-          console.log('✅ Resultado del pago:', resultado);
 
           if (resultado.status === 'approved') {
             // Pago aprobado
@@ -279,6 +243,11 @@ export default function Pago() {
         } catch (cardError) {
           console.error('❌ Error al procesar tarjeta:', cardError);
           
+          // Limpiar localStorage cuando hay error con la tarjeta
+          localStorage.removeItem('reservaData');
+          localStorage.removeItem('mercadopago_preference_id');
+          localStorage.removeItem('mercadopago_external_reference');
+          
           // Si hay error con la tarjeta, mostrar mensaje específico
           if (cardError.message && cardError.message.includes('Invalid card number')) {
             setErrors({ numeroTarjeta: 'Número de tarjeta inválido' });
@@ -293,6 +262,11 @@ export default function Pago() {
       }
     } catch (error: any) {
       console.error('❌ Error al procesar pago:', error);
+      
+      // Limpiar localStorage cuando hay error general en el pago
+      localStorage.removeItem('reservaData');
+      localStorage.removeItem('mercadopago_preference_id');
+      localStorage.removeItem('mercadopago_external_reference');
       
       let errorMessage = 'Error al procesar el pago. Inténtalo de nuevo.';
       

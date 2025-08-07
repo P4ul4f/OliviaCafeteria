@@ -201,23 +201,17 @@ export default function GiftCard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCreateGiftCard = (formData: any) => {
-    console.log('Datos de la gift card:', formData);
-    
-    // Guardar datos en localStorage para la página de pago
-    const giftCardData = {
-      nombreComprador: formData.nombre,
-      telefonoComprador: '',
-      emailComprador: '',
-      nombreDestinatario: formData.nombreDestinatario,
-      telefonoDestinatario: formData.telefonoDestinatario,
-      monto: parseFloat(formData.monto),
-      mensaje: formData.mensaje,
-    };
-    
-    localStorage.setItem('giftCardData', JSON.stringify(giftCardData));
-    
-    // Redirigir a la página de pago
-    window.location.href = '/pago-giftcard';
+    try {
+      // Guardar los datos en localStorage y redirigir a pago
+      localStorage.setItem('giftCardData', JSON.stringify(formData));
+      window.location.href = '/pago-giftcard';
+      
+    } catch (error) {
+      console.error('Error al procesar la gift card:', error);
+      // setErrors({ submit: 'Error al procesar la gift card. Por favor, inténtalo de nuevo.' });
+    } finally {
+      // setIsSubmitting(false);
+    }
   };
 
   return (
@@ -273,7 +267,6 @@ export default function GiftCard() {
         <section className={styles.ctaSection}>
           <div className={styles.sectionCard}>
             <h2 className={styles.sectionTitle}>
-              <IconoGiftVerde />
               ¡Regala una experiencia única!
             </h2>
             <div className={styles.ctaContent}>

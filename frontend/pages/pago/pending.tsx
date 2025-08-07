@@ -13,8 +13,12 @@ export default function PagoPending() {
     const { payment_id, external_reference, status } = router.query;
     
     if (payment_id) {
-      console.log('Pago pendiente:', { payment_id, external_reference, status });
       setPaymentInfo({ payment_id, external_reference, status });
+      
+      // Limpiar localStorage cuando el pago está pendiente
+      localStorage.removeItem('reservaData');
+      localStorage.removeItem('mercadopago_preference_id');
+      localStorage.removeItem('mercadopago_external_reference');
     }
     
     setLoading(false);
