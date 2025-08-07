@@ -45,9 +45,9 @@ export class GiftCard {
   @Column({ nullable: true })
   metodoPago: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'fechaCreacion' })
   fechaCreacion: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'fechaActualizacion' })
   fechaActualizacion: Date;
 } 

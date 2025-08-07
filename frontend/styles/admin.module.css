@@ -432,7 +432,7 @@
 /* ===== CONTENIDO PRINCIPAL ===== */
 .mainContent {
   flex: 1;
-  padding: 2rem;
+  padding: 3rem;
   overflow-y: auto;
   margin-left: 280px;
   margin-top: 64px;

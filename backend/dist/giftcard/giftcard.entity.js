@@ -82,11 +82,11 @@ __decorate([
     __metadata("design:type", String)
 ], GiftCard.prototype, "metodoPago", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)(),
+    (0, typeorm_1.CreateDateColumn)({ name: 'fechaCreacion' }),
     __metadata("design:type", Date)
 ], GiftCard.prototype, "fechaCreacion", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)(),
+    (0, typeorm_1.UpdateDateColumn)({ name: 'fechaActualizacion' }),
     __metadata("design:type", Date)
 ], GiftCard.prototype, "fechaActualizacion", void 0);
 exports.GiftCard = GiftCard = __decorate([
