@@ -441,7 +441,7 @@
 .section {
   background: #fff;
   border-radius: 12px;
-  padding: 0.25rem;
+  padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(139, 129, 106, 0.1);
   border: 1px solid #e9ecef;
 }
@@ -1032,7 +1032,7 @@
 
 .adminPanelContent {
   flex: 1;
-  padding: 2rem;
+  padding: 3rem;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -1042,7 +1042,7 @@
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: 1.5rem;
+  padding: 2rem;
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 4px 24px rgba(194,210,155,0.10);
@@ -1052,7 +1052,7 @@
 
 @media (max-width: 900px) {
   .adminPanel {
-    padding: 1rem;
+    padding: 1.5rem;
     border-radius: 10px;
     min-height: 70vh;
   }
