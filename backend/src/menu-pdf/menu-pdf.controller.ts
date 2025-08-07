@@ -16,8 +16,8 @@ export class MenuPdfController {
     @InjectRepository(MenuPdf)
     private menuPdfRepo: Repository<MenuPdf>,
   ) {
-    // Crear directorio uploads si no existe
-    const uploadsDir = path.join(process.cwd(), 'uploads');
+    // Crear directorio uploads-files si no existe
+    const uploadsDir = path.join(process.cwd(), 'uploads-files');
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
@@ -28,7 +28,7 @@ export class MenuPdfController {
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
       destination: (req, file, cb) => {
-        const uploadsDir = path.join(process.cwd(), 'uploads');
+        const uploadsDir = path.join(process.cwd(), 'uploads-files');
         if (!fs.existsSync(uploadsDir)) {
           fs.mkdirSync(uploadsDir, { recursive: true });
         }
@@ -57,7 +57,7 @@ export class MenuPdfController {
     const pdf = this.menuPdfRepo.create({
       clave: 'carta_principal',
       nombreArchivo: file.filename,
-      rutaArchivo: `/uploads/${file.filename}`,
+      rutaArchivo: `/uploads-files/${file.filename}`,
       tamanoArchivo: file.size,
       descripcion: 'Carta principal del café',
       activo: true,
