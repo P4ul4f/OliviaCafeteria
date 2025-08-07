@@ -8,11 +8,38 @@ console.log('🔧 Port:', process.env.PORT);
 console.log('🔥 URGENT: Debug server for Railway deployment');
 
 // Create uploads directory if it doesn't exist
-const uploadsDir = path.join(__dirname, 'uploads');
+const uploadsDir = path.join(__dirname, 'uploads-files');
 if (!fs.existsSync(uploadsDir)) {
     console.log('📁 Creating uploads directory...');
     fs.mkdirSync(uploadsDir, { recursive: true });
     console.log('✅ Uploads directory created');
+}
+
+// Función segura para ejecutar migraciones
+async function runMigrations() {
+    try {
+        console.log('🔄 Starting database migrations...');
+        
+        // Verificar si las variables de entorno están configuradas
+        if (!process.env.DB_HOST || !process.env.DB_USERNAME || !process.env.DB_PASSWORD) {
+            console.log('⚠️ Database environment variables not configured, skipping migrations');
+            return;
+        }
+
+        // Importar TypeORM dinámicamente
+        const { execSync } = require('child_process');
+        
+        console.log('📦 Running TypeORM migrations...');
+        execSync('npm run migration:run', { 
+            stdio: 'inherit',
+            timeout: 60000 // 60 segundos timeout
+        });
+        
+        console.log('✅ Database migrations completed successfully');
+    } catch (error) {
+        console.error('❌ Migration error:', error.message);
+        console.log('⚠️ Continuing without migrations - server will still work');
+    }
 }
 
 const app = express();
@@ -43,15 +70,20 @@ app.get('/test', (req, res) => {
 // Arrancar servidor
 const port = process.env.PORT || 3001;
 
-try {
-  app.listen(port, '0.0.0.0', () => {
-    console.log(`✅ Debug server running on port ${port}`);
-    console.log(`🔗 Healthcheck URL: http://0.0.0.0:${port}/health`);
-    console.log('🎉 Debug server started successfully!');
-  });
-} catch (error) {
-  console.error('❌ Failed to start debug server:', error);
-  process.exit(1);
+async function startServer() {
+    try {
+        // Ejecutar migraciones antes de arrancar el servidor
+        await runMigrations();
+        
+        app.listen(port, '0.0.0.0', () => {
+            console.log(`✅ Debug server running on port ${port}`);
+            console.log(`🔗 Healthcheck URL: http://0.0.0.0:${port}/health`);
+            console.log('🎉 Debug server started successfully!');
+        });
+    } catch (error) {
+        console.error('❌ Failed to start server:', error);
+        process.exit(1);
+    }
 }
 
 // Manejar errores
@@ -65,4 +97,7 @@ process.on('uncaughtException', (error) => {
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Rejection:', reason);
-}); 
+});
+
+// Iniciar servidor
+startServer(); 
