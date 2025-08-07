@@ -1042,7 +1042,7 @@
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: 0.5rem;
+  padding: 1.5rem;
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 4px 24px rgba(194,210,155,0.10);
@@ -1052,7 +1052,7 @@
 
 @media (max-width: 900px) {
   .adminPanel {
-    padding: 0.5rem;
+    padding: 1rem;
     border-radius: 10px;
     min-height: 70vh;
   }
