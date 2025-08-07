@@ -487,13 +487,13 @@ export class DatabaseInitializer {
       this.logger.log('📝 Insertando datos específicos en fechas_config...');
       
       await this.dataSource.query(`
-        INSERT INTO fechas_config (fecha, "tipoReserva", activo, observaciones, turnos) VALUES
-        ('2025-08-08', 'merienda_libre', true, 'Fecha de merienda libre programada', '["16:30-18:30", "19:00-21:00"]'),
-        ('2025-08-09', 'merienda_libre', true, 'Fecha de merienda libre programada', '["16:30-18:30", "19:00-21:00"]'),
-        ('2025-08-10', 'merienda_libre', true, 'Fecha de merienda libre programada', '["16:30-18:30", "19:00-21:00"]'),
-        ('2025-08-11', 'merienda_libre', true, 'Fecha de merienda libre programada', '["16:30-18:30", "19:00-21:00"]'),
-        ('2025-08-12', 'merienda_libre', true, 'Fecha de merienda libre programada', '["16:30-18:30", "19:00-21:00"]'),
-        ('2025-08-13', 'merienda_libre', true, 'Fecha de merienda libre programada', '["16:30-18:30", "19:00-21:00"]')
+        INSERT INTO fechas_config (fecha, "tipoReserva", activo, turnos) VALUES
+        ('2025-08-08', 'merienda_libre', true, '["16:30-18:30", "19:00-21:00"]'),
+        ('2025-08-09', 'merienda_libre', true, '["16:30-18:30", "19:00-21:00"]'),
+        ('2025-08-10', 'merienda_libre', true, '["16:30-18:30", "19:00-21:00"]'),
+        ('2025-08-11', 'merienda_libre', true, '["16:30-18:30", "19:00-21:00"]'),
+        ('2025-08-12', 'merienda_libre', true, '["16:30-18:30", "19:00-21:00"]'),
+        ('2025-08-13', 'merienda_libre', true, '["16:30-18:30", "19:00-21:00"]')
       `);
       
       this.logger.log('✅ Datos específicos insertados en fechas_config');
