@@ -12,10 +12,10 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_DATABASE || 'postgres',
   entities: [
-    'dist/**/*.entity.js'  // Cambiar a .js para producción
+    'src/**/*.entity.ts'  // Usar .ts para desarrollo
   ],
   migrations: [
-    'dist/database/migrations/*.js'  // Cambiar a .js para producción
+    'src/database/migrations/*.ts'  // Usar .ts para desarrollo
   ],
   synchronize: false, // Solo usar migraciones en producción
   logging: process.env.NODE_ENV === 'development',

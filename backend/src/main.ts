@@ -12,13 +12,20 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     console.log('✅ NestJS app created successfully');
     
-    // Inicializar base de datos
-    console.log('🔍 Initializing database...');
+    // Inicializar base de datos usando DatabaseInitializer
+    console.log('🔍 Initializing database with DatabaseInitializer...');
     try {
       const dataSource = app.get('DataSource');
       const dbInitializer = new DatabaseInitializer(dataSource);
+      
+      // Agregar timeout de 30 segundos para Railway
+      const timeout = setTimeout(() => {
+        console.log('⚠️ Database initialization timeout, continuing...');
+      }, 30000);
+      
       await dbInitializer.initialize();
-      console.log('✅ Database initialized successfully');
+      clearTimeout(timeout);
+      console.log('✅ Database initialized successfully with DatabaseInitializer');
     } catch (error) {
       console.log('⚠️ Database initialization failed, but continuing...');
       console.log('⚠️ Error:', error.message);

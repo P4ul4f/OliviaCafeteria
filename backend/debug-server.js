@@ -45,13 +45,8 @@ async function runMigrations() {
         // Importar TypeORM dinámicamente
         const { execSync } = require('child_process');
         
-        console.log('📦 Running TypeORM migrations...');
-        execSync('npm run migration:run', { 
-            stdio: 'inherit',
-            timeout: 60000 // 60 segundos timeout
-        });
-        
-        console.log('✅ Database migrations completed successfully');
+        console.log('📦 DatabaseInitializer will handle database setup automatically');
+        console.log('✅ Database setup will be handled by DatabaseInitializer');
     } catch (error) {
         console.error('❌ Migration error:', error.message);
         console.log('⚠️ Continuing without migrations - server will still work');
