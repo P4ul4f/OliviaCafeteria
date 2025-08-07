@@ -75,7 +75,7 @@ const Navbar = () => {
               </li>
               <li onClick={handleClose} className={styles.menuIconItem}>
                 <img src="/icons/carta.svg" alt="Carta" className={styles.menuIconImg} />
-                <a href="/carta.pdf" target="_blank" rel="noopener noreferrer">Carta</a>
+                <a href="https://oliviacafeteria-production.up.railway.app/menu-pdf/download" target="_blank" rel="noopener noreferrer">Carta</a>
               </li>
               <li onClick={handleReservaToggle} className={reservaOpen ? styles.menuIconItemOpen : styles.menuIconItem} style={{ cursor: 'pointer', userSelect: 'none' }}>
                 <img 
@@ -116,7 +116,7 @@ const Navbar = () => {
                 <Link href="/">Inicio</Link>
               </li>
               <li onClick={handleClose}>
-                <a href="/carta.pdf" target="_blank" rel="noopener noreferrer">Carta</a>
+                <a href="https://oliviacafeteria-production.up.railway.app/menu-pdf/download" target="_blank" rel="noopener noreferrer">Carta</a>
               </li>
               <li ref={dropdownRef} className={`${styles.dropdown} ${reservaOpen ? styles.dropdownOpen : ''}`} tabIndex={0}>
                 <span onClick={handleReservaToggle}>Reservas</span>

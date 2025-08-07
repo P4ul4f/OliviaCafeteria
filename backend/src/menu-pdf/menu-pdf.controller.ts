@@ -51,19 +51,43 @@ export class MenuPdfController {
     if (!file) {
       return { success: false, message: 'No se subió ningún archivo' };
     }
-    // Desactivar el PDF anterior
-    await this.menuPdfRepo.update({ activo: true }, { activo: false });
-    // Guardar el nuevo PDF
-    const pdf = this.menuPdfRepo.create({
-      clave: 'carta_principal',
-      nombreArchivo: file.filename,
-      rutaArchivo: `/uploads-files/${file.filename}`,
-      tamanoArchivo: file.size,
-      descripcion: 'Carta principal del café',
-      activo: true,
-    });
-    await this.menuPdfRepo.save(pdf);
-    return { success: true, message: 'PDF subido correctamente', pdf };
+
+    try {
+      // Obtener el PDF anterior activo
+      const pdfAnterior = await this.menuPdfRepo.findOne({ 
+        where: { clave: 'carta_principal', activo: true } 
+      });
+
+      // Eliminar el archivo anterior si existe
+      if (pdfAnterior) {
+        const filePathAnterior = path.join(process.cwd(), pdfAnterior.rutaArchivo);
+        if (fs.existsSync(filePathAnterior)) {
+          fs.unlinkSync(filePathAnterior);
+        }
+        // Desactivar el registro anterior
+        await this.menuPdfRepo.update({ activo: true }, { activo: false });
+      }
+
+      // Guardar el nuevo PDF
+      const pdf = this.menuPdfRepo.create({
+        clave: 'carta_principal',
+        nombreArchivo: file.filename,
+        rutaArchivo: `/uploads-files/${file.filename}`,
+        tamanoArchivo: file.size,
+        descripcion: 'Carta principal del café',
+        activo: true,
+      });
+      await this.menuPdfRepo.save(pdf);
+      
+      return { success: true, message: 'PDF subido correctamente', pdf };
+    } catch (error) {
+      // Si hay error, intentar eliminar el archivo subido
+      const filePath = path.join(process.cwd(), 'uploads-files', file.filename);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+      throw error;
+    }
   }
 
   @Get()

@@ -470,6 +470,11 @@ class ApiService {
       body: JSON.stringify(contenido)
     });
   }
+
+  // === MENU PDF ===
+  async getPdfInfo(): Promise<any> {
+    return this.request('/menu-pdf');
+  }
 }
 
 // Exportar una instancia única del servicio
