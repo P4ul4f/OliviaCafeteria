@@ -27,7 +27,7 @@ let MenuPdfController = class MenuPdfController {
     menuPdfRepo;
     constructor(menuPdfRepo) {
         this.menuPdfRepo = menuPdfRepo;
-        const uploadsDir = path.join(process.cwd(), 'uploads');
+        const uploadsDir = path.join(process.cwd(), 'uploads-files');
         if (!fs.existsSync(uploadsDir)) {
             fs.mkdirSync(uploadsDir, { recursive: true });
         }
@@ -40,7 +40,7 @@ let MenuPdfController = class MenuPdfController {
         const pdf = this.menuPdfRepo.create({
             clave: 'carta_principal',
             nombreArchivo: file.filename,
-            rutaArchivo: `/uploads/${file.filename}`,
+            rutaArchivo: `/uploads-files/${file.filename}`,
             tamanoArchivo: file.size,
             descripcion: 'Carta principal del café',
             activo: true,
@@ -73,7 +73,7 @@ __decorate([
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', {
         storage: (0, multer_1.diskStorage)({
             destination: (req, file, cb) => {
-                const uploadsDir = path.join(process.cwd(), 'uploads');
+                const uploadsDir = path.join(process.cwd(), 'uploads-files');
                 if (!fs.existsSync(uploadsDir)) {
                     fs.mkdirSync(uploadsDir, { recursive: true });
                 }
