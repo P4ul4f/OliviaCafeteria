@@ -1,10 +1,9 @@
-# Olivia Backend - Railway Deployment
+# Olivia Backend
 
-## 🚀 READY FOR NEW SERVICE
+## 🚀 Railway Deployment
 
-**Status:** READY FOR NEW RAILWAY SERVICE
-**Configuration:** CLEAN AND OPTIMIZED
-**Next Step:** Create new Railway service with this commit
+**Status:** READY FOR DEPLOYMENT
+**Configuration:** MINIMAL AND CLEAN
 
 ## 📋 Configuration
 
@@ -12,24 +11,13 @@
 - **Healthcheck:** `/health`
 - **Port:** 3001
 - **Environment:** Production
-- **Builder:** Dockerfile
 
-## 🔧 Features Ready
+## 🔧 Features
 
 - ✅ **Debug Server** - Working
 - ✅ **Health Check** - `/health` endpoint
-- ✅ **Dockerfile** - Clean configuration
-- ✅ **Railway.toml** - Simple and working
-
-## 📝 Next Steps
-
-1. **Create new Railway service** with this commit
-2. **Configure environment variables**
-3. **Test deployment**
-4. **Add database migrations**
-5. **Add authentication**
-6. **Add business features**
+- ✅ **Nixpacks** - Clean configuration
 
 ## 🎯 Ready for Production
 
-This commit is optimized for a new Railway service deployment.
+This is a clean, minimal configuration for Railway deployment.

@@ -1,9 +1,19 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 
 console.log('🚀 Starting debug server...');
 console.log('📊 Environment:', process.env.NODE_ENV);
 console.log('🔧 Port:', process.env.PORT);
 console.log('🔥 URGENT: Debug server for Railway deployment');
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    console.log('📁 Creating uploads directory...');
+    fs.mkdirSync(uploadsDir, { recursive: true });
+    console.log('✅ Uploads directory created');
+}
 
 const app = express();
 
