@@ -8,18 +8,18 @@ export class FechasConfig {
   @Column()
   fecha: Date;
 
+  @Column()
+  tipoReserva: string;
+
   @Column('jsonb')
   turnos: string[];
 
   @Column({ default: true })
-  activa: boolean;
+  activo: boolean;
 
-  @Column({ nullable: true })
-  observaciones: string;
+  @CreateDateColumn({ name: 'createdAt' })
+  createdAt: Date;
 
-  @CreateDateColumn()
-  fechaCreacion: Date;
-
-  @UpdateDateColumn()
-  fechaActualizacion: Date;
+  @UpdateDateColumn({ name: 'updatedAt' })
+  updatedAt: Date;
 } 

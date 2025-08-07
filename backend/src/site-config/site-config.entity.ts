@@ -28,9 +28,9 @@ export class SiteConfig {
     domingo: { abierto: boolean; manana: string; noche: string };
   };
 
-  @CreateDateColumn()
-  fechaCreacion: Date;
+  @CreateDateColumn({ name: 'createdAt' })
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  fechaActualizacion: Date;
+  @UpdateDateColumn({ name: 'updatedAt' })
+  updatedAt: Date;
 } 

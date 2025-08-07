@@ -35,9 +35,9 @@ export class PreciosConfig {
   @Column('int', { default: 65 })
   cuposTardesDeTe: number;
 
-  @CreateDateColumn()
-  fechaCreacion: Date;
+  @CreateDateColumn({ name: 'createdAt' })
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  fechaActualizacion: Date;
+  @UpdateDateColumn({ name: 'updatedAt' })
+  updatedAt: Date;
 } 

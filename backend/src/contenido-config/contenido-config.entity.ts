@@ -14,9 +14,9 @@ export class ContenidoConfig {
   @Column({ nullable: true })
   descripcion: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'fechaCreacion' })
   fechaCreacion: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'fechaActualizacion' })
   fechaActualizacion: Date;
 } 
