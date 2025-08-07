@@ -50,6 +50,27 @@ exports.AppModule = AppModule = __decorate([
                 imports: [config_1.ConfigModule],
                 inject: [config_1.ConfigService],
                 useFactory: (config) => {
+                    const hasDatabaseConfig = config.get('DB_HOST') && config.get('DB_USER') && config.get('DB_PASSWORD');
+                    if (!hasDatabaseConfig) {
+                        console.log('⚠️ Database environment variables not configured, using in-memory database');
+                        return {
+                            type: 'sqlite',
+                            database: ':memory:',
+                            entities: [
+                                reserva_entity_1.Reserva,
+                                pago_entity_1.Pago,
+                                administrador_entity_1.Administrador,
+                                site_config_entity_1.SiteConfig,
+                                precios_config_entity_1.PreciosConfig,
+                                fechas_config_entity_1.FechasConfig,
+                                menu_pdf_entity_1.MenuPdf,
+                                giftcard_entity_1.GiftCard,
+                                contenido_config_entity_1.ContenidoConfig
+                            ],
+                            synchronize: true,
+                            logging: config.get('NODE_ENV') === 'development',
+                        };
+                    }
                     const requiredEnvVars = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_DATABASE'];
                     for (const envVar of requiredEnvVars) {
                         if (!config.get(envVar)) {
