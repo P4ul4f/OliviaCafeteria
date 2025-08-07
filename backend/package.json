@@ -23,7 +23,9 @@
     "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/database/data-source.ts",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts",
-    "deploy": "npm run migration:run && npm run start:prod"
+    "deploy": "npm run migration:run && npm run start:prod",
+    "check-db": "node railway-db-check.js",
+    "check-railway": "node railway-real-check.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

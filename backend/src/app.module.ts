@@ -38,7 +38,7 @@ import { ContenidoConfigModule } from './contenido-config/contenido-config.modul
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         // Validar que todas las variables de entorno necesarias estén presentes
-        const requiredEnvVars = ['DB_HOST', 'DB_PORT', 'DB_USERNAME', 'DB_PASSWORD', 'DB_DATABASE'];
+        const requiredEnvVars = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_DATABASE'];
         for (const envVar of requiredEnvVars) {
           if (!config.get(envVar)) {
             throw new Error(`Missing required environment variable: ${envVar}`);
@@ -49,7 +49,7 @@ import { ContenidoConfigModule } from './contenido-config/contenido-config.modul
           type: 'postgres',
           host: config.get('DB_HOST'),
           port: parseInt(config.get('DB_PORT') ?? '5432', 10),
-          username: config.get('DB_USERNAME'),
+          username: config.get('DB_USER'),
           password: config.get('DB_PASSWORD'),
           database: config.get('DB_DATABASE'),
           entities: [
