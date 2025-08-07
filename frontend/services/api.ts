@@ -1,4 +1,8 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE_URL = 'https://oliviacafeteria-production.up.railway.app';
+
+// Debug: mostrar la URL que se está usando
+console.log('🔗 API_BASE_URL:', API_BASE_URL);
+console.log('🔗 NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
 
 export interface ReservaData {
   nombre: string;
