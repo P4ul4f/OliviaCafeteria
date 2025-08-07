@@ -83,12 +83,13 @@ const app = express();
 
 // Configuración de CORS para permitir Vercel
 app.use((req, res, next) => {
-  const allowedOrigins = [
-    'https://olivia-cafeteria.vercel.app',
-    'https://olivia-cafeteria-git-main-paulaferreyra.vercel.app',
-    'http://localhost:3000',
-    'http://localhost:3001'
-  ];
+          const allowedOrigins = [
+          'https://olivia-cafeteria.vercel.app',
+          'https://olivia-cafeteria-git-main-paulaferreyra.vercel.app',
+          'https://olivia-cafeteria-git-main-p4ul4fs-projects.vercel.app',
+          'http://localhost:3000',
+          'http://localhost:3001'
+        ];
   
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
