@@ -38,7 +38,7 @@ export class DatabaseInitializer {
         tables.push(...newTables);
       }
 
-      // Verificar migraciones
+      // Verificar migraciones después de crear las tablas
       let migrations = [];
       try {
         migrations = await this.dataSource.query(`
@@ -126,6 +126,29 @@ export class DatabaseInitializer {
         CONSTRAINT "PK_migrations" PRIMARY KEY ("id")
       );
     `);
+    
+    // Verificar si existe la restricción UNIQUE y agregarla si no existe
+    try {
+      const constraintExists = await this.dataSource.query(`
+        SELECT 1 FROM information_schema.table_constraints 
+        WHERE table_name = 'migrations' 
+        AND constraint_name = 'UQ_migrations_timestamp'
+        AND constraint_type = 'UNIQUE';
+      `);
+      
+      if (constraintExists.length === 0) {
+        this.logger.log('🔧 Agregando restricción UNIQUE a tabla migrations...');
+        await this.dataSource.query(`
+          ALTER TABLE "migrations" 
+          ADD CONSTRAINT "UQ_migrations_timestamp" UNIQUE ("timestamp");
+        `);
+        this.logger.log('✅ Restricción UNIQUE agregada a tabla migrations');
+      } else {
+        this.logger.log('ℹ️  Restricción UNIQUE ya existe en tabla migrations');
+      }
+    } catch (error) {
+      this.logger.warn(`⚠️ Error verificando/agregando restricción UNIQUE: ${error.message}`);
+    }
 
     // Crear tabla administrador
     await this.dataSource.query(`
