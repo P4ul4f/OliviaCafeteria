@@ -48,7 +48,7 @@ function ChangePasswordModal({ open, onClose, onSuccess, admin }: any) {
         setErrors({ submit: 'Token de autenticación no encontrado' });
         return;
       }
-      const response = await fetch('http://localhost:3001/auth/change-password', {
+      const response = await fetch('https://oliviacafeteria-production.up.railway.app/auth/change-password', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -674,7 +674,7 @@ function MenuSection() {
       const formData = new FormData();
       formData.append('file', file);
       const token = localStorage.getItem('adminToken');
-      const res = await fetch('http://localhost:3001/menu-pdf/upload', {
+              const res = await fetch('https://oliviacafeteria-production.up.railway.app/menu-pdf/upload', {
         method: 'POST',
         headers: token ? { 'Authorization': `Bearer ${token}` } : {},
         body: formData,
@@ -705,7 +705,7 @@ function MenuSection() {
           <div className={styles.pdfInfo}>
             <strong>Archivo actual:</strong> {pdfInfo.nombreArchivo}
             <a
-              href={`http://localhost:3001/menu-pdf/download`}
+              href={`https://oliviacafeteria-production.up.railway.app/menu-pdf/download`}
               target="_blank"
               rel="noopener noreferrer"
               className={styles.saveBtn}

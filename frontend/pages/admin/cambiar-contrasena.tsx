@@ -76,7 +76,7 @@ function CambiarContrasena() {
         return;
       }
 
-      const response = await fetch('http://localhost:3001/auth/change-password', {
+      const response = await fetch('https://oliviacafeteria-production.up.railway.app/auth/change-password', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

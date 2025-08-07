@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Verificar token con el backend
-      const response = await fetch('http://localhost:3001/auth/validate', {
+      const response = await fetch('https://oliviacafeteria-production.up.railway.app/auth/validate', {
         headers: {
           'Authorization': `Bearer ${storedToken}`,
         },
@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (response.ok) {
         // Obtener perfil del admin
-        const profileResponse = await fetch('http://localhost:3001/auth/profile', {
+        const profileResponse = await fetch('https://oliviacafeteria-production.up.railway.app/auth/profile', {
           headers: {
             'Authorization': `Bearer ${storedToken}`,
           },
