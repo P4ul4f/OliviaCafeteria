@@ -15,10 +15,10 @@ if (!fs.existsSync(uploadsDir)) {
     console.log('✅ Uploads directory created');
 }
 
-// Función segura para ejecutar migraciones
-async function runMigrations() {
+// Función segura para ejecutar DatabaseInitializer
+async function runDatabaseInitializer() {
     try {
-        console.log('🔄 Starting database migrations...');
+        console.log('🔄 Starting DatabaseInitializer...');
         
         // Debug: Mostrar todas las variables de entorno disponibles
         console.log('🔍 Environment variables check:');
@@ -31,7 +31,7 @@ async function runMigrations() {
         
         // Verificar si las variables de entorno están configuradas
         if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD) {
-            console.log('⚠️ Database environment variables not configured, skipping migrations');
+            console.log('⚠️ Database environment variables not configured, skipping database initialization');
             console.log('🔍 Available DB variables:', {
                 DB_HOST: !!process.env.DB_HOST,
                 DB_USER: !!process.env.DB_USER,
@@ -42,14 +42,40 @@ async function runMigrations() {
             return;
         }
 
-        // Importar TypeORM dinámicamente
-        const { execSync } = require('child_process');
+        // Importar y ejecutar DatabaseInitializer
+        const { DatabaseInitializer } = require('./dist/database/init-database');
+        const { DataSource } = require('typeorm');
         
-        console.log('📦 DatabaseInitializer will handle database setup automatically');
-        console.log('✅ Database setup will be handled by DatabaseInitializer');
+        console.log('📦 Creating DataSource for DatabaseInitializer...');
+        
+        // Crear DataSource
+        const dataSource = new DataSource({
+            type: 'postgres',
+            host: process.env.DB_HOST,
+            port: parseInt(process.env.DB_PORT || '5432'),
+            username: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_DATABASE,
+            synchronize: false,
+            logging: true,
+        });
+        
+        console.log('🔌 Connecting to database...');
+        await dataSource.initialize();
+        console.log('✅ Database connection established');
+        
+        // Ejecutar DatabaseInitializer
+        const dbInitializer = new DatabaseInitializer(dataSource);
+        console.log('🏗️  Running DatabaseInitializer...');
+        await dbInitializer.initialize();
+        
+        console.log('✅ DatabaseInitializer completed successfully');
+        await dataSource.destroy();
+        console.log('🔌 Database connection closed');
+        
     } catch (error) {
-        console.error('❌ Migration error:', error.message);
-        console.log('⚠️ Continuing without migrations - server will still work');
+        console.error('❌ DatabaseInitializer error:', error.message);
+        console.log('⚠️ Continuing without database initialization - server will still work');
     }
 }
 
@@ -83,8 +109,8 @@ const port = process.env.PORT || 3001;
 
 async function startServer() {
     try {
-        // Ejecutar migraciones antes de arrancar el servidor
-        await runMigrations();
+        // Ejecutar DatabaseInitializer antes de arrancar el servidor
+        await runDatabaseInitializer();
         
         app.listen(port, '0.0.0.0', () => {
             console.log(`✅ Debug server running on port ${port}`);
