@@ -32,18 +32,19 @@ async function bootstrap() {
     }
     
     // Configuración específica de CORS para permitir Vercel
-          app.enableCors({
-        origin: [
-          'https://olivia-cafeteria.vercel.app',
-          'https://olivia-cafeteria-git-main-paulaferreyra.vercel.app',
-          'https://olivia-cafeteria-git-main-p4ul4fs-projects.vercel.app',
-          'http://localhost:3000', // Para desarrollo local
-          'http://localhost:3001', // Para desarrollo local
-        ],
-        credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-      });
+    app.enableCors({
+      origin: [
+        'https://olivia-cafeteria.vercel.app',
+        'https://olivia-cafeteria-git-main-paulaferreyra.vercel.app',
+        'https://olivia-cafeteria-git-main-p4ul4fs-projects.vercel.app',
+        'https://olivia-cafeteria-nxsxfbmd9-p4ul4fs-projects.vercel.app',
+        'http://localhost:3000', // Para desarrollo local
+        'http://localhost:3001', // Para desarrollo local
+      ],
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    });
     console.log('✅ CORS configured for Vercel domains');
 
     const port = process.env.PORT || 3001;

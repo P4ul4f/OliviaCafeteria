@@ -437,7 +437,8 @@
   background: rgba(194, 210, 155, 0.2);
   padding: 0.2rem 0.5rem;
   border-radius: 10px;
-  margin-top: 0.25rem;
+  margin-left: 0.5rem;
+  display: inline-block;
 }
 
 .cuposAgotados {
@@ -924,4 +925,15 @@
   font-weight: 500;
   margin: 1px 0;
   text-align: center;
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: #999;
+}
+
+.disabled:hover {
+  background-color: transparent;
+  cursor: not-allowed;
 }

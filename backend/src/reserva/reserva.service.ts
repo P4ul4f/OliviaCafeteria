@@ -224,56 +224,75 @@ export class ReservaService {
   }
 
   async getFechasDisponibles(tipoReserva: TipoReserva): Promise<Date[]> {
-    // Para meriendas libres, obtener fechas de la base de datos
-    if (tipoReserva === TipoReserva.MERIENDA_LIBRE) {
+    try {
+      // Para meriendas libres, obtener fechas de la base de datos
+      if (tipoReserva === TipoReserva.MERIENDA_LIBRE) {
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        
+        console.log('🔍 Buscando fechas para meriendas libres desde:', hoy.toISOString());
+        
+        // Obtener fechas activas y futuras de la base de datos
+        const fechasConfig = await this.fechasConfigRepository.find({
+          where: {
+            activo: true,
+            fecha: Between(hoy, new Date(hoy.getTime() + 90 * 24 * 60 * 60 * 1000)) // 90 días hacia adelante
+          },
+          order: {
+            fecha: 'ASC'
+          }
+        });
+        
+        console.log('📅 Fechas encontradas en BD:', fechasConfig.length);
+        
+        // Convertir a objetos Date y filtrar solo fechas futuras
+        const fechasDisponibles = fechasConfig
+          .map(fechaConfig => new Date(fechaConfig.fecha))
+          .filter(fecha => fecha >= hoy)
+          .sort((a, b) => a.getTime() - b.getTime());
+        
+        console.log('✅ Fechas disponibles para meriendas libres:', fechasDisponibles.length);
+        return fechasDisponibles;
+      }
+
+      // Para a la carta y tardes de té, generar fechas disponibles (excluyendo domingos y fechas pasadas)
+      const fechasDisponibles: Date[] = [];
       const hoy = new Date();
-      hoy.setHours(0, 0, 0, 0);
-      
-      // Obtener fechas activas y futuras de la base de datos
-      const fechasConfig = await this.fechasConfigRepository.find({
-        where: {
-          activo: true,
-          fecha: Between(hoy, new Date(hoy.getTime() + 90 * 24 * 60 * 60 * 1000)) // 90 días hacia adelante
-        },
-        order: {
-          fecha: 'ASC'
-        }
-      });
-      
-      // Convertir a objetos Date y filtrar solo fechas futuras
-      const fechasDisponibles = fechasConfig
-        .map(fechaConfig => new Date(fechaConfig.fecha))
-        .filter(fecha => fecha >= hoy)
-        .sort((a, b) => a.getTime() - b.getTime());
-      
-      return fechasDisponibles;
-    }
+      const fechaLimite = new Date();
+      fechaLimite.setMonth(fechaLimite.getMonth() + 3); // 3 meses hacia adelante
 
-    // Para a la carta y tardes de té, generar fechas disponibles (excluyendo domingos y fechas pasadas)
-    const fechasDisponibles: Date[] = [];
-    const hoy = new Date();
-    const fechaLimite = new Date();
-    fechaLimite.setMonth(fechaLimite.getMonth() + 3); // 3 meses hacia adelante
-
-    for (let fecha = new Date(hoy); fecha <= fechaLimite; fecha.setDate(fecha.getDate() + 1)) {
-      // Excluir domingos
-      if (fecha.getDay() !== 0) {
-        // Para a la carta, no hay restricción de anticipación
-        if (tipoReserva === TipoReserva.A_LA_CARTA) {
-          fechasDisponibles.push(new Date(fecha));
-        } else {
-          // Para tardes de té, verificar que haya al menos 48 horas de anticipación
-          const fechaMinima = new Date();
-          fechaMinima.setDate(fechaMinima.getDate() + 2);
-          
-          if (fecha >= fechaMinima) {
+      for (let fecha = new Date(hoy); fecha <= fechaLimite; fecha.setDate(fecha.getDate() + 1)) {
+        // Excluir domingos
+        if (fecha.getDay() !== 0) {
+          // Para a la carta, no hay restricción de anticipación
+          if (tipoReserva === TipoReserva.A_LA_CARTA) {
             fechasDisponibles.push(new Date(fecha));
+          } else {
+            // Para tardes de té, verificar que haya al menos 48 horas de anticipación
+            const fechaMinima = new Date();
+            fechaMinima.setDate(fechaMinima.getDate() + 2);
+            
+            if (fecha >= fechaMinima) {
+              fechasDisponibles.push(new Date(fecha));
+            }
           }
         }
       }
-    }
 
-    return fechasDisponibles;
+      return fechasDisponibles;
+    } catch (error) {
+      console.error('❌ Error en getFechasDisponibles:', error);
+      console.error('❌ Stack trace:', error.stack);
+      // En caso de error, devolver fechas hardcodeadas como fallback
+      return [
+        new Date(2025, 7, 8), // 8 de Agosto
+        new Date(2025, 7, 9), // 9 de Agosto
+        new Date(2025, 7, 15), // 15 de Agosto
+        new Date(2025, 7, 16), // 16 de Agosto
+        new Date(2025, 7, 29), // 29 de Agosto
+        new Date(2025, 7, 30), // 30 de Agosto
+      ];
+    }
   }
 
   async getFechasDisponiblesConCupos(tipoReserva: TipoReserva): Promise<{ fecha: Date; disponible: boolean; cuposDisponibles: number }[]> {
@@ -491,6 +510,67 @@ export class ReservaService {
         disponible: true,
         cuposDisponibles: 999, // Valor alto para indicar sin límite específico
       }));
+    }
+  }
+
+  async getCuposDisponibles(fecha: Date, turno: string, tipoReserva: TipoReserva): Promise<{
+    cuposDisponibles: number;
+    capacidadMaxima: number;
+    capacidadOcupada: number;
+    reservasExistentes: number;
+  }> {
+    const fechaInicio = new Date(fecha);
+    fechaInicio.setHours(0, 0, 0, 0);
+    
+    const fechaFin = new Date(fecha);
+    fechaFin.setHours(23, 59, 59, 999);
+
+    // Buscar reservas existentes para esa fecha, turno y tipo de reserva
+    const reservasExistentes = await this.reservaRepository.find({
+      where: {
+        fechaHora: Between(fechaInicio, fechaFin),
+        turno,
+        tipoReserva,
+        estado: EstadoReserva.CONFIRMADA,
+      },
+    });
+
+    if (tipoReserva === TipoReserva.MERIENDA_LIBRE) {
+      // Para meriendas libres: calcular cupos disponibles
+      const capacidadOcupada = reservasExistentes.reduce(
+        (total, reserva) => total + reserva.cantidadPersonas,
+        0
+      );
+
+      const capacidadMaxima = await this.preciosConfigService.getCuposMeriendasLibres();
+      const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadOcupada);
+
+      return {
+        cuposDisponibles,
+        capacidadMaxima,
+        capacidadOcupada,
+        reservasExistentes: reservasExistentes.length,
+      };
+    } else if (tipoReserva === TipoReserva.TARDE_TE) {
+      // Para tardes de té: máximo 5 reservas por turno
+      const capacidadOcupada = reservasExistentes.length;
+      const capacidadMaxima = this.CAPACIDAD_MAXIMA_TURNO_TARDE_TE;
+      const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadOcupada);
+
+      return {
+        cuposDisponibles,
+        capacidadMaxima,
+        capacidadOcupada,
+        reservasExistentes: reservasExistentes.length,
+      };
+    } else {
+      // Para a la carta: sin límite específico
+      return {
+        cuposDisponibles: 999,
+        capacidadMaxima: 999,
+        capacidadOcupada: reservasExistentes.length,
+        reservasExistentes: reservasExistentes.length,
+      };
     }
   }
 

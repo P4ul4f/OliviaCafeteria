@@ -26,6 +26,11 @@ export default function ReservarMeriendaLibre() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [fechasConCupos, setFechasConCupos] = useState<FechaConCupos[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Nuevos estados para cupos disponibles
+  const [cuposDisponibles, setCuposDisponibles] = useState<number>(40);
+  const [maxPersonas, setMaxPersonas] = useState<number>(40);
+  const [loadingCupos, setLoadingCupos] = useState(false);
 
   // Cerrar dropdown cuando se hace clic fuera
   useEffect(() => {
@@ -71,6 +76,24 @@ export default function ReservarMeriendaLibre() {
     }
   };
 
+  // Función para cargar cupos disponibles
+  const loadCuposDisponibles = async (fecha: Date, turno: string) => {
+    if (!fecha || !turno) return;
+    
+    try {
+      setLoadingCupos(true);
+      const cuposData = await apiService.getCuposDisponibles(fecha, turno, 'merienda-libre');
+      setCuposDisponibles(cuposData.cuposDisponibles);
+      setMaxPersonas(Math.min(cuposData.cuposDisponibles, 20)); // Máximo 20 personas por reserva
+    } catch (error) {
+      console.error('Error cargando cupos disponibles:', error);
+      setCuposDisponibles(0);
+      setMaxPersonas(0);
+    } finally {
+      setLoadingCupos(false);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -90,7 +113,8 @@ export default function ReservarMeriendaLibre() {
   const handleDateChange = (date: Date | null) => {
     setFormData(prev => ({
       ...prev,
-      fecha: date
+      fecha: date,
+      turno: '' // Limpiar turno cuando cambie la fecha
     }));
     
     if (errors.fecha) {
@@ -99,6 +123,10 @@ export default function ReservarMeriendaLibre() {
         fecha: ''
       }));
     }
+    
+    // Limpiar cupos cuando cambie la fecha
+    setCuposDisponibles(40);
+    setMaxPersonas(40);
   };
 
   const handleTurnoChange = (turnoId: string) => {
@@ -112,6 +140,11 @@ export default function ReservarMeriendaLibre() {
         ...prev,
         turno: ''
       }));
+    }
+    
+    // Cargar cupos disponibles cuando se seleccione un turno
+    if (formData.fecha) {
+      loadCuposDisponibles(formData.fecha, turnoId);
     }
   };
 
@@ -283,6 +316,11 @@ export default function ReservarMeriendaLibre() {
             <div className={styles.formGroup}>
               <label htmlFor="cantidadPersonas" className={styles.label}>
                 Cantidad de personas *
+                {formData.turno && (
+                  <span className={styles.cuposInfo}>
+                    {loadingCupos ? 'Cargando cupos...' : `${cuposDisponibles} cupos disponibles`}
+                  </span>
+                )}
               </label>
               <div className={styles.customSelectWrapper}>
                 <div 
@@ -310,17 +348,19 @@ export default function ReservarMeriendaLibre() {
                   <div className={styles.customSelectArrow}>▼</div>
                 </div>
                 <div id="cantidadDropdown" className={styles.customSelectDropdown}>
-                  {Array.from({ length: 30 }, (_, i) => i + 1).map(num => (
+                  {Array.from({ length: Math.min(maxPersonas, 30) }, (_, i) => i + 1).map(num => (
                     <div
                       key={num}
-                      className={styles.customSelectOption}
+                      className={`${styles.customSelectOption} ${num > maxPersonas ? styles.disabled : ''}`}
                       onClick={() => {
-                        setFormData(prev => ({ ...prev, cantidadPersonas: num.toString() }));
-                        if (errors.cantidadPersonas) {
-                          setErrors(prev => ({ ...prev, cantidadPersonas: '' }));
+                        if (num <= maxPersonas) {
+                          setFormData(prev => ({ ...prev, cantidadPersonas: num.toString() }));
+                          if (errors.cantidadPersonas) {
+                            setErrors(prev => ({ ...prev, cantidadPersonas: '' }));
+                          }
+                          const dropdown = document.getElementById('cantidadDropdown');
+                          dropdown?.classList.remove(styles.show);
                         }
-                        const dropdown = document.getElementById('cantidadDropdown');
-                        dropdown?.classList.remove(styles.show);
                       }}
                     >
                       <img 
@@ -328,12 +368,18 @@ export default function ReservarMeriendaLibre() {
                         alt={num === 1 ? "persona" : "personas"} 
                         className={styles.selectIconLeft}
                       />
-                      <span>{num === 1 ? `${num} persona` : `${num} personas`}</span>
+                      <span>
+                        {num === 1 ? `${num} persona` : `${num} personas`}
+                        {num > maxPersonas && ` (No disponible)`}
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
               {errors.cantidadPersonas && <div className={styles.error}>{errors.cantidadPersonas}</div>}
+              {formData.turno && cuposDisponibles === 0 && (
+                <div className={styles.error}>No hay cupos disponibles para este turno</div>
+              )}
             </div>
 
             <div className={styles.formGroup}>

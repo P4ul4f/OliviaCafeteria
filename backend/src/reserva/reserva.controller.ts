@@ -167,6 +167,36 @@ export class ReservaController {
     }
   }
 
+  @Get('cupos-disponibles')
+  getCuposDisponibles(
+    @Query('fecha') fecha: string,
+    @Query('turno') turno: string,
+    @Query('tipoReserva') tipoReservaString: string
+  ) {
+    try {
+      console.log('📅 Fecha recibida (cupos):', fecha);
+      console.log('🕒 Turno recibido (cupos):', turno);
+      console.log('🎯 Tipo de reserva recibido (cupos):', tipoReservaString);
+      
+      // Validar y convertir el tipo de reserva
+      const tipoReserva = tipoReservaString as TipoReserva;
+      if (!Object.values(TipoReserva).includes(tipoReserva)) {
+        throw new Error(`Tipo de reserva inválido: ${tipoReservaString}`);
+      }
+      
+      // Parsear la fecha
+      const fechaObj = new Date(fecha);
+      if (isNaN(fechaObj.getTime())) {
+        throw new Error('Fecha inválida');
+      }
+      
+      return this.reservaService.getCuposDisponibles(fechaObj, turno, tipoReserva);
+    } catch (error) {
+      console.error('❌ Error al obtener cupos disponibles:', error);
+      throw new BadRequestException(`Error al procesar la solicitud: ${error.message}`);
+    }
+  }
+
   @Post(':id/confirmar-pago')
   confirmarPago(
     @Param('id') id: string,

@@ -238,6 +238,18 @@ class ApiService {
     return this.request(`/reserva/horarios-disponibles-con-cupos?fecha=${encodeURIComponent(fechaStr)}&tipoReserva=${encodeURIComponent(tipoReserva)}`);
   }
 
+  // Obtener cupos disponibles para una fecha y turno específicos
+  async getCuposDisponibles(fecha: Date | string, turno: string, tipoReserva: string): Promise<{
+    cuposDisponibles: number;
+    capacidadMaxima: number;
+    capacidadOcupada: number;
+    reservasExistentes: number;
+  }> {
+    // Convertir Date a string ISO si es necesario
+    const fechaStr = fecha instanceof Date ? fecha.toISOString() : fecha;
+    return this.request(`/reserva/cupos-disponibles?fecha=${encodeURIComponent(fechaStr)}&turno=${encodeURIComponent(turno)}&tipoReserva=${encodeURIComponent(tipoReserva)}`);
+  }
+
   // === SITE CONFIG APIs ===
 
   // Obtener configuración completa del sitio

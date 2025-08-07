@@ -149,14 +149,6 @@ export default function AdminLogin() {
           >
             {isLogging ? '🔄 Iniciando sesión...' : ' Iniciar Sesión'}
           </button>
-
-          <div className={styles.loginInfo}>
-            <small>
-              💡 <strong>Datos por defecto:</strong><br/>
-              Usuario: admin<br/>
-              Contraseña: admin123
-            </small>
-          </div>
         </form>
       </div>
     </div>
