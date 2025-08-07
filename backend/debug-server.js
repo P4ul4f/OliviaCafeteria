@@ -21,8 +21,15 @@ async function runMigrations() {
         console.log('🔄 Starting database migrations...');
         
         // Verificar si las variables de entorno están configuradas
-        if (!process.env.DB_HOST || !process.env.DB_USERNAME || !process.env.DB_PASSWORD) {
+        if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD) {
             console.log('⚠️ Database environment variables not configured, skipping migrations');
+            console.log('🔍 Available DB variables:', {
+                DB_HOST: !!process.env.DB_HOST,
+                DB_USER: !!process.env.DB_USER,
+                DB_PASSWORD: !!process.env.DB_PASSWORD,
+                DB_PORT: !!process.env.DB_PORT,
+                DB_DATABASE: !!process.env.DB_DATABASE
+            });
             return;
         }
 
