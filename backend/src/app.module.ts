@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { DataSource } from 'typeorm';
 import { ReservaModule } from './reserva/reserva.module';
 import { PagoModule } from './pago/pago.module';
 import { AdministradorModule } from './administrador/administrador.module';
@@ -83,6 +84,13 @@ import { ContenidoConfigModule } from './contenido-config/contenido-config.modul
     ContenidoConfigModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: 'DataSource',
+      useFactory: (dataSource: DataSource) => dataSource,
+      inject: [DataSource],
+    },
+  ],
 })
 export class AppModule {}

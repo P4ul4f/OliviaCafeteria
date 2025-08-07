@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { DatabaseInitializer } from './database/init-database';
 
 async function bootstrap() {
   try {
@@ -10,6 +11,18 @@ async function bootstrap() {
     
     const app = await NestFactory.create(AppModule);
     console.log('✅ NestJS app created successfully');
+    
+    // Inicializar base de datos
+    console.log('🔍 Initializing database...');
+    try {
+      const dataSource = app.get('DataSource');
+      const dbInitializer = new DatabaseInitializer(dataSource);
+      await dbInitializer.initialize();
+      console.log('✅ Database initialized successfully');
+    } catch (error) {
+      console.log('⚠️ Database initialization failed, but continuing...');
+      console.log('⚠️ Error:', error.message);
+    }
     
     // Configuración básica de CORS
     app.enableCors();
