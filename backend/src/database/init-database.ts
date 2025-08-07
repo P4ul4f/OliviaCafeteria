@@ -358,6 +358,8 @@ export class DatabaseInitializer {
                                menuPdfColumns.some((col: any) => col.column_name === 'nombreArchivo') &&
                                menuPdfColumns.some((col: any) => col.column_name === 'rutaArchivo');
       
+      const hasContenidoArchivo = menuPdfColumns.some((col: any) => col.column_name === 'contenidoArchivo');
+      
       if (!hasCorrectColumns) {
         this.logger.log('⚠️  Tabla menu_pdf tiene estructura incorrecta, recreando...');
         await this.dataSource.query(`DROP TABLE IF EXISTS "menu_pdf" CASCADE`);
@@ -370,12 +372,17 @@ export class DatabaseInitializer {
             "tamanoArchivo" integer,
             "descripcion" text,
             "activo" boolean NOT NULL DEFAULT true,
+            "contenidoArchivo" bytea,
             "createdAt" timestamp NOT NULL DEFAULT now(),
             "updatedAt" timestamp NOT NULL DEFAULT now(),
             CONSTRAINT "PK_menu_pdf" PRIMARY KEY ("id")
           );
         `);
         this.logger.log('✅ Tabla menu_pdf recreada con estructura correcta');
+      } else if (!hasContenidoArchivo) {
+        this.logger.log('⚠️  Tabla menu_pdf no tiene columna contenidoArchivo, agregando...');
+        await this.dataSource.query(`ALTER TABLE "menu_pdf" ADD COLUMN "contenidoArchivo" bytea`);
+        this.logger.log('✅ Columna contenidoArchivo agregada a menu_pdf');
       }
     } catch (error) {
       this.logger.error('Error verificando estructura de menu_pdf:', error);

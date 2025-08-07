@@ -56,40 +56,18 @@ export class MenuPdfController {
     console.log('📁 Archivo recibido:', file);
 
     try {
-      // Obtener el PDF anterior activo
-      const pdfAnterior = await this.menuPdfRepo.findOne({ 
-        where: { clave: 'carta_principal', activo: true } 
-      });
-
-      console.log('📄 PDF anterior encontrado:', pdfAnterior);
-
-      // Eliminar el archivo anterior si existe
-      if (pdfAnterior) {
-        const filePathAnterior = path.join(process.cwd(), pdfAnterior.rutaArchivo);
-        console.log('🗑️ Intentando eliminar archivo anterior:', filePathAnterior);
-        if (fs.existsSync(filePathAnterior)) {
-          fs.unlinkSync(filePathAnterior);
-          console.log('✅ Archivo anterior eliminado');
-        } else {
-          console.log('⚠️ Archivo anterior no encontrado para eliminar');
-        }
-        // Desactivar el registro anterior
-        await this.menuPdfRepo.update({ activo: true }, { activo: false });
-        console.log('✅ Registro anterior desactivado');
+      // Verificar si la columna contenidoArchivo existe
+      try {
+        await this.menuPdfRepo.query('SELECT "contenidoArchivo" FROM "menu_pdf" LIMIT 1');
+      } catch (columnError) {
+        console.log('⚠️ Columna contenidoArchivo no existe, agregando...');
+        await this.menuPdfRepo.query('ALTER TABLE "menu_pdf" ADD COLUMN "contenidoArchivo" bytea');
+        console.log('✅ Columna contenidoArchivo agregada');
       }
 
-      // Verificar que el archivo se guardó correctamente
-      const uploadsDir = path.join(process.cwd(), 'uploads-files');
-      const filePath = path.join(uploadsDir, file.filename);
-      console.log('📂 Verificando archivo guardado:', filePath);
-      
-      if (fs.existsSync(filePath)) {
-        console.log('✅ Archivo guardado correctamente en el sistema de archivos');
-        const stats = fs.statSync(filePath);
-        console.log('📊 Tamaño del archivo:', stats.size, 'bytes');
-      } else {
-        console.log('❌ ERROR: Archivo no encontrado después de guardar');
-      }
+      // Leer el contenido del archivo como Buffer
+      const fileContent = fs.readFileSync(file.path);
+      console.log('📄 Contenido del archivo leído:', fileContent.length, 'bytes');
 
       // Buscar si ya existe una entrada para carta_principal
       let pdf = await this.menuPdfRepo.findOne({ 
@@ -104,8 +82,9 @@ export class MenuPdfController {
         pdf.tamanoArchivo = file.size;
         pdf.descripcion = 'Carta principal del café';
         pdf.activo = true;
+        pdf.contenidoArchivo = fileContent; // Guardar el contenido en la BD
         await this.menuPdfRepo.save(pdf);
-        console.log('✅ PDF actualizado en la base de datos:', pdf);
+        console.log('✅ PDF actualizado en la base de datos con contenido');
       } else {
         // Crear nueva entrada si no existe
         console.log('🆕 Creando nueva entrada de PDF en la base de datos');
@@ -116,19 +95,23 @@ export class MenuPdfController {
           tamanoArchivo: file.size,
           descripcion: 'Carta principal del café',
           activo: true,
+          contenidoArchivo: fileContent, // Guardar el contenido en la BD
         });
         await this.menuPdfRepo.save(pdf);
-        console.log('✅ PDF guardado en la base de datos:', pdf);
+        console.log('✅ PDF guardado en la base de datos con contenido');
       }
+
+      // Limpiar el archivo temporal
+      fs.unlinkSync(file.path);
+      console.log('🗑️ Archivo temporal eliminado');
       
       return { success: true, message: 'PDF subido correctamente', pdf };
     } catch (error) {
       console.error('❌ Error en uploadPdf:', error);
-      // Si hay error, intentar eliminar el archivo subido
-      const filePath = path.join(process.cwd(), 'uploads-files', file.filename);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-        console.log('🗑️ Archivo eliminado debido al error');
+      // Limpiar archivo temporal si existe
+      if (file.path && fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path);
+        console.log('🗑️ Archivo temporal eliminado debido al error');
       }
       throw error;
     }
@@ -143,6 +126,15 @@ export class MenuPdfController {
   @Get('download')
   async downloadPdf(@Res() res: Response) {
     try {
+      // Verificar si la columna contenidoArchivo existe
+      try {
+        await this.menuPdfRepo.query('SELECT "contenidoArchivo" FROM "menu_pdf" LIMIT 1');
+      } catch (columnError) {
+        console.log('⚠️ Columna contenidoArchivo no existe, agregando...');
+        await this.menuPdfRepo.query('ALTER TABLE "menu_pdf" ADD COLUMN "contenidoArchivo" bytea');
+        console.log('✅ Columna contenidoArchivo agregada');
+      }
+
       // Limpiar entradas duplicadas (mantener solo la más reciente)
       const allPdfs = await this.menuPdfRepo.find({ 
         where: { clave: 'carta_principal' },
@@ -164,26 +156,20 @@ export class MenuPdfController {
       }
       
       console.log('📄 PDF encontrado en BD:', pdf);
-      const filePath = path.join(process.cwd(), pdf.rutaArchivo);
-      console.log('📁 Ruta del archivo:', filePath);
       
-      if (!fs.existsSync(filePath)) {
-        console.log('❌ Archivo no existe en el sistema de archivos');
-        console.log('📂 Contenido del directorio uploads-files:');
-        const uploadsDir = path.join(process.cwd(), 'uploads-files');
-        if (fs.existsSync(uploadsDir)) {
-          const files = fs.readdirSync(uploadsDir);
-          console.log('📋 Archivos encontrados:', files);
-        } else {
-          console.log('❌ Directorio uploads-files no existe');
-        }
-        return res.status(404).json({ message: 'Archivo no encontrado' });
+      // Verificar si el PDF tiene contenido almacenado en la BD
+      if (!pdf.contenidoArchivo) {
+        console.log('❌ PDF no tiene contenido almacenado en la BD');
+        return res.status(404).json({ message: 'PDF sin contenido disponible' });
       }
       
-      console.log('✅ Archivo encontrado, enviando...');
+      console.log('✅ PDF con contenido encontrado, enviando desde BD...');
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `inline; filename="${pdf.nombreArchivo}"`);
-      fs.createReadStream(filePath).pipe(res);
+      res.setHeader('Content-Length', pdf.contenidoArchivo.length.toString());
+      
+      // Enviar el contenido directamente desde la base de datos
+      res.send(pdf.contenidoArchivo);
     } catch (error) {
       console.error('❌ Error en downloadPdf:', error);
       return res.status(500).json({ message: 'Error interno del servidor' });
