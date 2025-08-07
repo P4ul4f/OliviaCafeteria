@@ -20,6 +20,15 @@ async function runMigrations() {
     try {
         console.log('🔄 Starting database migrations...');
         
+        // Debug: Mostrar todas las variables de entorno disponibles
+        console.log('🔍 Environment variables check:');
+        console.log('DB_HOST:', process.env.DB_HOST ? 'SET' : 'NOT SET');
+        console.log('DB_USER:', process.env.DB_USER ? 'SET' : 'NOT SET');
+        console.log('DB_PASSWORD:', process.env.DB_PASSWORD ? 'SET' : 'NOT SET');
+        console.log('DB_PORT:', process.env.DB_PORT ? 'SET' : 'NOT SET');
+        console.log('DB_DATABASE:', process.env.DB_DATABASE ? 'SET' : 'NOT SET');
+        console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
+        
         // Verificar si las variables de entorno están configuradas
         if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD) {
             console.log('⚠️ Database environment variables not configured, skipping migrations');

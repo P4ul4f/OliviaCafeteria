@@ -8,9 +8,9 @@ export const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT || '5432'),
-  username: process.env.DB_USERNAME || 'olivia_admin',
-  password: process.env.DB_PASSWORD || 'cafeolivia',
-  database: process.env.DB_DATABASE || 'OliviaCafeteria',
+  username: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_DATABASE || 'postgres',
   entities: [
     'dist/**/*.entity.js'  // Cambiar a .js para producción
   ],
