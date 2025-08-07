@@ -12,30 +12,60 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const app_service_1 = require("./app.service");
+const typeorm_1 = require("typeorm");
 let AppController = class AppController {
     appService;
-    constructor(appService) {
+    dataSource;
+    constructor(appService, dataSource) {
         this.appService = appService;
+        this.dataSource = dataSource;
     }
     getHello() {
-        return {
-            message: 'Hello World!',
-            status: 'OK',
-            timestamp: new Date().toISOString(),
-            environment: process.env.NODE_ENV || 'development',
-            port: process.env.PORT || 3001
-        };
+        return this.appService.getHello();
     }
     getHealth() {
-        return {
-            status: 'healthy',
-            timestamp: new Date().toISOString(),
-            uptime: process.uptime(),
-            environment: process.env.NODE_ENV || 'development'
-        };
+        return 'OK';
     }
-    getTest() {
-        return 'Test endpoint is working';
+    async getDatabaseStatus() {
+        try {
+            const isConnected = this.dataSource.isInitialized;
+            if (!isConnected) {
+                return {
+                    status: 'error',
+                    message: 'Database not connected',
+                    isConnected: false
+                };
+            }
+            const tables = await this.dataSource.query(`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        ORDER BY table_name;
+      `);
+            const migrations = await this.dataSource.query(`
+        SELECT * FROM migrations 
+        ORDER BY timestamp;
+      `);
+            return {
+                status: 'success',
+                isConnected: true,
+                database: process.env.DB_DATABASE,
+                tables: tables.map(t => t.table_name),
+                migrations: migrations.map(m => ({
+                    name: m.name,
+                    timestamp: m.timestamp
+                })),
+                tableCount: tables.length,
+                migrationCount: migrations.length
+            };
+        }
+        catch (error) {
+            return {
+                status: 'error',
+                message: error.message,
+                isConnected: false
+            };
+        }
     }
 };
 exports.AppController = AppController;
@@ -43,22 +73,23 @@ __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Object)
+    __metadata("design:returntype", String)
 ], AppController.prototype, "getHello", null);
 __decorate([
     (0, common_1.Get)('health'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Object)
+    __metadata("design:returntype", String)
 ], AppController.prototype, "getHealth", null);
 __decorate([
-    (0, common_1.Get)('test'),
+    (0, common_1.Get)('db-status'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
-    __metadata("design:returntype", String)
-], AppController.prototype, "getTest", null);
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "getDatabaseStatus", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)(),
-    __metadata("design:paramtypes", [app_service_1.AppService])
+    __metadata("design:paramtypes", [app_service_1.AppService,
+        typeorm_1.DataSource])
 ], AppController);
 //# sourceMappingURL=app.controller.js.map

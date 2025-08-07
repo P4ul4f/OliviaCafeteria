@@ -38,6 +38,30 @@ import { ContenidoConfigModule } from './contenido-config/contenido-config.modul
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
+        // Verificar si estamos en un entorno con base de datos configurada
+        const hasDatabaseConfig = config.get('DB_HOST') && config.get('DB_USER') && config.get('DB_PASSWORD');
+        
+        if (!hasDatabaseConfig) {
+          console.log('⚠️ Database environment variables not configured, using in-memory database');
+          return {
+            type: 'sqlite',
+            database: ':memory:',
+            entities: [
+              Reserva, 
+              Pago, 
+              Administrador, 
+              SiteConfig, 
+              PreciosConfig, 
+              FechasConfig, 
+              MenuPdf,
+              GiftCard,
+              ContenidoConfig
+            ],
+            synchronize: true,
+            logging: config.get('NODE_ENV') === 'development',
+          };
+        }
+
         // Validar que todas las variables de entorno necesarias estén presentes
         const requiredEnvVars = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_DATABASE'];
         for (const envVar of requiredEnvVars) {

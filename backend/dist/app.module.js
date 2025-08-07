@@ -12,6 +12,7 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const typeorm_1 = require("@nestjs/typeorm");
 const config_1 = require("@nestjs/config");
+const typeorm_2 = require("typeorm");
 const reserva_module_1 = require("./reserva/reserva.module");
 const pago_module_1 = require("./pago/pago.module");
 const administrador_module_1 = require("./administrador/administrador.module");
@@ -49,7 +50,7 @@ exports.AppModule = AppModule = __decorate([
                 imports: [config_1.ConfigModule],
                 inject: [config_1.ConfigService],
                 useFactory: (config) => {
-                    const requiredEnvVars = ['DB_HOST', 'DB_PORT', 'DB_USERNAME', 'DB_PASSWORD', 'DB_DATABASE'];
+                    const requiredEnvVars = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_DATABASE'];
                     for (const envVar of requiredEnvVars) {
                         if (!config.get(envVar)) {
                             throw new Error(`Missing required environment variable: ${envVar}`);
@@ -59,7 +60,7 @@ exports.AppModule = AppModule = __decorate([
                         type: 'postgres',
                         host: config.get('DB_HOST'),
                         port: parseInt(config.get('DB_PORT') ?? '5432', 10),
-                        username: config.get('DB_USERNAME'),
+                        username: config.get('DB_USER'),
                         password: config.get('DB_PASSWORD'),
                         database: config.get('DB_DATABASE'),
                         entities: [
@@ -93,7 +94,14 @@ exports.AppModule = AppModule = __decorate([
             contenido_config_module_1.ContenidoConfigModule,
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService],
+        providers: [
+            app_service_1.AppService,
+            {
+                provide: 'DataSource',
+                useFactory: (dataSource) => dataSource,
+                inject: [typeorm_2.DataSource],
+            },
+        ],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map
