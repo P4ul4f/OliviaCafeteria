@@ -23,20 +23,21 @@ export class DatabaseInitializer {
         this.logger.log(`  - ${table.table_name}`);
       });
 
-      // Si no hay tablas, crear las básicas
-      if (tables.length === 0) {
-        this.logger.log('🏗️  No hay tablas, creando estructura inicial...');
-        await this.createInitialTables();
-        // Recargar lista de tablas
-        const newTables = await this.dataSource.query(`
-          SELECT table_name 
-          FROM information_schema.tables 
-          WHERE table_schema = 'public' 
-          ORDER BY table_name;
-        `);
-        this.logger.log(`✅ Tablas creadas: ${newTables.length}`);
-        tables.push(...newTables);
-      }
+      // Siempre crear las tablas iniciales (esto asegura que migrations tenga la restricción UNIQUE)
+      this.logger.log('🏗️  Creando estructura inicial de tablas...');
+      await this.createInitialTables();
+      
+      // Recargar lista de tablas
+      const newTables = await this.dataSource.query(`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        ORDER BY table_name;
+      `);
+      this.logger.log(`✅ Tablas disponibles: ${newTables.length}`);
+      newTables.forEach(table => {
+        this.logger.log(`  - ${table.table_name}`);
+      });
 
       // Verificar migraciones después de crear las tablas
       let migrations = [];
@@ -47,11 +48,11 @@ export class DatabaseInitializer {
         `);
         this.logger.log(`🔄 Migraciones registradas: ${migrations.length}`);
       } catch (error) {
-        this.logger.log('⚠️ Tabla migrations no existe, se creará automáticamente');
+        this.logger.log('⚠️ Error consultando migraciones:', error.message);
       }
 
       // Marcar migraciones faltantes como ejecutadas
-      await this.markMissingMigrationsAsExecuted(tables, migrations);
+      await this.markMissingMigrationsAsExecuted(newTables, migrations);
 
       // Insertar datos iniciales si las tablas están vacías
       await this.insertInitialData();
