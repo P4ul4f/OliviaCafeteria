@@ -52,23 +52,46 @@ export class MenuPdfController {
       return { success: false, message: 'No se subió ningún archivo' };
     }
 
+    console.log('📤 Iniciando upload de PDF:', file.originalname);
+    console.log('📁 Archivo recibido:', file);
+
     try {
       // Obtener el PDF anterior activo
       const pdfAnterior = await this.menuPdfRepo.findOne({ 
         where: { clave: 'carta_principal', activo: true } 
       });
 
+      console.log('📄 PDF anterior encontrado:', pdfAnterior);
+
       // Eliminar el archivo anterior si existe
       if (pdfAnterior) {
         const filePathAnterior = path.join(process.cwd(), pdfAnterior.rutaArchivo);
+        console.log('🗑️ Intentando eliminar archivo anterior:', filePathAnterior);
         if (fs.existsSync(filePathAnterior)) {
           fs.unlinkSync(filePathAnterior);
+          console.log('✅ Archivo anterior eliminado');
+        } else {
+          console.log('⚠️ Archivo anterior no encontrado para eliminar');
         }
         // Desactivar el registro anterior
         await this.menuPdfRepo.update({ activo: true }, { activo: false });
+        console.log('✅ Registro anterior desactivado');
       }
 
-      // Guardar el nuevo PDF
+      // Verificar que el archivo se guardó correctamente
+      const uploadsDir = path.join(process.cwd(), 'uploads-files');
+      const filePath = path.join(uploadsDir, file.filename);
+      console.log('📂 Verificando archivo guardado:', filePath);
+      
+      if (fs.existsSync(filePath)) {
+        console.log('✅ Archivo guardado correctamente en el sistema de archivos');
+        const stats = fs.statSync(filePath);
+        console.log('📊 Tamaño del archivo:', stats.size, 'bytes');
+      } else {
+        console.log('❌ ERROR: Archivo no encontrado después de guardar');
+      }
+
+      // Guardar el nuevo PDF en la base de datos
       const pdf = this.menuPdfRepo.create({
         clave: 'carta_principal',
         nombreArchivo: file.filename,
@@ -78,13 +101,16 @@ export class MenuPdfController {
         activo: true,
       });
       await this.menuPdfRepo.save(pdf);
+      console.log('✅ PDF guardado en la base de datos:', pdf);
       
       return { success: true, message: 'PDF subido correctamente', pdf };
     } catch (error) {
+      console.error('❌ Error en uploadPdf:', error);
       // Si hay error, intentar eliminar el archivo subido
       const filePath = path.join(process.cwd(), 'uploads-files', file.filename);
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
+        console.log('🗑️ Archivo eliminado debido al error');
       }
       throw error;
     }
@@ -98,16 +124,37 @@ export class MenuPdfController {
 
   @Get('download')
   async downloadPdf(@Res() res: Response) {
-    const pdf = await this.menuPdfRepo.findOne({ where: { clave: 'carta_principal', activo: true } });
-    if (!pdf) {
-      return res.status(404).json({ message: 'No hay carta PDF disponible' });
+    try {
+      const pdf = await this.menuPdfRepo.findOne({ where: { clave: 'carta_principal', activo: true } });
+      if (!pdf) {
+        console.log('❌ No hay PDF activo en la base de datos');
+        return res.status(404).json({ message: 'No hay carta PDF disponible' });
+      }
+      
+      console.log('📄 PDF encontrado en BD:', pdf);
+      const filePath = path.join(process.cwd(), pdf.rutaArchivo);
+      console.log('📁 Ruta del archivo:', filePath);
+      
+      if (!fs.existsSync(filePath)) {
+        console.log('❌ Archivo no existe en el sistema de archivos');
+        console.log('📂 Contenido del directorio uploads-files:');
+        const uploadsDir = path.join(process.cwd(), 'uploads-files');
+        if (fs.existsSync(uploadsDir)) {
+          const files = fs.readdirSync(uploadsDir);
+          console.log('📋 Archivos encontrados:', files);
+        } else {
+          console.log('❌ Directorio uploads-files no existe');
+        }
+        return res.status(404).json({ message: 'Archivo no encontrado' });
+      }
+      
+      console.log('✅ Archivo encontrado, enviando...');
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="${pdf.nombreArchivo}"`);
+      fs.createReadStream(filePath).pipe(res);
+    } catch (error) {
+      console.error('❌ Error en downloadPdf:', error);
+      return res.status(500).json({ message: 'Error interno del servidor' });
     }
-    const filePath = path.join(process.cwd(), pdf.rutaArchivo);
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ message: 'Archivo no encontrado' });
-    }
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `inline; filename="${pdf.nombreArchivo}"`);
-    fs.createReadStream(filePath).pipe(res);
   }
 } 
