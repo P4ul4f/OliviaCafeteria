@@ -26,15 +26,14 @@ export class GiftCard {
   @Column()
   telefonoDestinatario: string;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('numeric', { precision: 10, scale: 2 })
   monto: number;
 
   @Column({ type: 'text', nullable: true })
   mensaje: string;
 
   @Column({
-    type: 'enum',
-    enum: EstadoGiftCard,
+    type: 'character varying',
     default: EstadoGiftCard.PAGADA,
   })
   estado: EstadoGiftCard;
