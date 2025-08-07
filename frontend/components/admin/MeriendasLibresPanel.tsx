@@ -650,16 +650,16 @@ export default function MeriendasLibresPanel() {
             Recargar Contenido
           </button>
           <button 
-            onClick={() => {
-              // Actualizar el estado con el nuevo contenido
-              setContenido(updatedContenido);
-              
-              // Guardar en la base de datos
-              await apiService.updateContenidoConfig('meriendas-libres', updatedContenido);
-              
-              setEditing(false);
-              setMessage('Contenido actualizado exitosamente');
-              setMessageType('success');
+            onClick={async () => {
+              try {
+                // Guardar en la base de datos
+                await apiService.updateContenidoConfig('meriendas-libres', contenido);
+                
+                setSuccessMessage('Contenido actualizado exitosamente');
+                setSuccessModalOpen(true);
+              } catch (error) {
+                console.error('Error al actualizar contenido:', error);
+              }
             }}
             style={{
               padding: '8px 16px',

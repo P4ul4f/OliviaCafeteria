@@ -18,18 +18,6 @@ function IconoGiftClaro() {
   );
 }
 
-function IconoGiftVerde() {
-  return (
-    <Image 
-      src="/tarjeta-de-regalo (1).png" 
-      alt="Tarjeta de regalo" 
-      width={48} 
-      height={48}
-      className={styles.giftIconVerde}
-    />
-  );
-}
-
 function IconoCorazon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -69,7 +57,7 @@ function SeparadorElegante() {
     <div className={styles.separadorElegante}>
       <div className={styles.linea}></div>
       <div className={styles.circulo}>
-        <IconoGiftVerde />
+        <IconoGiftClaro />
       </div>
       <div className={styles.linea}></div>
     </div>
