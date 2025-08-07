@@ -12,11 +12,11 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || 'cafeolivia',
   database: process.env.DB_DATABASE || 'OliviaCafeteria',
   entities: [
-    'src/**/*.entity.ts'
+    'dist/**/*.entity.js'  // Cambiar a .js para producción
   ],
   migrations: [
-    'src/database/migrations/*.ts'
+    'dist/database/migrations/*.js'  // Cambiar a .js para producción
   ],
   synchronize: false, // Solo usar migraciones en producción
-  logging: true,
+  logging: process.env.NODE_ENV === 'development',
 }); 
