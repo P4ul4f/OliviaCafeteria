@@ -23,8 +23,8 @@ let PreciosConfig = class PreciosConfig {
     descripcionPromoBasica;
     cuposMeriendasLibres;
     cuposTardesDeTe;
-    fechaCreacion;
-    fechaActualizacion;
+    createdAt;
+    updatedAt;
 };
 exports.PreciosConfig = PreciosConfig;
 __decorate([
@@ -72,13 +72,13 @@ __decorate([
     __metadata("design:type", Number)
 ], PreciosConfig.prototype, "cuposTardesDeTe", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)(),
+    (0, typeorm_1.CreateDateColumn)({ name: 'createdAt' }),
     __metadata("design:type", Date)
-], PreciosConfig.prototype, "fechaCreacion", void 0);
+], PreciosConfig.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)(),
+    (0, typeorm_1.UpdateDateColumn)({ name: 'updatedAt' }),
     __metadata("design:type", Date)
-], PreciosConfig.prototype, "fechaActualizacion", void 0);
+], PreciosConfig.prototype, "updatedAt", void 0);
 exports.PreciosConfig = PreciosConfig = __decorate([
     (0, typeorm_1.Entity)()
 ], PreciosConfig);

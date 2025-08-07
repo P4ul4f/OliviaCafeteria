@@ -10,6 +10,6 @@ export declare class PreciosConfig {
     descripcionPromoBasica: string;
     cuposMeriendasLibres: number;
     cuposTardesDeTe: number;
-    fechaCreacion: Date;
-    fechaActualizacion: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }

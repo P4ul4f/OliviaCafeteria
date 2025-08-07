@@ -41,6 +41,6 @@ export declare class SiteConfig {
             noche: string;
         };
     };
-    fechaCreacion: Date;
-    fechaActualizacion: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }

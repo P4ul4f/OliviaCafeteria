@@ -89,19 +89,19 @@ async function seedInitialData(dataSource) {
     const fechasExistentes = await fechasConfigRepo.count();
     if (fechasExistentes === 0) {
         const fechasMeriendas = [
-            { fecha: new Date(2025, 7, 8), activa: true },
-            { fecha: new Date(2025, 7, 9), activa: true },
-            { fecha: new Date(2025, 7, 15), activa: true },
-            { fecha: new Date(2025, 7, 16), activa: true },
-            { fecha: new Date(2025, 7, 29), activa: true },
-            { fecha: new Date(2025, 7, 30), activa: true },
+            { fecha: new Date(2025, 7, 8), activo: true },
+            { fecha: new Date(2025, 7, 9), activo: true },
+            { fecha: new Date(2025, 7, 15), activo: true },
+            { fecha: new Date(2025, 7, 16), activo: true },
+            { fecha: new Date(2025, 7, 29), activo: true },
+            { fecha: new Date(2025, 7, 30), activo: true },
         ];
         for (const fechaData of fechasMeriendas) {
             const fechaConfig = fechasConfigRepo.create({
                 fecha: fechaData.fecha,
+                tipoReserva: 'merienda_libre',
                 turnos: ['16:30-18:30', '19:00-21:00'],
-                activa: fechaData.activa,
-                observaciones: 'Fecha de merienda libre programada'
+                activo: fechaData.activo
             });
             await fechasConfigRepo.save(fechaConfig);
         }

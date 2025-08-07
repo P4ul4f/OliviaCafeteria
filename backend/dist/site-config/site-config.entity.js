@@ -18,8 +18,8 @@ let SiteConfig = class SiteConfig {
     direccion;
     email;
     horarios;
-    fechaCreacion;
-    fechaActualizacion;
+    createdAt;
+    updatedAt;
 };
 exports.SiteConfig = SiteConfig;
 __decorate([
@@ -47,13 +47,13 @@ __decorate([
     __metadata("design:type", Object)
 ], SiteConfig.prototype, "horarios", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)(),
+    (0, typeorm_1.CreateDateColumn)({ name: 'createdAt' }),
     __metadata("design:type", Date)
-], SiteConfig.prototype, "fechaCreacion", void 0);
+], SiteConfig.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)(),
+    (0, typeorm_1.UpdateDateColumn)({ name: 'updatedAt' }),
     __metadata("design:type", Date)
-], SiteConfig.prototype, "fechaActualizacion", void 0);
+], SiteConfig.prototype, "updatedAt", void 0);
 exports.SiteConfig = SiteConfig = __decorate([
     (0, typeorm_1.Entity)()
 ], SiteConfig);

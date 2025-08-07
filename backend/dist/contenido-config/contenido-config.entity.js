@@ -37,11 +37,11 @@ __decorate([
     __metadata("design:type", String)
 ], ContenidoConfig.prototype, "descripcion", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)(),
+    (0, typeorm_1.CreateDateColumn)({ name: 'fechaCreacion' }),
     __metadata("design:type", Date)
 ], ContenidoConfig.prototype, "fechaCreacion", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)(),
+    (0, typeorm_1.UpdateDateColumn)({ name: 'fechaActualizacion' }),
     __metadata("design:type", Date)
 ], ContenidoConfig.prototype, "fechaActualizacion", void 0);
 exports.ContenidoConfig = ContenidoConfig = __decorate([
