@@ -498,8 +498,33 @@ export class DatabaseInitializer {
       this.logger.log('📝 Insertando datos específicos en precios_config...');
       
       await this.dataSource.query(`
-        INSERT INTO precios_config (clave, "promoOlivia", "promoBasica", "meriendaLibre", "descripcionPromoOlivia", "descripcionPromoBasica", "cuposMeriendasLibres", "cuposTardesDeTe", "aLaCarta", "tardeDeTe") VALUES
-        ('precios_principales', 18500.00, 15600.00, 18500.00, 'Promo completa con selección premium', 'Promo esencial con lo mejor de nuestra carta', 40, 65, 5000.00, 0.00)
+        INSERT INTO "precios_config" (
+          "clave", "promoOlivia", "promoBasica", "meriendaLibre", "aLaCarta", "tardeDeTe", 
+          "descripcionPromoOlivia", "descripcionPromoBasica", "cuposMeriendasLibres", "cuposTardesDeTe",
+          "capacidadMaximaCompartida"
+        ) VALUES (
+          'precios_principales', 
+          8500, 
+          6500, 
+          4500, 
+          3500, 
+          5500, 
+          'Experiencia completa con todos los dulces, bebidas y salados', 
+          'Experiencia básica con selección de dulces, bebidas y salados', 
+          40, 
+          5,
+          65
+        ) ON CONFLICT ("clave") DO UPDATE SET
+          "promoOlivia" = EXCLUDED."promoOlivia",
+          "promoBasica" = EXCLUDED."promoBasica", 
+          "meriendaLibre" = EXCLUDED."meriendaLibre",
+          "aLaCarta" = EXCLUDED."aLaCarta",
+          "tardeDeTe" = EXCLUDED."tardeDeTe",
+          "descripcionPromoOlivia" = EXCLUDED."descripcionPromoOlivia",
+          "descripcionPromoBasica" = EXCLUDED."descripcionPromoBasica",
+          "cuposMeriendasLibres" = EXCLUDED."cuposMeriendasLibres",
+          "cuposTardesDeTe" = EXCLUDED."cuposTardesDeTe",
+          "capacidadMaximaCompartida" = EXCLUDED."capacidadMaximaCompartida";
       `);
       
       this.logger.log('✅ Datos específicos insertados en precios_config');

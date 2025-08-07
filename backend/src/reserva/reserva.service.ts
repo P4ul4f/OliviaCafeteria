@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
+import { Repository, Between, In } from 'typeorm';
 import { Reserva, TipoReserva, EstadoReserva, EstadoPago } from './reserva.entity';
 import { CreateReservaDto } from './dto/create-reserva.dto';
 import { UpdateReservaDto } from './dto/update-reserva.dto';
@@ -471,28 +471,15 @@ export class ReservaService {
       }
 
       return horariosConCupos;
-    } else if (tipoReserva === TipoReserva.TARDE_TE) {
-      // Para tardes de té: verificar cupos por turno (5 reservas por turno)
+    } else if (tipoReserva === TipoReserva.TARDE_TE || tipoReserva === TipoReserva.A_LA_CARTA) {
+      // Para tardes de té y a la carta: verificar capacidad compartida por horario
       const horariosConCupos: { horario: string; disponible: boolean; cuposDisponibles: number }[] = [];
-      const fechaInicio = new Date(fecha);
-      fechaInicio.setHours(0, 0, 0, 0);
       
-      const fechaFin = new Date(fecha);
-      fechaFin.setHours(23, 59, 59, 999);
-
       for (const horario of horariosBase) {
-        // Buscar reservas existentes para esa fecha y turno
-        const reservasExistentes = await this.reservaRepository.find({
-          where: {
-            fechaHora: Between(fechaInicio, fechaFin),
-            turno: horario,
-            tipoReserva,
-            estado: EstadoReserva.CONFIRMADA,
-          },
-        });
-
-        // Para tardes de té: máximo 5 reservas por turno (sin importar cantidad de personas)
-        const cuposDisponibles = this.CAPACIDAD_MAXIMA_TURNO_TARDE_TE - reservasExistentes.length;
+        // Calcular capacidad compartida para este horario específico
+        const capacidadCompartida = await this.calcularCapacidadCompartida(fecha, horario);
+        const capacidadMaxima = await this.preciosConfigService.getCapacidadMaximaCompartida();
+        const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadCompartida);
         const disponible = cuposDisponibles > 0;
 
         horariosConCupos.push({
@@ -551,16 +538,16 @@ export class ReservaService {
         capacidadOcupada,
         reservasExistentes: reservasExistentes.length,
       };
-    } else if (tipoReserva === TipoReserva.TARDE_TE) {
-      // Para tardes de té: máximo 5 reservas por turno
-      const capacidadOcupada = reservasExistentes.length;
-      const capacidadMaxima = this.CAPACIDAD_MAXIMA_TURNO_TARDE_TE;
-      const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadOcupada);
+    } else if (tipoReserva === TipoReserva.TARDE_TE || tipoReserva === TipoReserva.A_LA_CARTA) {
+      // Para tardes de té y a la carta: calcular capacidad compartida
+      const capacidadCompartida = await this.calcularCapacidadCompartida(fecha, turno);
+      const capacidadMaxima = await this.preciosConfigService.getCapacidadMaximaCompartida();
+      const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadCompartida);
 
       return {
         cuposDisponibles,
         capacidadMaxima,
-        capacidadOcupada,
+        capacidadOcupada: capacidadCompartida,
         reservasExistentes: reservasExistentes.length,
       };
     } else {
@@ -572,6 +559,53 @@ export class ReservaService {
         reservasExistentes: reservasExistentes.length,
       };
     }
+  }
+
+  // Método para calcular capacidad compartida considerando estadía variable
+  private async calcularCapacidadCompartida(fecha: Date, turno: string): Promise<number> {
+    const fechaInicio = new Date(fecha);
+    fechaInicio.setHours(0, 0, 0, 0);
+    
+    const fechaFin = new Date(fecha);
+    fechaFin.setHours(23, 59, 59, 999);
+
+    // Buscar todas las reservas de tardes de té y a la carta para esa fecha
+    const reservasCompartidas = await this.reservaRepository.find({
+      where: {
+        fechaHora: Between(fechaInicio, fechaFin),
+        tipoReserva: In([TipoReserva.TARDE_TE, TipoReserva.A_LA_CARTA]),
+        estado: EstadoReserva.CONFIRMADA,
+      },
+    });
+
+    // Calcular capacidad ocupada considerando estadía variable
+    let capacidadOcupada = 0;
+    const ventanasTiempo = new Map<string, number>();
+
+    for (const reserva of reservasCompartidas) {
+      const horaReserva = new Date(reserva.fechaHora);
+      const horaInicio = horaReserva.getHours() + horaReserva.getMinutes() / 60;
+      
+      // Para tardes de té: estadía de 1 hora
+      // Para a la carta: estadía de 30 minutos
+      const duracionEstadia = reserva.tipoReserva === TipoReserva.TARDE_TE ? 1 : 0.5;
+      
+      // Calcular ventanas de tiempo afectadas
+      for (let i = 0; i < duracionEstadia * 2; i++) { // Multiplicar por 2 porque hay ventanas cada 30 min
+        const ventanaHora = horaInicio + (i * 0.5);
+        const ventanaKey = `${Math.floor(ventanaHora)}:${(ventanaHora % 1) * 60}`;
+        
+        const capacidadActual = ventanasTiempo.get(ventanaKey) || 0;
+        ventanasTiempo.set(ventanaKey, capacidadActual + reserva.cantidadPersonas);
+      }
+    }
+
+    // Encontrar la ventana con mayor capacidad ocupada
+    for (const capacidad of ventanasTiempo.values()) {
+      capacidadOcupada = Math.max(capacidadOcupada, capacidad);
+    }
+
+    return capacidadOcupada;
   }
 
   private async calcularPrecio(tipoReserva: TipoReserva, cantidadPersonas: number): Promise<number> {

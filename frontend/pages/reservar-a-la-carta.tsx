@@ -19,6 +19,11 @@ export default function ReservarALaCarta() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [horariosConCupos, setHorariosConCupos] = useState<HorarioConCupos[]>([]);
+  const [loadingHorarios, setLoadingHorarios] = useState(false);
+  const [loadingCupos, setLoadingCupos] = useState(false);
+  const [cuposDisponibles, setCuposDisponibles] = useState(0);
+  const [maxPersonas, setMaxPersonas] = useState(0);
 
   // Cerrar dropdown cuando se hace clic fuera
   useEffect(() => {
@@ -115,6 +120,11 @@ export default function ReservarALaCarta() {
         turno: ''
       }));
     }
+    
+    // Cargar cupos disponibles cuando se selecciona un horario
+    if (formData.fecha) {
+      loadCuposDisponibles(formData.fecha, horario);
+    }
   };
 
   const validateForm = () => {
@@ -197,6 +207,25 @@ export default function ReservarALaCarta() {
     return dateToCheck >= today;
   };
 
+  // Función para cargar cupos disponibles
+  const loadCuposDisponibles = async (fecha: Date, horario: string) => {
+    if (!fecha || !horario) return;
+    
+    try {
+      setLoadingCupos(true);
+      const cuposData = await apiService.getCuposDisponibles(fecha, horario, 'a-la-carta');
+      setCuposDisponibles(cuposData.cuposDisponibles);
+      // Para a la carta: máximo 10 personas por reserva
+      setMaxPersonas(Math.min(cuposData.cuposDisponibles, 10));
+    } catch (error) {
+      console.error('Error cargando cupos disponibles:', error);
+      setCuposDisponibles(0);
+      setMaxPersonas(0);
+    } finally {
+      setLoadingCupos(false);
+    }
+  };
+
   return (
     <div className={styles.bgBeige}>
       <Navbar />
@@ -264,6 +293,11 @@ export default function ReservarALaCarta() {
             <div className={styles.formGroup}>
               <label htmlFor="cantidadPersonas" className={styles.label}>
                 Cantidad de personas (máximo 10) *
+                {formData.turno && (
+                  <span className={styles.cuposInfo}>
+                    {loadingCupos ? 'Cargando cupos...' : `${cuposDisponibles} cupos disponibles`}
+                  </span>
+                )}
               </label>
               <div className={styles.customSelectWrapper} id="cantidadWrapper">
                 <div 
@@ -291,17 +325,19 @@ export default function ReservarALaCarta() {
                   <div className={styles.customSelectArrow}>▼</div>
                 </div>
                 <div id="cantidadDropdown" className={styles.customSelectDropdown}>
-                  {Array.from({ length: 10 }, (_, i) => i + 1).map(num => (
+                  {Array.from({ length: Math.min(maxPersonas, 10) }, (_, i) => i + 1).map(num => (
                     <div
                       key={num}
-                      className={styles.customSelectOption}
+                      className={`${styles.customSelectOption} ${num > maxPersonas ? styles.disabled : ''}`}
                       onClick={() => {
-                        setFormData(prev => ({ ...prev, cantidadPersonas: num.toString() }));
-                        if (errors.cantidadPersonas) {
-                          setErrors(prev => ({ ...prev, cantidadPersonas: '' }));
+                        if (num <= maxPersonas) {
+                          setFormData(prev => ({ ...prev, cantidadPersonas: num.toString() }));
+                          if (errors.cantidadPersonas) {
+                            setErrors(prev => ({ ...prev, cantidadPersonas: '' }));
+                          }
+                          const dropdown = document.getElementById('cantidadDropdown');
+                          dropdown?.classList.remove(styles.show);
                         }
-                        const dropdown = document.getElementById('cantidadDropdown');
-                        dropdown?.classList.remove(styles.show);
                       }}
                     >
                       <img 
@@ -309,12 +345,18 @@ export default function ReservarALaCarta() {
                         alt={num === 1 ? "persona" : "personas"} 
                         className={styles.selectIconLeft}
                       />
-                      <span>{num === 1 ? `${num} persona` : `${num} personas`}</span>
+                      <span>
+                        {num === 1 ? `${num} persona` : `${num} personas`}
+                        {num > maxPersonas && ` (No disponible)`}
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
               {errors.cantidadPersonas && <div className={styles.error}>{errors.cantidadPersonas}</div>}
+              {formData.turno && cuposDisponibles === 0 && (
+                <div className={styles.error}>No hay cupos disponibles para este horario</div>
+              )}
             </div>
 
             <div className={styles.formGroup}>

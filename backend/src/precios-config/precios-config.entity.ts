@@ -23,17 +23,20 @@ export class PreciosConfig {
   @Column('decimal', { precision: 10, scale: 2 })
   tardeDeTe: number;
 
-  @Column({ nullable: true })
+  @Column('text')
   descripcionPromoOlivia: string;
 
-  @Column({ nullable: true })
+  @Column('text')
   descripcionPromoBasica: string;
 
-  @Column('int', { default: 40 })
+  @Column('integer', { default: 40 })
   cuposMeriendasLibres: number;
 
-  @Column('int', { default: 65 })
+  @Column('integer', { default: 5 })
   cuposTardesDeTe: number;
+
+  @Column('integer', { default: 65 })
+  capacidadMaximaCompartida: number;
 
   @CreateDateColumn({ name: 'createdAt' })
   createdAt: Date;

@@ -26,6 +26,9 @@ export default function ReservarTardeTe() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [horariosConCupos, setHorariosConCupos] = useState<HorarioConCupos[]>([]);
   const [loadingHorarios, setLoadingHorarios] = useState(false);
+  const [loadingCupos, setLoadingCupos] = useState(false);
+  const [cuposDisponibles, setCuposDisponibles] = useState(0);
+  const [maxPersonas, setMaxPersonas] = useState(0);
 
   // Cerrar dropdown cuando se hace clic fuera
   useEffect(() => {
@@ -59,6 +62,25 @@ export default function ReservarTardeTe() {
       setHorariosConCupos([]);
     }
   }, [formData.fecha]);
+
+  // Función para cargar cupos disponibles
+  const loadCuposDisponibles = async (fecha: Date, horario: string) => {
+    if (!fecha || !horario) return;
+    
+    try {
+      setLoadingCupos(true);
+      const cuposData = await apiService.getCuposDisponibles(fecha, horario, 'tarde-te');
+      setCuposDisponibles(cuposData.cuposDisponibles);
+      // Para tardes de té: máximo 10 personas por reserva
+      setMaxPersonas(Math.min(cuposData.cuposDisponibles, 10));
+    } catch (error) {
+      console.error('Error cargando cupos disponibles:', error);
+      setCuposDisponibles(0);
+      setMaxPersonas(0);
+    } finally {
+      setLoadingCupos(false);
+    }
+  };
 
   const loadHorariosDisponibles = async () => {
     if (!formData.fecha) {
@@ -292,6 +314,11 @@ export default function ReservarTardeTe() {
             <div className={styles.formGroup}>
               <label htmlFor="cantidadPersonas" className={styles.label}>
                 Cantidad de personas (mínimo 10) *
+                {formData.turno && (
+                  <span className={styles.cuposInfo}>
+                    {loadingCupos ? 'Cargando cupos...' : `${cuposDisponibles} cupos disponibles`}
+                  </span>
+                )}
               </label>
               <div className={styles.customSelectWrapper} id="cantidadWrapper">
                 <div 
@@ -317,17 +344,19 @@ export default function ReservarTardeTe() {
                   <div className={styles.customSelectArrow}>▼</div>
                 </div>
                 <div id="cantidadDropdown" className={styles.customSelectDropdown}>
-                  {Array.from({ length: 31 }, (_, i) => i + 10).map(num => (
+                  {Array.from({ length: Math.min(maxPersonas - 9, 31) }, (_, i) => i + 10).map(num => (
                     <div
                       key={num}
-                      className={styles.customSelectOption}
+                      className={`${styles.customSelectOption} ${num > maxPersonas ? styles.disabled : ''}`}
                       onClick={() => {
-                        setFormData(prev => ({ ...prev, cantidadPersonas: num.toString() }));
-                        if (errors.cantidadPersonas) {
-                          setErrors(prev => ({ ...prev, cantidadPersonas: '' }));
+                        if (num <= maxPersonas) {
+                          setFormData(prev => ({ ...prev, cantidadPersonas: num.toString() }));
+                          if (errors.cantidadPersonas) {
+                            setErrors(prev => ({ ...prev, cantidadPersonas: '' }));
+                          }
+                          const dropdown = document.getElementById('cantidadDropdown');
+                          dropdown?.classList.remove(styles.show);
                         }
-                        const dropdown = document.getElementById('cantidadDropdown');
-                        dropdown?.classList.remove(styles.show);
                       }}
                     >
                       <img 
@@ -335,12 +364,18 @@ export default function ReservarTardeTe() {
                         alt="personas" 
                         className={styles.selectIconLeft}
                       />
-                      <span>{`${num} personas`}</span>
+                      <span>
+                        {`${num} personas`}
+                        {num > maxPersonas && ` (No disponible)`}
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
               {errors.cantidadPersonas && <div className={styles.error}>{errors.cantidadPersonas}</div>}
+              {formData.turno && cuposDisponibles === 0 && (
+                <div className={styles.error}>No hay cupos disponibles para este horario</div>
+              )}
             </div>
 
             <div className={styles.formGroup}>
@@ -408,6 +443,8 @@ export default function ReservarTardeTe() {
                             if (errors.turno) {
                               setErrors(prev => ({ ...prev, turno: '' }));
                             }
+                            // Cargar cupos disponibles cuando se selecciona un horario
+                            loadCuposDisponibles(formData.fecha!, horario.horario);
                           }
                           const dropdown = document.getElementById('horarioDropdown');
                           dropdown?.classList.remove(styles.show);
