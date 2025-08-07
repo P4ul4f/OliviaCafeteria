@@ -23,6 +23,9 @@ export class MenuPdf {
   @Column({ default: true })
   activo: boolean;
 
+  @Column({ type: 'bytea', nullable: true })
+  contenidoArchivo: Buffer; // Almacenar el contenido del PDF en la base de datos
+
   @CreateDateColumn({ name: 'createdAt' })
   fechaCreacion: Date;
 

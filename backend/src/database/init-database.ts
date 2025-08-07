@@ -339,6 +339,7 @@ export class DatabaseInitializer {
         "tamanoArchivo" integer,
         "descripcion" text,
         "activo" boolean NOT NULL DEFAULT true,
+        "contenidoArchivo" bytea,
         "createdAt" timestamp NOT NULL DEFAULT now(),
         "updatedAt" timestamp NOT NULL DEFAULT now(),
         CONSTRAINT "PK_menu_pdf" PRIMARY KEY ("id")

@@ -91,17 +91,35 @@ export class MenuPdfController {
         console.log('❌ ERROR: Archivo no encontrado después de guardar');
       }
 
-      // Guardar el nuevo PDF en la base de datos
-      const pdf = this.menuPdfRepo.create({
-        clave: 'carta_principal',
-        nombreArchivo: file.filename,
-        rutaArchivo: `/uploads-files/${file.filename}`,
-        tamanoArchivo: file.size,
-        descripcion: 'Carta principal del café',
-        activo: true,
+      // Buscar si ya existe una entrada para carta_principal
+      let pdf = await this.menuPdfRepo.findOne({ 
+        where: { clave: 'carta_principal' } 
       });
-      await this.menuPdfRepo.save(pdf);
-      console.log('✅ PDF guardado en la base de datos:', pdf);
+
+      if (pdf) {
+        // Actualizar la entrada existente
+        console.log('🔄 Actualizando PDF existente en la base de datos');
+        pdf.nombreArchivo = file.filename;
+        pdf.rutaArchivo = `/uploads-files/${file.filename}`;
+        pdf.tamanoArchivo = file.size;
+        pdf.descripcion = 'Carta principal del café';
+        pdf.activo = true;
+        await this.menuPdfRepo.save(pdf);
+        console.log('✅ PDF actualizado en la base de datos:', pdf);
+      } else {
+        // Crear nueva entrada si no existe
+        console.log('🆕 Creando nueva entrada de PDF en la base de datos');
+        pdf = this.menuPdfRepo.create({
+          clave: 'carta_principal',
+          nombreArchivo: file.filename,
+          rutaArchivo: `/uploads-files/${file.filename}`,
+          tamanoArchivo: file.size,
+          descripcion: 'Carta principal del café',
+          activo: true,
+        });
+        await this.menuPdfRepo.save(pdf);
+        console.log('✅ PDF guardado en la base de datos:', pdf);
+      }
       
       return { success: true, message: 'PDF subido correctamente', pdf };
     } catch (error) {
@@ -125,6 +143,20 @@ export class MenuPdfController {
   @Get('download')
   async downloadPdf(@Res() res: Response) {
     try {
+      // Limpiar entradas duplicadas (mantener solo la más reciente)
+      const allPdfs = await this.menuPdfRepo.find({ 
+        where: { clave: 'carta_principal' },
+        order: { fechaCreacion: 'DESC' }
+      });
+      
+      if (allPdfs.length > 1) {
+        console.log(`🧹 Limpiando ${allPdfs.length - 1} entradas duplicadas`);
+        // Desactivar todas las entradas excepto la más reciente
+        for (let i = 1; i < allPdfs.length; i++) {
+          await this.menuPdfRepo.update({ id: allPdfs[i].id }, { activo: false });
+        }
+      }
+
       const pdf = await this.menuPdfRepo.findOne({ where: { clave: 'carta_principal', activo: true } });
       if (!pdf) {
         console.log('❌ No hay PDF activo en la base de datos');
