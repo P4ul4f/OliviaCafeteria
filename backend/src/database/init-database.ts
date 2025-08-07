@@ -239,12 +239,32 @@ export class DatabaseInitializer {
         "descripcionPromoBasica" text,
         "cuposMeriendasLibres" integer,
         "cuposTardesDeTe" integer,
+        "capacidadMaximaCompartida" integer DEFAULT 65,
         "createdAt" timestamp NOT NULL DEFAULT now(),
         "updatedAt" timestamp NOT NULL DEFAULT now(),
         CONSTRAINT "PK_precios_config" PRIMARY KEY ("id"),
         CONSTRAINT "UQ_precios_config_clave" UNIQUE ("clave")
       );
     `);
+
+    // Verificar si la tabla precios_config tiene la columna capacidadMaximaCompartida
+    try {
+      const preciosConfigColumns = await this.dataSource.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'precios_config' AND table_schema = 'public'
+      `);
+      
+      const hasCapacidadMaximaCompartida = preciosConfigColumns.some((col: any) => col.column_name === 'capacidadMaximaCompartida');
+      
+      if (!hasCapacidadMaximaCompartida) {
+        this.logger.log('⚠️  Tabla precios_config no tiene capacidadMaximaCompartida, agregando columna...');
+        await this.dataSource.query(`ALTER TABLE "precios_config" ADD COLUMN "capacidadMaximaCompartida" integer DEFAULT 65`);
+        this.logger.log('✅ Columna capacidadMaximaCompartida agregada a precios_config');
+      }
+    } catch (error) {
+      this.logger.error('Error verificando/agregando capacidadMaximaCompartida:', error);
+    }
 
     // Crear tabla site_config
     await this.dataSource.query(`
@@ -313,14 +333,52 @@ export class DatabaseInitializer {
     await this.dataSource.query(`
       CREATE TABLE IF NOT EXISTS "menu_pdf" (
         "id" SERIAL NOT NULL,
-        "nombre" character varying NOT NULL,
-        "url" character varying NOT NULL,
+        "clave" character varying NOT NULL,
+        "nombreArchivo" character varying NOT NULL,
+        "rutaArchivo" character varying NOT NULL,
+        "tamanoArchivo" integer,
+        "descripcion" text,
         "activo" boolean NOT NULL DEFAULT true,
         "createdAt" timestamp NOT NULL DEFAULT now(),
         "updatedAt" timestamp NOT NULL DEFAULT now(),
         CONSTRAINT "PK_menu_pdf" PRIMARY KEY ("id")
       );
     `);
+
+    // Verificar si la tabla menu_pdf tiene las columnas correctas
+    try {
+      const menuPdfColumns = await this.dataSource.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'menu_pdf' AND table_schema = 'public'
+      `);
+      
+      const hasCorrectColumns = menuPdfColumns.some((col: any) => col.column_name === 'clave') &&
+                               menuPdfColumns.some((col: any) => col.column_name === 'nombreArchivo') &&
+                               menuPdfColumns.some((col: any) => col.column_name === 'rutaArchivo');
+      
+      if (!hasCorrectColumns) {
+        this.logger.log('⚠️  Tabla menu_pdf tiene estructura incorrecta, recreando...');
+        await this.dataSource.query(`DROP TABLE IF EXISTS "menu_pdf" CASCADE`);
+        await this.dataSource.query(`
+          CREATE TABLE "menu_pdf" (
+            "id" SERIAL NOT NULL,
+            "clave" character varying NOT NULL,
+            "nombreArchivo" character varying NOT NULL,
+            "rutaArchivo" character varying NOT NULL,
+            "tamanoArchivo" integer,
+            "descripcion" text,
+            "activo" boolean NOT NULL DEFAULT true,
+            "createdAt" timestamp NOT NULL DEFAULT now(),
+            "updatedAt" timestamp NOT NULL DEFAULT now(),
+            CONSTRAINT "PK_menu_pdf" PRIMARY KEY ("id")
+          );
+        `);
+        this.logger.log('✅ Tabla menu_pdf recreada con estructura correcta');
+      }
+    } catch (error) {
+      this.logger.error('Error verificando estructura de menu_pdf:', error);
+    }
 
     // Crear tabla admin_auth
     await this.dataSource.query(`

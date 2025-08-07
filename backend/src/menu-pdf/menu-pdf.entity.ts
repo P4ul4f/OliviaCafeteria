@@ -23,9 +23,9 @@ export class MenuPdf {
   @Column({ default: true })
   activo: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'createdAt' })
   fechaCreacion: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updatedAt' })
   fechaActualizacion: Date;
 } 
