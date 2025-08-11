@@ -204,12 +204,29 @@ class DatabaseInitializer {
         "descripcionPromoBasica" text,
         "cuposMeriendasLibres" integer,
         "cuposTardesDeTe" integer,
+        "capacidadMaximaCompartida" integer DEFAULT 65,
         "createdAt" timestamp NOT NULL DEFAULT now(),
         "updatedAt" timestamp NOT NULL DEFAULT now(),
         CONSTRAINT "PK_precios_config" PRIMARY KEY ("id"),
         CONSTRAINT "UQ_precios_config_clave" UNIQUE ("clave")
       );
     `);
+        try {
+            const preciosConfigColumns = await this.dataSource.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'precios_config' AND table_schema = 'public'
+      `);
+            const hasCapacidadMaximaCompartida = preciosConfigColumns.some((col) => col.column_name === 'capacidadMaximaCompartida');
+            if (!hasCapacidadMaximaCompartida) {
+                this.logger.log('⚠️  Tabla precios_config no tiene capacidadMaximaCompartida, agregando columna...');
+                await this.dataSource.query(`ALTER TABLE "precios_config" ADD COLUMN "capacidadMaximaCompartida" integer DEFAULT 65`);
+                this.logger.log('✅ Columna capacidadMaximaCompartida agregada a precios_config');
+            }
+        }
+        catch (error) {
+            this.logger.error('Error verificando/agregando capacidadMaximaCompartida:', error);
+        }
         await this.dataSource.query(`
       CREATE TABLE IF NOT EXISTS "site_config" (
         "id" SERIAL NOT NULL,
@@ -224,13 +241,38 @@ class DatabaseInitializer {
         CONSTRAINT "UQ_site_config_clave" UNIQUE ("clave")
       );
     `);
+        try {
+            const tableExists = await this.dataSource.query(`
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'gift_card';
+      `);
+            if (tableExists.length > 0) {
+                const hasCorrectColumns = await this.dataSource.query(`
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'gift_card' 
+          AND column_name IN ('nombreDestinatario', 'telefonoDestinatario')
+          HAVING COUNT(*) = 2;
+        `);
+                if (hasCorrectColumns.length === 0) {
+                    this.logger.log('🔄 Tabla gift_card existe pero no tiene las columnas correctas. Recreando...');
+                    await this.dataSource.query(`DROP TABLE IF EXISTS "gift_card" CASCADE`);
+                }
+                else {
+                    this.logger.log('ℹ️  Tabla gift_card ya existe con estructura correcta');
+                }
+            }
+        }
+        catch (error) {
+            this.logger.warn(`⚠️ Error verificando estructura de gift_card: ${error.message}`);
+        }
         await this.dataSource.query(`
       CREATE TABLE IF NOT EXISTS "gift_card" (
         "id" SERIAL NOT NULL,
         "nombreComprador" character varying NOT NULL,
         "telefonoComprador" character varying NOT NULL,
         "emailComprador" character varying NOT NULL,
-        "emailDestinatario" character varying,
+        "nombreDestinatario" character varying NOT NULL,
+        "telefonoDestinatario" character varying NOT NULL,
         "mensaje" text,
         "monto" numeric NOT NULL,
         "estado" character varying NOT NULL DEFAULT 'PAGADA',
@@ -244,14 +286,57 @@ class DatabaseInitializer {
         await this.dataSource.query(`
       CREATE TABLE IF NOT EXISTS "menu_pdf" (
         "id" SERIAL NOT NULL,
-        "nombre" character varying NOT NULL,
-        "url" character varying NOT NULL,
+        "clave" character varying NOT NULL,
+        "nombreArchivo" character varying NOT NULL,
+        "rutaArchivo" character varying NOT NULL,
+        "tamanoArchivo" integer,
+        "descripcion" text,
         "activo" boolean NOT NULL DEFAULT true,
+        "contenidoArchivo" bytea,
         "createdAt" timestamp NOT NULL DEFAULT now(),
         "updatedAt" timestamp NOT NULL DEFAULT now(),
         CONSTRAINT "PK_menu_pdf" PRIMARY KEY ("id")
       );
     `);
+        try {
+            const menuPdfColumns = await this.dataSource.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'menu_pdf' AND table_schema = 'public'
+      `);
+            const hasCorrectColumns = menuPdfColumns.some((col) => col.column_name === 'clave') &&
+                menuPdfColumns.some((col) => col.column_name === 'nombreArchivo') &&
+                menuPdfColumns.some((col) => col.column_name === 'rutaArchivo');
+            const hasContenidoArchivo = menuPdfColumns.some((col) => col.column_name === 'contenidoArchivo');
+            if (!hasCorrectColumns) {
+                this.logger.log('⚠️  Tabla menu_pdf tiene estructura incorrecta, recreando...');
+                await this.dataSource.query(`DROP TABLE IF EXISTS "menu_pdf" CASCADE`);
+                await this.dataSource.query(`
+          CREATE TABLE "menu_pdf" (
+            "id" SERIAL NOT NULL,
+            "clave" character varying NOT NULL,
+            "nombreArchivo" character varying NOT NULL,
+            "rutaArchivo" character varying NOT NULL,
+            "tamanoArchivo" integer,
+            "descripcion" text,
+            "activo" boolean NOT NULL DEFAULT true,
+            "contenidoArchivo" bytea,
+            "createdAt" timestamp NOT NULL DEFAULT now(),
+            "updatedAt" timestamp NOT NULL DEFAULT now(),
+            CONSTRAINT "PK_menu_pdf" PRIMARY KEY ("id")
+          );
+        `);
+                this.logger.log('✅ Tabla menu_pdf recreada con estructura correcta');
+            }
+            else if (!hasContenidoArchivo) {
+                this.logger.log('⚠️  Tabla menu_pdf no tiene columna contenidoArchivo, agregando...');
+                await this.dataSource.query(`ALTER TABLE "menu_pdf" ADD COLUMN "contenidoArchivo" bytea`);
+                this.logger.log('✅ Columna contenidoArchivo agregada a menu_pdf');
+            }
+        }
+        catch (error) {
+            this.logger.error('Error verificando estructura de menu_pdf:', error);
+        }
         await this.dataSource.query(`
       CREATE TABLE IF NOT EXISTS "admin_auth" (
         "id" SERIAL NOT NULL,
@@ -408,8 +493,33 @@ class DatabaseInitializer {
             await this.dataSource.query(`DELETE FROM precios_config`);
             this.logger.log('📝 Insertando datos específicos en precios_config...');
             await this.dataSource.query(`
-        INSERT INTO precios_config (clave, "promoOlivia", "promoBasica", "meriendaLibre", "descripcionPromoOlivia", "descripcionPromoBasica", "cuposMeriendasLibres", "cuposTardesDeTe", "aLaCarta", "tardeDeTe") VALUES
-        ('precios_principales', 18500.00, 15600.00, 18500.00, 'Promo completa con selección premium', 'Promo esencial con lo mejor de nuestra carta', 40, 65, 5000.00, 0.00)
+        INSERT INTO "precios_config" (
+          "clave", "promoOlivia", "promoBasica", "meriendaLibre", "aLaCarta", "tardeDeTe", 
+          "descripcionPromoOlivia", "descripcionPromoBasica", "cuposMeriendasLibres", "cuposTardesDeTe",
+          "capacidadMaximaCompartida"
+        ) VALUES (
+          'precios_principales', 
+          8500, 
+          6500, 
+          4500, 
+          3500, 
+          5500, 
+          'Experiencia completa con todos los dulces, bebidas y salados', 
+          'Experiencia básica con selección de dulces, bebidas y salados', 
+          40, 
+          5,
+          65
+        ) ON CONFLICT ("clave") DO UPDATE SET
+          "promoOlivia" = EXCLUDED."promoOlivia",
+          "promoBasica" = EXCLUDED."promoBasica", 
+          "meriendaLibre" = EXCLUDED."meriendaLibre",
+          "aLaCarta" = EXCLUDED."aLaCarta",
+          "tardeDeTe" = EXCLUDED."tardeDeTe",
+          "descripcionPromoOlivia" = EXCLUDED."descripcionPromoOlivia",
+          "descripcionPromoBasica" = EXCLUDED."descripcionPromoBasica",
+          "cuposMeriendasLibres" = EXCLUDED."cuposMeriendasLibres",
+          "cuposTardesDeTe" = EXCLUDED."cuposTardesDeTe",
+          "capacidadMaximaCompartida" = EXCLUDED."capacidadMaximaCompartida";
       `);
             this.logger.log('✅ Datos específicos insertados en precios_config');
         }

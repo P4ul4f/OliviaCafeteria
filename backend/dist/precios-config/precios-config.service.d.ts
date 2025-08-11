@@ -18,4 +18,5 @@ export declare class PreciosConfigService {
     updatePrecioALaCarta(precio: number): Promise<any>;
     getPrecioTardeDeTe(): Promise<number>;
     updatePrecioTardeDeTe(precio: number): Promise<any>;
+    getCapacidadMaximaCompartida(): Promise<number>;
 }

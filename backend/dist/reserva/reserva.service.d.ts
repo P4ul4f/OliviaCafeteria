@@ -5,10 +5,12 @@ import { UpdateReservaDto } from './dto/update-reserva.dto';
 import { CheckAvailabilityDto } from './dto/check-availability.dto';
 import { CreateReservaConPagoDto } from './dto/create-reserva.dto';
 import { PreciosConfigService } from '../precios-config/precios-config.service';
+import { FechasConfig } from '../fechas-config/fechas-config.entity';
 export declare class ReservaService {
     private reservaRepository;
+    private fechasConfigRepository;
     private preciosConfigService;
-    constructor(reservaRepository: Repository<Reserva>, preciosConfigService: PreciosConfigService);
+    constructor(reservaRepository: Repository<Reserva>, fechasConfigRepository: Repository<FechasConfig>, preciosConfigService: PreciosConfigService);
     private readonly PRECIOS;
     private readonly CAPACIDAD_MAXIMA_TURNO_TARDE_TE;
     create(dto: CreateReservaDto): Promise<Reserva>;
@@ -35,6 +37,13 @@ export declare class ReservaService {
         disponible: boolean;
         cuposDisponibles: number;
     }[]>;
+    getCuposDisponibles(fecha: Date, turno: string, tipoReserva: TipoReserva): Promise<{
+        cuposDisponibles: number;
+        capacidadMaxima: number;
+        capacidadOcupada: number;
+        reservasExistentes: number;
+    }>;
+    private calcularCapacidadCompartida;
     private calcularPrecio;
     confirmarPago(id: number, idPagoExterno: string, metodoPago: string): Promise<Reserva>;
 }

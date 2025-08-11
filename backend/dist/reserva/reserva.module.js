@@ -12,13 +12,14 @@ const typeorm_1 = require("@nestjs/typeorm");
 const reserva_service_1 = require("./reserva.service");
 const reserva_controller_1 = require("./reserva.controller");
 const reserva_entity_1 = require("./reserva.entity");
+const fechas_config_entity_1 = require("../fechas-config/fechas-config.entity");
 const precios_config_module_1 = require("../precios-config/precios-config.module");
 let ReservaModule = class ReservaModule {
 };
 exports.ReservaModule = ReservaModule;
 exports.ReservaModule = ReservaModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([reserva_entity_1.Reserva]), precios_config_module_1.PreciosConfigModule],
+        imports: [typeorm_1.TypeOrmModule.forFeature([reserva_entity_1.Reserva, fechas_config_entity_1.FechasConfig]), precios_config_module_1.PreciosConfigModule],
         controllers: [reserva_controller_1.ReservaController],
         providers: [reserva_service_1.ReservaService],
         exports: [reserva_service_1.ReservaService],

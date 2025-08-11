@@ -23,6 +23,7 @@ let PreciosConfig = class PreciosConfig {
     descripcionPromoBasica;
     cuposMeriendasLibres;
     cuposTardesDeTe;
+    capacidadMaximaCompartida;
     createdAt;
     updatedAt;
 };
@@ -56,21 +57,25 @@ __decorate([
     __metadata("design:type", Number)
 ], PreciosConfig.prototype, "tardeDeTe", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)('text'),
     __metadata("design:type", String)
 ], PreciosConfig.prototype, "descripcionPromoOlivia", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)('text'),
     __metadata("design:type", String)
 ], PreciosConfig.prototype, "descripcionPromoBasica", void 0);
 __decorate([
-    (0, typeorm_1.Column)('int', { default: 40 }),
+    (0, typeorm_1.Column)('integer', { default: 40 }),
     __metadata("design:type", Number)
 ], PreciosConfig.prototype, "cuposMeriendasLibres", void 0);
 __decorate([
-    (0, typeorm_1.Column)('int', { default: 65 }),
+    (0, typeorm_1.Column)('integer', { default: 5 }),
     __metadata("design:type", Number)
 ], PreciosConfig.prototype, "cuposTardesDeTe", void 0);
+__decorate([
+    (0, typeorm_1.Column)('integer', { default: 65 }),
+    __metadata("design:type", Number)
+], PreciosConfig.prototype, "capacidadMaximaCompartida", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ name: 'createdAt' }),
     __metadata("design:type", Date)

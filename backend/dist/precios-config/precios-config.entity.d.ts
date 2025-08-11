@@ -10,6 +10,7 @@ export declare class PreciosConfig {
     descripcionPromoBasica: string;
     cuposMeriendasLibres: number;
     cuposTardesDeTe: number;
+    capacidadMaximaCompartida: number;
     createdAt: Date;
     updatedAt: Date;
 }

@@ -100,6 +100,14 @@ export declare class PagoController {
         status: string;
         message: string;
     }>;
+    checkHealth(): Promise<{
+        status: string;
+        mercadopago: {
+            configured: boolean;
+            message: string;
+        };
+        timestamp: string;
+    }>;
     create(createPagoDto: CreatePagoDto): Promise<CreatePagoDto & import("./pago.entity").Pago>;
     findAll(): Promise<import("./pago.entity").Pago[]>;
     findOne(id: string): Promise<import("./pago.entity").Pago | null>;

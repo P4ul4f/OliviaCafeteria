@@ -46,6 +46,12 @@ export declare class ReservaController {
         disponible: boolean;
         cuposDisponibles: number;
     }[]>;
+    getCuposDisponibles(fecha: string, turno: string, tipoReservaString: string): Promise<{
+        cuposDisponibles: number;
+        capacidadMaxima: number;
+        capacidadOcupada: number;
+        reservasExistentes: number;
+    }>;
     confirmarPago(id: string, body: {
         idPagoExterno: string;
         metodoPago: string;

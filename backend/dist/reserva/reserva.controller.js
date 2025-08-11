@@ -130,6 +130,26 @@ let ReservaController = class ReservaController {
             throw new common_1.BadRequestException(`Error al procesar la solicitud: ${error.message}`);
         }
     }
+    getCuposDisponibles(fecha, turno, tipoReservaString) {
+        try {
+            console.log('📅 Fecha recibida (cupos):', fecha);
+            console.log('🕒 Turno recibido (cupos):', turno);
+            console.log('🎯 Tipo de reserva recibido (cupos):', tipoReservaString);
+            const tipoReserva = tipoReservaString;
+            if (!Object.values(reserva_entity_1.TipoReserva).includes(tipoReserva)) {
+                throw new Error(`Tipo de reserva inválido: ${tipoReservaString}`);
+            }
+            const fechaObj = new Date(fecha);
+            if (isNaN(fechaObj.getTime())) {
+                throw new Error('Fecha inválida');
+            }
+            return this.reservaService.getCuposDisponibles(fechaObj, turno, tipoReserva);
+        }
+        catch (error) {
+            console.error('❌ Error al obtener cupos disponibles:', error);
+            throw new common_1.BadRequestException(`Error al procesar la solicitud: ${error.message}`);
+        }
+    }
     confirmarPago(id, body) {
         return this.reservaService.confirmarPago(Number(id), body.idPagoExterno, body.metodoPago);
     }
@@ -209,6 +229,15 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], ReservaController.prototype, "getHorariosDisponiblesConCupos", null);
+__decorate([
+    (0, common_1.Get)('cupos-disponibles'),
+    __param(0, (0, common_1.Query)('fecha')),
+    __param(1, (0, common_1.Query)('turno')),
+    __param(2, (0, common_1.Query)('tipoReserva')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", void 0)
+], ReservaController.prototype, "getCuposDisponibles", null);
 __decorate([
     (0, common_1.Post)(':id/confirmar-pago'),
     __param(0, (0, common_1.Param)('id')),

@@ -60,6 +60,33 @@ let PagoController = PagoController_1 = class PagoController {
             throw error;
         }
     }
+    async checkHealth() {
+        this.logger.log(`🏥 Verificando estado de Mercado Pago`);
+        try {
+            const isConfigured = this.pagoService.isMercadoPagoConfigured();
+            return {
+                status: 'ok',
+                mercadopago: {
+                    configured: isConfigured,
+                    message: isConfigured
+                        ? 'Mercado Pago está configurado correctamente'
+                        : 'Mercado Pago no está configurado. Se requieren credenciales válidas.'
+                },
+                timestamp: new Date().toISOString()
+            };
+        }
+        catch (error) {
+            this.logger.error(`❌ Error en health check: ${error.message}`);
+            return {
+                status: 'error',
+                mercadopago: {
+                    configured: false,
+                    message: `Error al verificar configuración: ${error.message}`
+                },
+                timestamp: new Date().toISOString()
+            };
+        }
+    }
     create(createPagoDto) {
         return this.pagoService.create(createPagoDto);
     }
@@ -113,6 +140,12 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], PagoController.prototype, "procesarWebhook", null);
+__decorate([
+    (0, common_1.Get)('health'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], PagoController.prototype, "checkHealth", null);
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),

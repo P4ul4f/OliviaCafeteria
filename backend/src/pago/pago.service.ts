@@ -54,13 +54,6 @@ export class PagoService {
     try {
       this.logger.log(`🔧 Iniciando creación de preferencia - Monto: ${monto}, Descripción: ${descripcion}`);
       
-      if (!this.mercadopago) {
-        this.logger.error('❌ Mercado Pago no está configurado en crearPreferencia');
-        throw new BadRequestException('Mercado Pago no está configurado correctamente. Necesitas credenciales válidas de tu cuenta de Mercado Pago Developers.');
-      }
-
-      this.logger.log('✅ Mercado Pago está configurado correctamente');
-
       // Generar un ID único para esta transacción
       const externalReference = `olivia_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       
@@ -74,6 +67,25 @@ export class PagoService {
       };
 
       this.logger.log(`📋 Datos de reserva preparados:`, JSON.stringify(reservaDataForReference, null, 2));
+
+      // Verificar si Mercado Pago está configurado
+      if (!this.mercadopago) {
+        this.logger.warn('⚠️ Mercado Pago no está configurado, activando modo simulación automáticamente');
+        
+        // Simular una preferencia de Mercado Pago
+        const simulatedPreference = {
+          id: `SIMULATED_PREF_${Date.now()}`,
+          init_point: `http://localhost:3000/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
+          sandbox_init_point: `http://localhost:3000/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
+          external_reference: externalReference,
+        };
+
+        this.logger.log(`✅ Preferencia simulada creada (Mercado Pago no configurado): ${simulatedPreference.id}`);
+        
+        return simulatedPreference;
+      }
+
+      this.logger.log('✅ Mercado Pago está configurado correctamente');
 
       // MODO SIMULACIÓN: Si usamos credenciales genéricas, simulamos la respuesta
       const isUsingGenericCredentials = mercadopagoConfig.accessToken?.startsWith('TEST-2952372186360544');
@@ -302,17 +314,36 @@ export class PagoService {
     try {
       this.logger.log(`💳 Iniciando pago con tarjeta - Monto: ${monto}, Descripción: ${descripcion}`);
       
-      if (!this.mercadopago) {
-        this.logger.error('❌ Mercado Pago no está configurado para pago con tarjeta');
-        throw new BadRequestException('Mercado Pago no está configurado correctamente.');
-      }
-
-      this.logger.log('✅ Mercado Pago está configurado para pago con tarjeta');
-
       // Generar un ID único para esta transacción
       const externalReference = `olivia_card_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       
       this.logger.log(`🔑 External reference generado para tarjeta: ${externalReference}`);
+      
+      // Verificar si Mercado Pago está configurado
+      if (!this.mercadopago) {
+        this.logger.warn('⚠️ Mercado Pago no está configurado, activando modo simulación automáticamente');
+        
+        // Simular pago exitoso con tarjeta
+        const simulatedPayment = {
+          id: `CARD_SIMULATED_${Date.now()}`,
+          status: 'approved',
+          status_detail: 'accredited',
+          transaction_amount: monto,
+          external_reference: externalReference,
+        };
+
+        const reservaCreada = await this.crearReservaConPago(reservaData, simulatedPayment, monto);
+        
+        return {
+          status: 'approved',
+          id: simulatedPayment.id,
+          external_reference: externalReference,
+          reservaId: reservaCreada.id,
+          message: 'Pago simulado exitoso (Mercado Pago no configurado)'
+        };
+      }
+
+      this.logger.log('✅ Mercado Pago está configurado para pago con tarjeta');
       
       // MODO SIMULACIÓN: Si usamos credenciales genéricas, simulamos la respuesta
       const isUsingGenericCredentials = mercadopagoConfig.accessToken?.startsWith('TEST-2952372186360544');
@@ -490,13 +521,6 @@ export class PagoService {
     try {
       this.logger.log(`🔧 Iniciando creación de preferencia GiftCard - Monto: ${monto}, Descripción: ${descripcion}`);
       
-      if (!this.mercadopago) {
-        this.logger.error('❌ Mercado Pago no está configurado en crearPreferenciaGiftCard');
-        throw new BadRequestException('Mercado Pago no está configurado correctamente. Necesitas credenciales válidas de tu cuenta de Mercado Pago Developers.');
-      }
-
-      this.logger.log('✅ Mercado Pago está configurado correctamente');
-
       // Generar un ID único para esta transacción
       const externalReference = `giftcard_olivia_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       
@@ -510,6 +534,25 @@ export class PagoService {
       };
 
       this.logger.log(`📋 Datos de giftcard preparados:`, JSON.stringify(giftCardDataForReference, null, 2));
+
+      // Verificar si Mercado Pago está configurado
+      if (!this.mercadopago) {
+        this.logger.warn('⚠️ Mercado Pago no está configurado, activando modo simulación automáticamente');
+        
+        // Simular una preferencia de Mercado Pago
+        const simulatedPreference = {
+          id: `SIMULATED_GIFTCARD_PREF_${Date.now()}`,
+          init_point: `http://localhost:3000/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
+          sandbox_init_point: `http://localhost:3000/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
+          external_reference: externalReference,
+        };
+
+        this.logger.log(`✅ Preferencia simulada creada (Mercado Pago no configurado): ${simulatedPreference.id}`);
+        
+        return simulatedPreference;
+      }
+
+      this.logger.log('✅ Mercado Pago está configurado correctamente');
 
       const isUsingGenericCredentials = mercadopagoConfig.accessToken?.startsWith('TEST-2952372186360544');
       
@@ -599,9 +642,40 @@ export class PagoService {
     try {
       this.logger.log(`💳 Procesando pago con tarjeta para GiftCard - Monto: ${monto}`);
       
+      // Generar un ID único para esta transacción
+      const externalReference = `giftcard_olivia_${Date.now()}`;
+      
+      // Verificar si Mercado Pago está configurado
       if (!this.mercadopago) {
-        this.logger.error('❌ Mercado Pago no está configurado');
-        throw new BadRequestException('Mercado Pago no está configurado correctamente');
+        this.logger.warn('⚠️ Mercado Pago no está configurado, activando modo simulación automáticamente');
+        
+        // Simular pago exitoso
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const simulatedPayment = {
+          id: `SIMULATED_GIFTCARD_${Date.now()}`,
+          status: 'approved',
+          transaction_amount: monto,
+          external_reference: externalReference,
+          metadata: {
+            tipo: 'giftcard',
+            giftcard_data: JSON.stringify(giftCardData),
+          },
+        };
+
+        // Procesar el pago simulado
+        const resultado = await this.procesarPagoAprobadoGiftCard(simulatedPayment);
+        
+        this.logger.log(`✅ Pago simulado exitoso para GiftCard (Mercado Pago no configurado): ${resultado.giftCardId}`);
+        
+        return {
+          status: 'success',
+          payment_id: simulatedPayment.id,
+          id: simulatedPayment.id, // Para compatibilidad con el frontend
+          external_reference: simulatedPayment.external_reference,
+          giftcard_id: resultado.giftCardId,
+          message: 'GiftCard creada exitosamente (modo simulación)',
+        };
       }
 
       const isUsingGenericCredentials = mercadopagoConfig.accessToken?.startsWith('TEST-2952372186360544');
@@ -616,7 +690,7 @@ export class PagoService {
           id: `SIMULATED_GIFTCARD_${Date.now()}`,
           status: 'approved',
           transaction_amount: monto,
-          external_reference: `giftcard_olivia_${Date.now()}`,
+          external_reference: externalReference,
           metadata: {
             tipo: 'giftcard',
             giftcard_data: JSON.stringify(giftCardData),
@@ -626,7 +700,7 @@ export class PagoService {
         // Procesar el pago simulado
         const resultado = await this.procesarPagoAprobadoGiftCard(simulatedPayment);
         
-        this.logger.log(`✅ Pago simulado exitoso para GiftCard: ${resultado.giftCardId}`);
+        this.logger.log(`✅ Pago simulado exitoso para GiftCard (modo simulación): ${resultado.giftCardId}`);
         
         return {
           status: 'success',
@@ -634,7 +708,7 @@ export class PagoService {
           id: simulatedPayment.id, // Para compatibilidad con el frontend
           external_reference: simulatedPayment.external_reference,
           giftcard_id: resultado.giftCardId,
-          message: 'GiftCard creada exitosamente',
+          message: 'GiftCard creada exitosamente (modo simulación)',
         };
       }
 
@@ -653,7 +727,7 @@ export class PagoService {
             number: datosLarjeta.identificationNumber || '12345678',
           },
         },
-        external_reference: `giftcard_olivia_${Date.now()}`,
+        external_reference: externalReference,
         metadata: {
           tipo: 'giftcard',
           giftcard_data: JSON.stringify(giftCardData),

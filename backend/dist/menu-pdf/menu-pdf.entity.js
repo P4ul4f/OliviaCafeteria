@@ -19,6 +19,7 @@ let MenuPdf = class MenuPdf {
     tamanoArchivo;
     descripcion;
     activo;
+    contenidoArchivo;
     fechaCreacion;
     fechaActualizacion;
 };
@@ -52,11 +53,15 @@ __decorate([
     __metadata("design:type", Boolean)
 ], MenuPdf.prototype, "activo", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)(),
+    (0, typeorm_1.Column)({ type: 'bytea', nullable: true }),
+    __metadata("design:type", Buffer)
+], MenuPdf.prototype, "contenidoArchivo", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)({ name: 'createdAt' }),
     __metadata("design:type", Date)
 ], MenuPdf.prototype, "fechaCreacion", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)(),
+    (0, typeorm_1.UpdateDateColumn)({ name: 'updatedAt' }),
     __metadata("design:type", Date)
 ], MenuPdf.prototype, "fechaActualizacion", void 0);
 exports.MenuPdf = MenuPdf = __decorate([

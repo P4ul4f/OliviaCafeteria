@@ -115,6 +115,12 @@ let PreciosConfigService = class PreciosConfigService {
         config.tardeDeTe = precio;
         return this.preciosConfigRepo.save(config);
     }
+    async getCapacidadMaximaCompartida() {
+        const config = await this.preciosConfigRepo.findOne({
+            where: { clave: 'precios_principales' }
+        });
+        return config?.capacidadMaximaCompartida || 65;
+    }
 };
 exports.PreciosConfigService = PreciosConfigService;
 exports.PreciosConfigService = PreciosConfigService = __decorate([

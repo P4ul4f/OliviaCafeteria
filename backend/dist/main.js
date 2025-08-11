@@ -31,6 +31,7 @@ async function bootstrap() {
                 'https://olivia-cafeteria.vercel.app',
                 'https://olivia-cafeteria-git-main-paulaferreyra.vercel.app',
                 'https://olivia-cafeteria-git-main-p4ul4fs-projects.vercel.app',
+                'https://olivia-cafeteria-nxsxfbmd9-p4ul4fs-projects.vercel.app',
                 'http://localhost:3000',
                 'http://localhost:3001',
             ],

@@ -6,6 +6,7 @@ export declare class MenuPdf {
     tamanoArchivo: number;
     descripcion: string;
     activo: boolean;
+    contenidoArchivo: Buffer;
     fechaCreacion: Date;
     fechaActualizacion: Date;
 }

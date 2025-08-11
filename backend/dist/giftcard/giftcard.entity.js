@@ -58,7 +58,7 @@ __decorate([
     __metadata("design:type", String)
 ], GiftCard.prototype, "telefonoDestinatario", void 0);
 __decorate([
-    (0, typeorm_1.Column)('decimal', { precision: 10, scale: 2 }),
+    (0, typeorm_1.Column)('numeric', { precision: 10, scale: 2 }),
     __metadata("design:type", Number)
 ], GiftCard.prototype, "monto", void 0);
 __decorate([
@@ -67,8 +67,7 @@ __decorate([
 ], GiftCard.prototype, "mensaje", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        type: 'enum',
-        enum: EstadoGiftCard,
+        type: 'character varying',
         default: EstadoGiftCard.PAGADA,
     }),
     __metadata("design:type", String)

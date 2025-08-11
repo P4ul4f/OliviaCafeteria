@@ -12,6 +12,7 @@ export declare class PagoService {
     private mercadopago;
     constructor(pagoRepository: Repository<Pago>, reservaService: ReservaService, giftCardService: GiftCardService);
     private initializeMercadoPago;
+    isMercadoPagoConfigured(): boolean;
     crearPreferenciaMercadoPago(reservaData: any, monto: number, descripcion: string): Promise<{
         id: string | undefined;
         init_point: string | undefined;
