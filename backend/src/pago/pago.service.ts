@@ -542,8 +542,8 @@ export class PagoService {
         // Simular una preferencia de Mercado Pago
         const simulatedPreference = {
           id: `SIMULATED_GIFTCARD_PREF_${Date.now()}`,
-          init_point: `http://localhost:3000/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
-          sandbox_init_point: `http://localhost:3000/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
+          init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
+          sandbox_init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
           external_reference: externalReference,
         };
 
@@ -563,8 +563,8 @@ export class PagoService {
         // Simular una preferencia de Mercado Pago
         const simulatedPreference = {
           id: `TEST_GIFTCARD_PREF_${Date.now()}`,
-          init_point: `http://localhost:3000/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
-          sandbox_init_point: `http://localhost:3000/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
+          init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
+          sandbox_init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
           external_reference: externalReference,
         };
 
@@ -637,8 +637,8 @@ export class PagoService {
         
         const simulatedPreference = {
           id: `SIMULATED_GIFTCARD_PREF_${Date.now()}`,
-          init_point: `http://localhost:3000/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
-          sandbox_init_point: `http://localhost:3000/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
+          init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
+          sandbox_init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
           external_reference: externalReference,
         };
 
@@ -665,8 +665,8 @@ export class PagoService {
         // Devolver una preferencia simulada
         const simulatedPreference = {
           id: `SIMULATED_GIFTCARD_PREF_${Date.now()}`,
-          init_point: `http://localhost:3000/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
-          sandbox_init_point: `http://localhost:3000/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
+          init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
+          sandbox_init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
           external_reference: externalReference,
         };
 
@@ -682,8 +682,8 @@ export class PagoService {
       
       const simulatedPreference = {
         id: `SIMULATED_GIFTCARD_PREF_${Date.now()}`,
-        init_point: `http://localhost:3000/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
-        sandbox_init_point: `http://localhost:3000/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
+        init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
+        sandbox_init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
         external_reference: externalReference,
       };
 

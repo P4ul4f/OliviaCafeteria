@@ -246,6 +246,7 @@ export class ReservaService {
       // Para a la carta y tardes de té, generar fechas disponibles (excluyendo domingos, fechas pasadas Y días de meriendas libres)
       const fechasDisponibles: Date[] = [];
       const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0); // Normalizar a inicio del día
       const fechaLimite = new Date();
       fechaLimite.setMonth(fechaLimite.getMonth() + 3); // 3 meses hacia adelante
 
@@ -257,35 +258,53 @@ export class ReservaService {
         }
       });
       
+      console.log('🔍 Días de meriendas libres encontrados:', diasMeriendasLibres.length);
+      
       // Crear un Set con las fechas de meriendas libres para búsqueda rápida
+      // Usar formato YYYY-MM-DD para comparación más confiable
       const fechasMeriendasLibres = new Set(
-        diasMeriendasLibres.map(fechaConfig => 
-          new Date(fechaConfig.fecha).toDateString()
-        )
+        diasMeriendasLibres.map(fechaConfig => {
+          const fecha = new Date(fechaConfig.fecha);
+          fecha.setHours(0, 0, 0, 0); // Normalizar a inicio del día
+          return fecha.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+        })
       );
+      
+      console.log('📅 Fechas de meriendas libres a excluir:', Array.from(fechasMeriendasLibres));
 
       for (let fecha = new Date(hoy); fecha <= fechaLimite; fecha.setDate(fecha.getDate() + 1)) {
+        // Normalizar la fecha de iteración
+        const fechaIteracion = new Date(fecha);
+        fechaIteracion.setHours(0, 0, 0, 0);
+        
         // Excluir domingos
-        if (fecha.getDay() !== 0) {
-          // Excluir días de meriendas libres
-          const fechaString = fecha.toDateString();
+        if (fechaIteracion.getDay() !== 0) {
+          // Excluir días de meriendas libres usando formato YYYY-MM-DD
+          const fechaString = fechaIteracion.toISOString().split('T')[0];
+          
+          console.log(`🔍 Verificando fecha: ${fechaString} - ¿Es de meriendas libres? ${fechasMeriendasLibres.has(fechaString)}`);
+          
           if (!fechasMeriendasLibres.has(fechaString)) {
             // Para a la carta, no hay restricción de anticipación
             if (tipoReserva === TipoReserva.A_LA_CARTA) {
-              fechasDisponibles.push(new Date(fecha));
+              fechasDisponibles.push(new Date(fechaIteracion));
             } else {
               // Para tardes de té, verificar que haya al menos 48 horas de anticipación
               const fechaMinima = new Date();
               fechaMinima.setDate(fechaMinima.getDate() + 2);
+              fechaMinima.setHours(0, 0, 0, 0);
               
-              if (fecha >= fechaMinima) {
-                fechasDisponibles.push(new Date(fecha));
+              if (fechaIteracion >= fechaMinima) {
+                fechasDisponibles.push(new Date(fechaIteracion));
               }
             }
+          } else {
+            console.log(`❌ Fecha ${fechaString} excluida por ser día de meriendas libres`);
           }
         }
       }
 
+      console.log(`✅ Fechas disponibles para ${tipoReserva}:`, fechasDisponibles.length);
       return fechasDisponibles;
     } catch (error) {
       console.error('❌ Error en getFechasDisponibles:', error);
@@ -533,16 +552,33 @@ export class ReservaService {
         },
       });
 
-      // Calcular capacidad ocupada considerando estadía variable para ambos tipos
-      const capacidadOcupada = await this.calcularCapacidadCompartida(fecha, turno);
+      // Calcular capacidad ocupada sumando todas las reservas del día (sin ventanas de tiempo complejas)
+      const capacidadOcupada = reservasCompartidas.reduce(
+        (total, reserva) => total + reserva.cantidadPersonas,
+        0
+      );
+      
       const capacidadMaxima = await this.preciosConfigService.getCapacidadMaximaCompartida();
       const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadOcupada);
+
+      console.log(`🔍 Cupos para ${tipoReserva} en ${fecha.toDateString()}:`, {
+        capacidadMaxima,
+        capacidadOcupada,
+        cuposDisponibles,
+        reservasExistentes: reservasCompartidas.length,
+        reservas: reservasCompartidas.map(r => ({
+          id: r.id,
+          tipo: r.tipoReserva,
+          personas: r.cantidadPersonas,
+          hora: r.fechaHora.toTimeString()
+        }))
+      });
 
       return {
         cuposDisponibles,
         capacidadMaxima,
         capacidadOcupada,
-        reservasExistentes: reservasCompartidas.length, // Usar reservasCompartidas para contar reservas compartidas
+        reservasExistentes: reservasCompartidas.length,
       };
     } else {
       // Para otros tipos de reserva que no están implementados

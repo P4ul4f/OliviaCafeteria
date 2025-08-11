@@ -200,6 +200,7 @@ let ReservaService = class ReservaService {
             }
             const fechasDisponibles = [];
             const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
             const fechaLimite = new Date();
             fechaLimite.setMonth(fechaLimite.getMonth() + 3);
             const diasMeriendasLibres = await this.fechasConfigRepository.find({
@@ -208,24 +209,38 @@ let ReservaService = class ReservaService {
                     fecha: (0, typeorm_2.Between)(hoy, fechaLimite)
                 }
             });
-            const fechasMeriendasLibres = new Set(diasMeriendasLibres.map(fechaConfig => new Date(fechaConfig.fecha).toDateString()));
+            console.log('🔍 Días de meriendas libres encontrados:', diasMeriendasLibres.length);
+            const fechasMeriendasLibres = new Set(diasMeriendasLibres.map(fechaConfig => {
+                const fecha = new Date(fechaConfig.fecha);
+                fecha.setHours(0, 0, 0, 0);
+                return fecha.toISOString().split('T')[0];
+            }));
+            console.log('📅 Fechas de meriendas libres a excluir:', Array.from(fechasMeriendasLibres));
             for (let fecha = new Date(hoy); fecha <= fechaLimite; fecha.setDate(fecha.getDate() + 1)) {
-                if (fecha.getDay() !== 0) {
-                    const fechaString = fecha.toDateString();
+                const fechaIteracion = new Date(fecha);
+                fechaIteracion.setHours(0, 0, 0, 0);
+                if (fechaIteracion.getDay() !== 0) {
+                    const fechaString = fechaIteracion.toISOString().split('T')[0];
+                    console.log(`🔍 Verificando fecha: ${fechaString} - ¿Es de meriendas libres? ${fechasMeriendasLibres.has(fechaString)}`);
                     if (!fechasMeriendasLibres.has(fechaString)) {
                         if (tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA) {
-                            fechasDisponibles.push(new Date(fecha));
+                            fechasDisponibles.push(new Date(fechaIteracion));
                         }
                         else {
                             const fechaMinima = new Date();
                             fechaMinima.setDate(fechaMinima.getDate() + 2);
-                            if (fecha >= fechaMinima) {
-                                fechasDisponibles.push(new Date(fecha));
+                            fechaMinima.setHours(0, 0, 0, 0);
+                            if (fechaIteracion >= fechaMinima) {
+                                fechasDisponibles.push(new Date(fechaIteracion));
                             }
                         }
                     }
+                    else {
+                        console.log(`❌ Fecha ${fechaString} excluida por ser día de meriendas libres`);
+                    }
                 }
             }
+            console.log(`✅ Fechas disponibles para ${tipoReserva}:`, fechasDisponibles.length);
             return fechasDisponibles;
         }
         catch (error) {
@@ -408,9 +423,21 @@ let ReservaService = class ReservaService {
                     estado: reserva_entity_1.EstadoReserva.CONFIRMADA,
                 },
             });
-            const capacidadOcupada = await this.calcularCapacidadCompartida(fecha, turno);
+            const capacidadOcupada = reservasCompartidas.reduce((total, reserva) => total + reserva.cantidadPersonas, 0);
             const capacidadMaxima = await this.preciosConfigService.getCapacidadMaximaCompartida();
             const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadOcupada);
+            console.log(`🔍 Cupos para ${tipoReserva} en ${fecha.toDateString()}:`, {
+                capacidadMaxima,
+                capacidadOcupada,
+                cuposDisponibles,
+                reservasExistentes: reservasCompartidas.length,
+                reservas: reservasCompartidas.map(r => ({
+                    id: r.id,
+                    tipo: r.tipoReserva,
+                    personas: r.cantidadPersonas,
+                    hora: r.fechaHora.toTimeString()
+                }))
+            });
             return {
                 cuposDisponibles,
                 capacidadMaxima,

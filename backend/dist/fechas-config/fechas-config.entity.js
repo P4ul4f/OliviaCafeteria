@@ -26,7 +26,10 @@ __decorate([
     __metadata("design:type", Number)
 ], FechasConfig.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({
+        type: 'date',
+        comment: 'Fecha en formato YYYY-MM-DD sin zona horaria'
+    }),
     __metadata("design:type", Date)
 ], FechasConfig.prototype, "fecha", void 0);
 __decorate([

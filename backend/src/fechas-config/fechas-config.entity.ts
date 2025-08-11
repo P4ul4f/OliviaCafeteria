@@ -5,7 +5,10 @@ export class FechasConfig {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ 
+    type: 'date', // Usar tipo 'date' para evitar problemas de zona horaria
+    comment: 'Fecha en formato YYYY-MM-DD sin zona horaria'
+  })
   fecha: Date;
 
   @Column()

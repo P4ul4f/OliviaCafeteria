@@ -24,6 +24,21 @@ export class FechasConfigService {
     console.log('🔍 FechasConfigService.create - Datos recibidos:', data);
     
     try {
+      // Normalizar la fecha para evitar problemas de zona horaria
+      if (data.fecha) {
+        const fechaNormalizada = new Date(data.fecha);
+        // Establecer la hora a mediodía para evitar problemas de zona horaria
+        fechaNormalizada.setHours(12, 0, 0, 0);
+        data.fecha = fechaNormalizada;
+        
+        console.log('📅 Fecha normalizada:', {
+          original: data.fecha,
+          normalizada: fechaNormalizada,
+          fechaISO: fechaNormalizada.toISOString(),
+          fechaLocal: fechaNormalizada.toLocaleDateString('es-ES')
+        });
+      }
+      
       const nueva = this.fechasConfigRepo.create(data);
       console.log('✅ FechasConfigService.create - Entidad creada:', nueva);
       
@@ -39,6 +54,22 @@ export class FechasConfigService {
 
   async update(id: number, data: Partial<FechasConfig>): Promise<FechasConfig> {
     const fecha = await this.findOne(id);
+    
+    // Normalizar la fecha si se está actualizando
+    if (data.fecha) {
+      const fechaNormalizada = new Date(data.fecha);
+      // Establecer la hora a mediodía para evitar problemas de zona horaria
+      fechaNormalizada.setHours(12, 0, 0, 0);
+      data.fecha = fechaNormalizada;
+      
+      console.log('📅 Fecha actualizada normalizada:', {
+        original: data.fecha,
+        normalizada: fechaNormalizada,
+        fechaISO: fechaNormalizada.toISOString(),
+        fechaLocal: fechaNormalizada.toLocaleDateString('es-ES')
+      });
+    }
+    
     Object.assign(fecha, data);
     return this.fechasConfigRepo.save(fecha);
   }

@@ -34,6 +34,17 @@ let FechasConfigService = class FechasConfigService {
     async create(data) {
         console.log('🔍 FechasConfigService.create - Datos recibidos:', data);
         try {
+            if (data.fecha) {
+                const fechaNormalizada = new Date(data.fecha);
+                fechaNormalizada.setHours(12, 0, 0, 0);
+                data.fecha = fechaNormalizada;
+                console.log('📅 Fecha normalizada:', {
+                    original: data.fecha,
+                    normalizada: fechaNormalizada,
+                    fechaISO: fechaNormalizada.toISOString(),
+                    fechaLocal: fechaNormalizada.toLocaleDateString('es-ES')
+                });
+            }
             const nueva = this.fechasConfigRepo.create(data);
             console.log('✅ FechasConfigService.create - Entidad creada:', nueva);
             const resultado = await this.fechasConfigRepo.save(nueva);
@@ -47,6 +58,17 @@ let FechasConfigService = class FechasConfigService {
     }
     async update(id, data) {
         const fecha = await this.findOne(id);
+        if (data.fecha) {
+            const fechaNormalizada = new Date(data.fecha);
+            fechaNormalizada.setHours(12, 0, 0, 0);
+            data.fecha = fechaNormalizada;
+            console.log('📅 Fecha actualizada normalizada:', {
+                original: data.fecha,
+                normalizada: fechaNormalizada,
+                fechaISO: fechaNormalizada.toISOString(),
+                fechaLocal: fechaNormalizada.toLocaleDateString('es-ES')
+            });
+        }
         Object.assign(fecha, data);
         return this.fechasConfigRepo.save(fecha);
     }

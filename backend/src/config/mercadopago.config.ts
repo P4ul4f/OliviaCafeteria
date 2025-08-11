@@ -5,13 +5,13 @@ export const mercadopagoConfig = {
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
   publicKey: process.env.MERCADOPAGO_PUBLIC_KEY,
   
-  // URLs de retorno
-  successUrl: process.env.MERCADOPAGO_SUCCESS_URL || 'http://localhost:3000/pago/success',
-  failureUrl: process.env.MERCADOPAGO_FAILURE_URL || 'http://localhost:3000/pago/failure',
-  pendingUrl: process.env.MERCADOPAGO_PENDING_URL || 'http://localhost:3000/pago/pending',
+  // URLs de retorno - Usar URLs de producción por defecto
+  successUrl: process.env.MERCADOPAGO_SUCCESS_URL || 'https://olivia-cafeteria.vercel.app/pago/success',
+  failureUrl: process.env.MERCADOPAGO_FAILURE_URL || 'https://olivia-cafeteria.vercel.app/pago/failure',
+  pendingUrl: process.env.MERCADOPAGO_PENDING_URL || 'https://olivia-cafeteria.vercel.app/pago/pending',
   
-  // URL de webhook para notificaciones
-  webhookUrl: process.env.MERCADOPAGO_WEBHOOK_URL || 'http://localhost:3001/pago/webhook',
+  // URL de webhook para notificaciones - Usar URL de producción por defecto
+  webhookUrl: process.env.MERCADOPAGO_WEBHOOK_URL || 'https://olivia-backend-production.up.railway.app/pago/webhook',
   
   // Configuración de la aplicación
   isProduction: process.env.NODE_ENV === 'production',
