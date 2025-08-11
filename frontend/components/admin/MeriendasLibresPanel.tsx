@@ -269,7 +269,11 @@ export default function MeriendasLibresPanel() {
   const handleGuardarFechas = async () => {
     setFechasError('');
     try {
-      const fechasToUpdate = fechasEdit.filter(f => f.id);
+      const fechasToUpdate = fechasEdit.filter(f => f.id).map(f => ({
+        ...f,
+        fecha: f.fecha ? new Date(f.fecha).toISOString().split('T')[0] : null
+      }));
+      
       for (const fecha of fechasToUpdate) {
         await apiService.updateFechaConfig(fecha.id, fecha, adminToken || '');
       }
@@ -377,7 +381,7 @@ export default function MeriendasLibresPanel() {
 
       // Crear objeto con solo los turnos válidos
       const fechaData = {
-        fecha: nuevaFecha.fecha,
+        fecha: nuevaFecha.fecha ? nuevaFecha.fecha.toISOString().split('T')[0] : null,
         tipoReserva: 'merienda-libre',
         turnos: turnosValidos,
         activo: true

@@ -174,6 +174,7 @@ export class ReservaController {
     @Query('tipoReserva') tipoReservaString: string
   ) {
     try {
+      console.log('🔍 === INICIO getCuposDisponibles ===');
       console.log('📅 Fecha recibida (cupos):', fecha);
       console.log('🕒 Turno recibido (cupos):', turno);
       console.log('🎯 Tipo de reserva recibido (cupos):', tipoReservaString);
@@ -190,7 +191,18 @@ export class ReservaController {
         throw new Error('Fecha inválida');
       }
       
-      return this.reservaService.getCuposDisponibles(fechaObj, turno, tipoReserva);
+      console.log('✅ Fecha parseada (cupos):', {
+        fechaISO: fechaObj.toISOString(),
+        fechaLocal: fechaObj.toLocaleDateString('es-ES'),
+        timestamp: fechaObj.getTime()
+      });
+      
+      console.log('✅ Tipo de reserva validado (cupos):', tipoReserva);
+      
+      const resultado = this.reservaService.getCuposDisponibles(fechaObj, turno, tipoReserva);
+      
+      console.log('🔍 === FIN getCuposDisponibles ===');
+      return resultado;
     } catch (error) {
       console.error('❌ Error al obtener cupos disponibles:', error);
       throw new BadRequestException(`Error al procesar la solicitud: ${error.message}`);

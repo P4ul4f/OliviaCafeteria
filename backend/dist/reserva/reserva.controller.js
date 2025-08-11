@@ -132,6 +132,7 @@ let ReservaController = class ReservaController {
     }
     getCuposDisponibles(fecha, turno, tipoReservaString) {
         try {
+            console.log('🔍 === INICIO getCuposDisponibles ===');
             console.log('📅 Fecha recibida (cupos):', fecha);
             console.log('🕒 Turno recibido (cupos):', turno);
             console.log('🎯 Tipo de reserva recibido (cupos):', tipoReservaString);
@@ -143,7 +144,15 @@ let ReservaController = class ReservaController {
             if (isNaN(fechaObj.getTime())) {
                 throw new Error('Fecha inválida');
             }
-            return this.reservaService.getCuposDisponibles(fechaObj, turno, tipoReserva);
+            console.log('✅ Fecha parseada (cupos):', {
+                fechaISO: fechaObj.toISOString(),
+                fechaLocal: fechaObj.toLocaleDateString('es-ES'),
+                timestamp: fechaObj.getTime()
+            });
+            console.log('✅ Tipo de reserva validado (cupos):', tipoReserva);
+            const resultado = this.reservaService.getCuposDisponibles(fechaObj, turno, tipoReserva);
+            console.log('🔍 === FIN getCuposDisponibles ===');
+            return resultado;
         }
         catch (error) {
             console.error('❌ Error al obtener cupos disponibles:', error);

@@ -150,8 +150,8 @@ export default function ReservarALaCarta() {
       newErrors.cantidadPersonas = 'La cantidad de personas es requerida';
     } else if (parseInt(formData.cantidadPersonas) < 1) {
       newErrors.cantidadPersonas = 'La cantidad debe ser al menos 1';
-    } else if (parseInt(formData.cantidadPersonas) > 10) {
-      newErrors.cantidadPersonas = 'La cantidad máxima es 10 personas para reservas a la carta';
+    } else if (maxPersonas > 0 && parseInt(formData.cantidadPersonas) > maxPersonas) {
+      newErrors.cantidadPersonas = `La cantidad máxima es ${maxPersonas} personas para este horario`;
     }
 
     if (!formData.fecha) {
@@ -225,16 +225,26 @@ export default function ReservarALaCarta() {
     
     try {
       setLoadingCupos(true);
-      console.log('🔍 Cargando cupos para:', { fecha: fecha.toISOString(), horario, tipoReserva: 'a-la-carta' });
+      console.log('🔍 Cargando cupos para:', { 
+        fecha: fecha.toISOString(), 
+        fechaLocal: fecha.toLocaleDateString('es-ES'),
+        horario, 
+        tipoReserva: 'a-la-carta' 
+      });
       
       const cuposData = await apiService.getCuposDisponibles(fecha, horario, 'a-la-carta');
-      console.log('📊 Datos de cupos recibidos:', cuposData);
+      console.log('📊 Datos de cupos recibidos del backend:', cuposData);
       
       setCuposDisponibles(cuposData.cuposDisponibles);
-      // Para a la carta: máximo 10 personas por reserva
-      setMaxPersonas(Math.min(cuposData.cuposDisponibles, 10));
+      // Para a la carta: usar la capacidad real disponible (hasta 65 personas)
+      setMaxPersonas(cuposData.cuposDisponibles);
       
-      console.log('✅ Cupos configurados:', { cuposDisponibles: cuposData.cuposDisponibles, maxPersonas: Math.min(cuposData.cuposDisponibles, 10) });
+      console.log('✅ Cupos configurados en frontend:', { 
+        cuposDisponibles: cuposData.cuposDisponibles, 
+        maxPersonas: cuposData.cuposDisponibles,
+        fecha: fecha.toLocaleDateString('es-ES'),
+        horario
+      });
     } catch (error) {
       console.error('❌ Error cargando cupos disponibles:', error);
       setCuposDisponibles(0);
