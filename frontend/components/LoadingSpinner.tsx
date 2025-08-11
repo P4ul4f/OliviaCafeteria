@@ -27,20 +27,12 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ isLoading, progress = 0
 
   return (
     <div className={`${styles.overlay} ${isFading ? styles.fadeOut : ''}`}>
-      <div className={styles.spinnerContainer}>
-        <div className={styles.logoContainer}>
-          <img src="/logo-olivia.svg" alt="Olivia" className={styles.logo} />
-        </div>
-        <div className={styles.spinner}></div>
-        <div className={styles.loadingText}>Cargando...</div>
-        <div className={styles.progressContainer}>
-          <div className={styles.progressBar}>
-            <div 
-              className={styles.progressFill} 
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-          <div className={styles.progressText}>{Math.round(progress)}%</div>
+      <div className={styles.progressContainer}>
+        <div className={styles.progressBar}>
+          <div 
+            className={styles.progressFill} 
+            style={{ width: `${progress}%` }}
+          ></div>
         </div>
       </div>
     </div>
