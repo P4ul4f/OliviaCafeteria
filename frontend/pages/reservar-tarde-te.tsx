@@ -71,8 +71,8 @@ export default function ReservarTardeTe() {
       setLoadingCupos(true);
       const cuposData = await apiService.getCuposDisponibles(fecha, horario, 'tarde-te');
       setCuposDisponibles(cuposData.cuposDisponibles);
-      // Para tardes de té: máximo 10 personas por reserva
-      setMaxPersonas(Math.min(cuposData.cuposDisponibles, 10));
+      // Para tardes de té: máximo es la disponibilidad real del día (hasta 65 personas)
+      setMaxPersonas(cuposData.cuposDisponibles);
     } catch (error) {
       console.error('Error cargando cupos disponibles:', error);
       setCuposDisponibles(0);
@@ -121,7 +121,8 @@ export default function ReservarTardeTe() {
     setFormData(prev => ({
       ...prev,
       fecha: date,
-      turno: '' // Limpiar turno cuando cambie la fecha
+      turno: '', // Limpiar turno cuando cambie la fecha
+      cantidadPersonas: '' // Limpiar cantidad de personas cuando cambie la fecha
     }));
     
     if (errors.fecha) {
@@ -130,12 +131,17 @@ export default function ReservarTardeTe() {
         fecha: ''
       }));
     }
+    
+    // Limpiar cupos y máximo de personas
+    setCuposDisponibles(0);
+    setMaxPersonas(0);
   };
 
   const handleHorarioChange = (horario: string) => {
     setFormData(prev => ({
       ...prev,
-      turno: horario
+      turno: horario,
+      cantidadPersonas: '' // Limpiar cantidad de personas cuando cambie el horario
     }));
     
     if (errors.turno) {
@@ -144,6 +150,10 @@ export default function ReservarTardeTe() {
         turno: ''
       }));
     }
+    
+    // Limpiar cupos y máximo de personas
+    setCuposDisponibles(0);
+    setMaxPersonas(0);
   };
 
   const validateForm = () => {
@@ -161,8 +171,8 @@ export default function ReservarTardeTe() {
       newErrors.cantidadPersonas = 'La cantidad de personas es requerida';
     } else if (parseInt(formData.cantidadPersonas) < 10) {
       newErrors.cantidadPersonas = 'Para Tardes de Té se requiere un mínimo de 10 personas';
-    } else if (parseInt(formData.cantidadPersonas) > 40) {
-      newErrors.cantidadPersonas = 'La cantidad máxima es 40 personas';
+    } else if (parseInt(formData.cantidadPersonas) > maxPersonas) {
+      newErrors.cantidadPersonas = `La cantidad máxima es ${maxPersonas} personas (según disponibilidad)`;
     }
 
     if (!formData.fecha) {
@@ -313,7 +323,7 @@ export default function ReservarTardeTe() {
 
             <div className={styles.formGroup}>
               <label htmlFor="cantidadPersonas" className={styles.label}>
-                Cantidad de personas (mínimo 10) *
+                Cantidad de personas (mínimo 10, máximo según disponibilidad) *
                 {formData.turno && (
                   <span className={styles.cuposInfo}>
                     {loadingCupos ? 'Cargando cupos...' : `${cuposDisponibles} cupos disponibles`}
@@ -344,7 +354,7 @@ export default function ReservarTardeTe() {
                   <div className={styles.customSelectArrow}>▼</div>
                 </div>
                 <div id="cantidadDropdown" className={styles.customSelectDropdown}>
-                  {Array.from({ length: Math.min(maxPersonas - 9, 31) }, (_, i) => i + 10).map(num => (
+                  {Array.from({ length: Math.max(0, maxPersonas - 9) }, (_, i) => i + 10).map(num => (
                     <div
                       key={num}
                       className={`${styles.customSelectOption} ${num > maxPersonas ? styles.disabled : ''}`}
@@ -445,6 +455,8 @@ export default function ReservarTardeTe() {
                             }
                             // Cargar cupos disponibles cuando se selecciona un horario
                             loadCuposDisponibles(formData.fecha!, horario.horario);
+                            // Limpiar cantidad de personas seleccionada
+                            setFormData(prev => ({ ...prev, cantidadPersonas: '' }));
                           }
                           const dropdown = document.getElementById('horarioDropdown');
                           dropdown?.classList.remove(styles.show);

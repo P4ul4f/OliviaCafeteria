@@ -17,15 +17,19 @@ export default function Nosotros() {
       <div className={styles.contentSection}>
         <div className={styles.storyCard}>
           <div className={styles.textContent}>
-            <h2 className={styles.sectionTitle}>Donde comenzó todo</h2>
+            {/* <h2 className={styles.sectionTitle}>Donde comenzó todo</h2> */}
             <p className={styles.storyText}>
-              Olivia nació del sueño de crear un espacio donde el aroma del café recién molido 
-              se mezcla con la dulzura de nuestras creaciones artesanales. Cada receta que 
-              preparamos lleva el cariño de la tradición familiar y la pasión por los sabores auténticos.
+            Somos dos jóvenes que decidimos transformar nuestra pasión por la pastelería y 
+            el café en un lugar donde cada visita sea un momento especial. Así nació Olivia: 
+            una cafetería y pastelería artesanal, hecha con amor, aromas que reconfortan y sabores 
+            que invitan a quedarse.
             </p>
             <p className={styles.storyText}>
-              Nuestro equipo está formado por personas que comparten la misma visión: 
-              brindar momentos especiales a través de cada taza de café y cada bocado de nuestras tartas caseras.
+            Creemos que un buen café y una porción de algo rico y casero pueden convertir cualquier 
+            día en algo memorable. Por eso, cada receta que sale de nuestra cocina está inspirada en la 
+            alegría de compartir, en las tardes con amigos, en los pequeños instantes que se convierten 
+            en recuerdos. Hoy, seguimos creciendo gracias a cada cliente que nos elige, y a ese sueño que 
+            nos impulsó desde el principio.
             </p>
           </div>
           <div className={styles.imageContainer}>
@@ -44,8 +48,9 @@ export default function Nosotros() {
           <div className={styles.invitationCard}>
             <h2 className={styles.invitationTitle}>Te esperamos</h2>
             <p className={styles.invitationText}>
-              Ven a descubrir un lugar donde cada detalle está pensado para hacerte sentir como en casa. 
-              Donde cada café cuenta una historia y cada postre despierta una sonrisa.
+              Te invitamos a ser parte de nuestra historia, donde cada momento se convierte en una experiencia 
+              única. Donde los aromas del café se mezclan con la dulzura de la pastelería artesanal, creando 
+              memorias que perduran en el corazón.
             </p>
             <div className={styles.signatureText}>Con cariño, el equipo de Olivia</div>
           </div>

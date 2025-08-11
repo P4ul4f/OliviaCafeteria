@@ -2,19 +2,27 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { AuthProvider } from '../contexts/AuthContext';
+import LoadingSpinner from '../components/LoadingSpinner';
+import { useLoadingState } from '../hooks/useLoadingState';
 import '../styles/globals.css';
 import '../styles/datepicker-custom.css';
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const isAdminRoute = router.pathname.startsWith('/admin');
+  const { isLoading, loadingProgress } = useLoadingState();
 
   return (
     <>
       <Head>
         {/* SDK de Mercado Pago para checkout transparente */}
         <script src="https://sdk.mercadopago.com/js/v2" async />
+        {/* Preload de fuentes personalizadas */}
+        <link rel="preload" href="/rhyme-casual.otf" as="font" type="font/otf" crossOrigin="anonymous" />
+        <link rel="preload" href="/canter-bold.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
       </Head>
+      
+      <LoadingSpinner isLoading={isLoading} progress={loadingProgress} />
       
       {isAdminRoute ? (
         <AuthProvider>

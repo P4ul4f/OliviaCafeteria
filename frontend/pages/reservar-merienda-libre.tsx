@@ -84,7 +84,8 @@ export default function ReservarMeriendaLibre() {
       setLoadingCupos(true);
       const cuposData = await apiService.getCuposDisponibles(fecha, turno, 'merienda-libre');
       setCuposDisponibles(cuposData.cuposDisponibles);
-      setMaxPersonas(Math.min(cuposData.cuposDisponibles, 20)); // Máximo 20 personas por reserva
+      // Para meriendas libres: máximo es la disponibilidad real del día, pero no más de 40 personas
+      setMaxPersonas(Math.min(cuposData.cuposDisponibles, 40));
     } catch (error) {
       console.error('Error cargando cupos disponibles:', error);
       setCuposDisponibles(0);
@@ -114,7 +115,8 @@ export default function ReservarMeriendaLibre() {
     setFormData(prev => ({
       ...prev,
       fecha: date,
-      turno: '' // Limpiar turno cuando cambie la fecha
+      turno: '', // Limpiar turno cuando cambie la fecha
+      cantidadPersonas: '' // Limpiar cantidad de personas cuando cambie la fecha
     }));
     
     if (errors.fecha) {
@@ -124,7 +126,7 @@ export default function ReservarMeriendaLibre() {
       }));
     }
     
-    // Limpiar cupos cuando cambie la fecha
+    // Limpiar cupos y máximo de personas
     setCuposDisponibles(40);
     setMaxPersonas(40);
   };
@@ -132,7 +134,8 @@ export default function ReservarMeriendaLibre() {
   const handleTurnoChange = (turnoId: string) => {
     setFormData(prev => ({
       ...prev,
-      turno: turnoId
+      turno: turnoId,
+      cantidadPersonas: '' // Limpiar cantidad de personas cuando cambie el turno
     }));
     
     if (errors.turno) {
@@ -163,8 +166,8 @@ export default function ReservarMeriendaLibre() {
       newErrors.cantidadPersonas = 'La cantidad de personas es requerida';
     } else if (parseInt(formData.cantidadPersonas) < 1) {
       newErrors.cantidadPersonas = 'La cantidad debe ser al menos 1';
-    } else if (parseInt(formData.cantidadPersonas) > 30) {
-      newErrors.cantidadPersonas = 'La cantidad máxima es 30 personas';
+    } else if (parseInt(formData.cantidadPersonas) > maxPersonas) {
+      newErrors.cantidadPersonas = `La cantidad máxima es ${maxPersonas} personas (según disponibilidad)`;
     }
 
     if (!formData.fecha) {
@@ -315,7 +318,7 @@ export default function ReservarMeriendaLibre() {
 
             <div className={styles.formGroup}>
               <label htmlFor="cantidadPersonas" className={styles.label}>
-                Cantidad de personas *
+                Cantidad de personas (máximo según disponibilidad) *
                 {formData.turno && (
                   <span className={styles.cuposInfo}>
                     {loadingCupos ? 'Cargando cupos...' : `${cuposDisponibles} cupos disponibles`}
@@ -348,7 +351,7 @@ export default function ReservarMeriendaLibre() {
                   <div className={styles.customSelectArrow}>▼</div>
                 </div>
                 <div id="cantidadDropdown" className={styles.customSelectDropdown}>
-                  {Array.from({ length: Math.min(maxPersonas, 30) }, (_, i) => i + 1).map(num => (
+                  {Array.from({ length: Math.max(0, maxPersonas) }, (_, i) => i + 1).map(num => (
                     <div
                       key={num}
                       className={`${styles.customSelectOption} ${num > maxPersonas ? styles.disabled : ''}`}
