@@ -10,10 +10,10 @@ export const useLoadingState = () => {
     
     const startProgressAnimation = () => {
       progressInterval = setInterval(() => {
-        progress += Math.random() * 12;
-        if (progress > 85) progress = 85;
-        setLoadingProgress(Math.min(progress, 85));
-      }, 150);
+        progress += Math.random() * 20; // Más rápido
+        if (progress > 90) progress = 90;
+        setLoadingProgress(Math.min(progress, 90));
+      }, 100); // Más frecuente
     };
 
     // Función para verificar si las fuentes están cargadas
@@ -22,15 +22,18 @@ export const useLoadingState = () => {
         // Verificar si las fuentes personalizadas están disponibles
         const customFonts = ['RhymeTH', 'Canter'];
         
-        // Esperar a que las fuentes se carguen
-        await document.fonts.ready;
+        // Esperar a que las fuentes se carguen (pero con timeout)
+        const fontsPromise = document.fonts.ready;
+        const timeoutPromise = new Promise(resolve => setTimeout(resolve, 800)); // Máximo 800ms
+        
+        await Promise.race([fontsPromise, timeoutPromise]);
         
         const fontsLoaded = customFonts.every(font => {
           return document.fonts.check(`12px ${font}`);
         });
 
-        // También esperar un tiempo mínimo para asegurar que todo esté listo
-        const minLoadTime = 2500; // 2.5 segundos mínimo
+        // Tiempo mínimo muy reducido para mejor UX
+        const minLoadTime = 600; // Solo 0.6 segundos mínimo
         const startTime = Date.now();
 
         const checkComplete = () => {
@@ -39,22 +42,22 @@ export const useLoadingState = () => {
             setLoadingProgress(100);
             setTimeout(() => {
               setIsLoading(false);
-            }, 400); // Pequeña pausa para mostrar el 100%
+            }, 200); // Pausa más corta
           } else {
-            setTimeout(checkComplete, 100);
+            setTimeout(checkComplete, 50); // Verificación más frecuente
           }
         };
 
         checkComplete();
       } catch (error) {
         console.warn('Error checking fonts:', error);
-        // Si hay error, continuar después del tiempo mínimo
+        // Si hay error, continuar rápidamente
         setTimeout(() => {
           setLoadingProgress(100);
           setTimeout(() => {
             setIsLoading(false);
-          }, 400);
-        }, 2500);
+          }, 200);
+        }, 600);
       }
     };
 
