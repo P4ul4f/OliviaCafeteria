@@ -19,10 +19,10 @@ export declare class PagoController {
         giftCardData: any;
         monto: number;
         descripcion: string;
-    }): Promise<import("mercadopago/dist/clients/preference/commonTypes").PreferenceResponse | {
-        id: string;
-        init_point: string;
-        sandbox_init_point: string;
+    }): Promise<{
+        id: string | undefined;
+        init_point: string | undefined;
+        sandbox_init_point: string | undefined;
         external_reference: string;
     }>;
     pagarConTarjeta(body: {

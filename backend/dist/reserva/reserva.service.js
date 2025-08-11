@@ -96,11 +96,8 @@ let ReservaService = class ReservaService {
         });
     }
     async findOne(id) {
-        console.log('🔍 findOne llamado con ID:', { id, tipo: typeof id });
         if (id === null || id === undefined || isNaN(id)) {
             console.error('❌ ID inválido en findOne:', { id, tipo: typeof id });
-            const error = new Error('ID inválido');
-            console.error('Stack trace:', error.stack);
             throw new common_1.BadRequestException('ID de reserva inválido');
         }
         return this.reservaRepository.findOne({ where: { id } });
@@ -108,13 +105,11 @@ let ReservaService = class ReservaService {
     async update(id, dto) {
         const reserva = await this.findOne(id);
         if (reserva) {
-            console.log('📝 PATCH reserva', { id, dto, estadoAntes: reserva.estado });
             if (dto.estado && typeof dto.estado === 'string') {
                 dto.estado = dto.estado.toUpperCase();
             }
             Object.assign(reserva, dto);
             const saved = await this.reservaRepository.save(reserva);
-            console.log('✅ Reserva actualizada', { id, estadoDespues: saved.estado });
             return saved;
         }
         return null;
@@ -188,7 +183,6 @@ let ReservaService = class ReservaService {
             if (tipoReserva === reserva_entity_1.TipoReserva.MERIENDA_LIBRE) {
                 const hoy = new Date();
                 hoy.setHours(0, 0, 0, 0);
-                console.log('🔍 Buscando fechas para meriendas libres desde:', hoy.toISOString());
                 const fechasConfig = await this.fechasConfigRepository.find({
                     where: {
                         activo: true,
@@ -198,28 +192,36 @@ let ReservaService = class ReservaService {
                         fecha: 'ASC'
                     }
                 });
-                console.log('📅 Fechas encontradas en BD:', fechasConfig.length);
                 const fechasDisponibles = fechasConfig
                     .map(fechaConfig => new Date(fechaConfig.fecha))
                     .filter(fecha => fecha >= hoy)
                     .sort((a, b) => a.getTime() - b.getTime());
-                console.log('✅ Fechas disponibles para meriendas libres:', fechasDisponibles.length);
                 return fechasDisponibles;
             }
             const fechasDisponibles = [];
             const hoy = new Date();
             const fechaLimite = new Date();
             fechaLimite.setMonth(fechaLimite.getMonth() + 3);
+            const diasMeriendasLibres = await this.fechasConfigRepository.find({
+                where: {
+                    activo: true,
+                    fecha: (0, typeorm_2.Between)(hoy, fechaLimite)
+                }
+            });
+            const fechasMeriendasLibres = new Set(diasMeriendasLibres.map(fechaConfig => new Date(fechaConfig.fecha).toDateString()));
             for (let fecha = new Date(hoy); fecha <= fechaLimite; fecha.setDate(fecha.getDate() + 1)) {
                 if (fecha.getDay() !== 0) {
-                    if (tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA) {
-                        fechasDisponibles.push(new Date(fecha));
-                    }
-                    else {
-                        const fechaMinima = new Date();
-                        fechaMinima.setDate(fechaMinima.getDate() + 2);
-                        if (fecha >= fechaMinima) {
+                    const fechaString = fecha.toDateString();
+                    if (!fechasMeriendasLibres.has(fechaString)) {
+                        if (tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA) {
                             fechasDisponibles.push(new Date(fecha));
+                        }
+                        else {
+                            const fechaMinima = new Date();
+                            fechaMinima.setDate(fechaMinima.getDate() + 2);
+                            if (fecha >= fechaMinima) {
+                                fechasDisponibles.push(new Date(fecha));
+                            }
                         }
                     }
                 }
@@ -228,7 +230,6 @@ let ReservaService = class ReservaService {
         }
         catch (error) {
             console.error('❌ Error en getFechasDisponibles:', error);
-            console.error('❌ Stack trace:', error.stack);
             return [
                 new Date(2025, 7, 8),
                 new Date(2025, 7, 9),
@@ -250,19 +251,14 @@ let ReservaService = class ReservaService {
             const horarios = await this.getHorariosDisponibles(fecha, tipoReserva);
             let fechaDisponible = false;
             let cuposDisponibles = 0;
-            if (tipoReserva === reserva_entity_1.TipoReserva.TARDE_TE) {
+            if (tipoReserva === reserva_entity_1.TipoReserva.TARDE_TE || tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA) {
                 for (const horario of horarios) {
-                    const reservasExistentes = await this.reservaRepository.find({
-                        where: {
-                            fechaHora: (0, typeorm_2.Between)(fechaInicio, fechaFin),
-                            turno: horario,
-                            tipoReserva,
-                            estado: reserva_entity_1.EstadoReserva.CONFIRMADA,
-                        },
-                    });
-                    if (reservasExistentes.length < this.CAPACIDAD_MAXIMA_TURNO_TARDE_TE) {
+                    const capacidadCompartida = await this.calcularCapacidadCompartida(fecha, horario);
+                    const capacidadMaxima = await this.preciosConfigService.getCapacidadMaximaCompartida();
+                    const cuposDisponiblesHorario = Math.max(0, capacidadMaxima - capacidadCompartida);
+                    if (cuposDisponiblesHorario > 0) {
                         fechaDisponible = true;
-                        cuposDisponibles += this.CAPACIDAD_MAXIMA_TURNO_TARDE_TE - reservasExistentes.length;
+                        cuposDisponibles += cuposDisponiblesHorario;
                     }
                 }
             }
@@ -286,10 +282,6 @@ let ReservaService = class ReservaService {
                     }
                 }
             }
-            else {
-                fechaDisponible = true;
-                cuposDisponibles = 999;
-            }
             fechasConCupos.push({
                 fecha: new Date(fecha),
                 disponible: fechaDisponible,
@@ -299,24 +291,17 @@ let ReservaService = class ReservaService {
         return fechasConCupos;
     }
     async getHorariosDisponibles(fecha, tipoReserva) {
-        console.log('🕒 getHorariosDisponibles llamado con:', { fecha, tipoReserva });
         if (tipoReserva === reserva_entity_1.TipoReserva.MERIENDA_LIBRE) {
-            console.log('📋 Devolviendo horarios para merienda libre');
             return ['16:30-18:30', '19:00-21:00'];
         }
         if (tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA) {
-            console.log('🍽️ Devolviendo horarios para a la carta');
             return ['12:00-14:00', '14:00-16:00', '16:00-18:00', '18:00-20:00', '20:00-22:00'];
         }
-        console.log('🫖 Procesando horarios para tarde de té');
         const fechaMinima = new Date();
         fechaMinima.setDate(fechaMinima.getDate() + 2);
-        console.log('⏰ Verificando anticipación:', { fecha: fecha.toISOString(), fechaMinima: fechaMinima.toISOString() });
         if (fecha < fechaMinima) {
-            console.log('❌ Fecha no cumple anticipación, devolviendo array vacío');
             return [];
         }
-        console.log('✅ Fecha cumple anticipación, generando horarios');
         const horarios = [];
         for (let hora = 9; hora <= 12; hora++) {
             for (let minuto = 0; minuto < 60; minuto += 30) {
@@ -336,7 +321,6 @@ let ReservaService = class ReservaService {
                 horarios.push(`${horaStr}:${minutoStr}`);
             }
         }
-        console.log('🎯 Horarios generados:', horarios);
         return horarios;
     }
     async getHorariosDisponiblesConCupos(fecha, tipoReserva) {
@@ -369,7 +353,7 @@ let ReservaService = class ReservaService {
             }
             return horariosConCupos;
         }
-        else if (tipoReserva === reserva_entity_1.TipoReserva.TARDE_TE || tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA) {
+        else if (tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA || tipoReserva === reserva_entity_1.TipoReserva.TARDE_TE) {
             const horariosConCupos = [];
             for (const horario of horariosBase) {
                 const capacidadCompartida = await this.calcularCapacidadCompartida(fecha, horario);
@@ -393,33 +377,22 @@ let ReservaService = class ReservaService {
         }
     }
     async getCuposDisponibles(fecha, turno, tipoReserva) {
-        console.log('🔍 getCuposDisponibles - Iniciando con:', {
-            fecha,
-            turno,
-            tipoReserva,
-            tipoReservaType: typeof tipoReserva,
-            tipoReservaValue: tipoReserva,
-            enumValues: Object.values(reserva_entity_1.TipoReserva)
-        });
         const fechaInicio = new Date(fecha);
         fechaInicio.setHours(0, 0, 0, 0);
         const fechaFin = new Date(fecha);
         fechaFin.setHours(23, 59, 59, 999);
-        console.log('📅 Fechas de búsqueda:', { fechaInicio, fechaFin });
-        const reservasExistentes = await this.reservaRepository.find({
-            where: {
-                fechaHora: (0, typeorm_2.Between)(fechaInicio, fechaFin),
-                turno,
-                tipoReserva,
-                estado: reserva_entity_1.EstadoReserva.CONFIRMADA,
-            },
-        });
-        console.log('📊 Reservas existentes encontradas:', reservasExistentes.length);
         if (tipoReserva === reserva_entity_1.TipoReserva.MERIENDA_LIBRE) {
+            const reservasExistentes = await this.reservaRepository.find({
+                where: {
+                    fechaHora: (0, typeorm_2.Between)(fechaInicio, fechaFin),
+                    turno,
+                    tipoReserva,
+                    estado: reserva_entity_1.EstadoReserva.CONFIRMADA,
+                },
+            });
             const capacidadOcupada = reservasExistentes.reduce((total, reserva) => total + reserva.cantidadPersonas, 0);
             const capacidadMaxima = await this.preciosConfigService.getCuposMeriendasLibres();
             const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadOcupada);
-            console.log('🍰 Merienda Libre - Resultado:', { capacidadMaxima, capacidadOcupada, cuposDisponibles });
             return {
                 cuposDisponibles,
                 capacidadMaxima,
@@ -427,33 +400,25 @@ let ReservaService = class ReservaService {
                 reservasExistentes: reservasExistentes.length,
             };
         }
-        else if (tipoReserva === reserva_entity_1.TipoReserva.TARDE_TE || tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA) {
-            console.log('🫖 Tarde de Té/A la Carta - Calculando capacidad compartida...');
-            console.log('🔍 Comparación de tipos:', {
-                tipoReserva,
-                TipoReserva_TARDE_TE: reserva_entity_1.TipoReserva.TARDE_TE,
-                TipoReserva_A_LA_CARTA: reserva_entity_1.TipoReserva.A_LA_CARTA,
-                esTardeTe: tipoReserva === reserva_entity_1.TipoReserva.TARDE_TE,
-                esALaCarta: tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA
+        else if (tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA || tipoReserva === reserva_entity_1.TipoReserva.TARDE_TE) {
+            const reservasCompartidas = await this.reservaRepository.find({
+                where: {
+                    fechaHora: (0, typeorm_2.Between)(fechaInicio, fechaFin),
+                    tipoReserva: (0, typeorm_2.In)([reserva_entity_1.TipoReserva.A_LA_CARTA, reserva_entity_1.TipoReserva.TARDE_TE]),
+                    estado: reserva_entity_1.EstadoReserva.CONFIRMADA,
+                },
             });
-            const capacidadCompartida = await this.calcularCapacidadCompartida(fecha, turno);
+            const capacidadOcupada = await this.calcularCapacidadCompartida(fecha, turno);
             const capacidadMaxima = await this.preciosConfigService.getCapacidadMaximaCompartida();
-            const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadCompartida);
-            console.log('🫖 Tarde de Té/A la Carta - Resultado:', {
-                capacidadMaxima,
-                capacidadCompartida,
-                cuposDisponibles,
-                tipoReserva: tipoReserva === reserva_entity_1.TipoReserva.TARDE_TE ? 'TARDE_TE' : 'A_LA_CARTA'
-            });
+            const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadOcupada);
             return {
                 cuposDisponibles,
                 capacidadMaxima,
-                capacidadOcupada: capacidadCompartida,
-                reservasExistentes: reservasExistentes.length,
+                capacidadOcupada,
+                reservasExistentes: reservasCompartidas.length,
             };
         }
         else {
-            console.log('❌ Tipo de reserva no implementado:', tipoReserva);
             return {
                 cuposDisponibles: 0,
                 capacidadMaxima: 0,
@@ -463,54 +428,33 @@ let ReservaService = class ReservaService {
         }
     }
     async calcularCapacidadCompartida(fecha, turno) {
-        console.log('🔍 calcularCapacidadCompartida - Iniciando con:', { fecha, turno });
         const fechaInicio = new Date(fecha);
         fechaInicio.setHours(0, 0, 0, 0);
         const fechaFin = new Date(fecha);
         fechaFin.setHours(23, 59, 59, 999);
-        console.log('📅 Fechas de búsqueda para capacidad compartida:', { fechaInicio, fechaFin });
         const reservasCompartidas = await this.reservaRepository.find({
             where: {
                 fechaHora: (0, typeorm_2.Between)(fechaInicio, fechaFin),
-                tipoReserva: (0, typeorm_2.In)([reserva_entity_1.TipoReserva.TARDE_TE, reserva_entity_1.TipoReserva.A_LA_CARTA]),
+                tipoReserva: (0, typeorm_2.In)([reserva_entity_1.TipoReserva.A_LA_CARTA, reserva_entity_1.TipoReserva.TARDE_TE]),
                 estado: reserva_entity_1.EstadoReserva.CONFIRMADA,
             },
         });
-        console.log('📊 Reservas compartidas encontradas:', reservasCompartidas.length);
-        console.log('📋 Detalles de reservas compartidas:', reservasCompartidas.map(r => ({
-            id: r.id,
-            tipoReserva: r.tipoReserva,
-            fechaHora: r.fechaHora,
-            cantidadPersonas: r.cantidadPersonas,
-            turno: r.turno
-        })));
         let capacidadOcupada = 0;
         const ventanasTiempo = new Map();
         for (const reserva of reservasCompartidas) {
             const horaReserva = new Date(reserva.fechaHora);
             const horaInicio = horaReserva.getHours() + horaReserva.getMinutes() / 60;
-            const duracionEstadia = reserva.tipoReserva === reserva_entity_1.TipoReserva.TARDE_TE ? 1 : 0.5;
-            console.log('⏰ Procesando reserva:', {
-                id: reserva.id,
-                tipoReserva: reserva.tipoReserva,
-                horaReserva: horaReserva.toTimeString(),
-                horaInicio,
-                duracionEstadia,
-                cantidadPersonas: reserva.cantidadPersonas
-            });
+            const duracionEstadia = 1;
             for (let i = 0; i < duracionEstadia * 2; i++) {
                 const ventanaHora = horaInicio + (i * 0.5);
                 const ventanaKey = `${Math.floor(ventanaHora)}:${(ventanaHora % 1) * 60}`;
                 const capacidadActual = ventanasTiempo.get(ventanaKey) || 0;
                 ventanasTiempo.set(ventanaKey, capacidadActual + reserva.cantidadPersonas);
-                console.log('🕐 Ventana de tiempo:', { ventanaHora, ventanaKey, capacidadActual, nuevaCapacidad: capacidadActual + reserva.cantidadPersonas });
             }
         }
-        console.log('🗓️ Ventanas de tiempo calculadas:', Object.fromEntries(ventanasTiempo));
         for (const capacidad of ventanasTiempo.values()) {
             capacidadOcupada = Math.max(capacidadOcupada, capacidad);
         }
-        console.log('✅ Capacidad compartida calculada:', capacidadOcupada);
         return capacidadOcupada;
     }
     async calcularPrecio(tipoReserva, cantidadPersonas) {
