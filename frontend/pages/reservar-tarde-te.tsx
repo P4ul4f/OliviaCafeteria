@@ -321,72 +321,7 @@ export default function ReservarTardeTe() {
               {errors.telefono && <div className={styles.error}>{errors.telefono}</div>}
             </div>
 
-            <div className={styles.formGroup}>
-              <label htmlFor="cantidadPersonas" className={styles.label}>
-                Cantidad de personas (mínimo 10, máximo según disponibilidad) *
-                {formData.turno && (
-                  <span className={styles.cuposInfo}>
-                    {loadingCupos ? 'Cargando cupos...' : `${cuposDisponibles} cupos disponibles`}
-                  </span>
-                )}
-              </label>
-              <div className={styles.customSelectWrapper} id="cantidadWrapper">
-                <div 
-                  className={`${styles.customSelect} ${formData.cantidadPersonas ? styles.customSelectSelected : ''}`}
-                  onClick={() => {
-                    const dropdown = document.getElementById('cantidadDropdown');
-                    dropdown?.classList.toggle(styles.show);
-                  }}
-                >
-                  <div className={styles.customSelectValue}>
-                    <img 
-                      src="/grupo.png" 
-                      alt="personas" 
-                      className={styles.selectIconLeft}
-                    />
-                    <span>
-                      {formData.cantidadPersonas 
-                        ? `${formData.cantidadPersonas} personas`
-                        : 'Selecciona la cantidad de personas'
-                      }
-                    </span>
-                  </div>
-                  <div className={styles.customSelectArrow}>▼</div>
-                </div>
-                <div id="cantidadDropdown" className={styles.customSelectDropdown}>
-                  {Array.from({ length: Math.max(0, maxPersonas - 9) }, (_, i) => i + 10).map(num => (
-                    <div
-                      key={num}
-                      className={`${styles.customSelectOption} ${num > maxPersonas ? styles.disabled : ''}`}
-                      onClick={() => {
-                        if (num <= maxPersonas) {
-                          setFormData(prev => ({ ...prev, cantidadPersonas: num.toString() }));
-                          if (errors.cantidadPersonas) {
-                            setErrors(prev => ({ ...prev, cantidadPersonas: '' }));
-                          }
-                          const dropdown = document.getElementById('cantidadDropdown');
-                          dropdown?.classList.remove(styles.show);
-                        }
-                      }}
-                    >
-                      <img 
-                        src="/grupo.png" 
-                        alt="personas" 
-                        className={styles.selectIconLeft}
-                      />
-                      <span>
-                        {`${num} personas`}
-                        {num > maxPersonas && ` (No disponible)`}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {errors.cantidadPersonas && <div className={styles.error}>{errors.cantidadPersonas}</div>}
-              {formData.turno && cuposDisponibles === 0 && (
-                <div className={styles.error}>No hay cupos disponibles para este horario</div>
-              )}
-            </div>
+
 
             <div className={styles.formGroup}>
               <label htmlFor="fecha" className={styles.label}>
@@ -499,6 +434,73 @@ export default function ReservarTardeTe() {
                 </div>
               </div>
               {errors.turno && <div className={styles.error}>{errors.turno}</div>}
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="cantidadPersonas" className={styles.label}>
+                Cantidad de personas *
+                {formData.turno && (
+                  <span className={styles.cuposInfo}>
+                    {loadingCupos ? 'Cargando cupos...' : `${cuposDisponibles} cupos disponibles`}
+                  </span>
+                )}
+              </label>
+              <div className={styles.customSelectWrapper} id="cantidadWrapper">
+                <div 
+                  className={`${styles.customSelect} ${formData.cantidadPersonas ? styles.customSelectSelected : ''}`}
+                  onClick={() => {
+                    const dropdown = document.getElementById('cantidadDropdown');
+                    dropdown?.classList.toggle(styles.show);
+                  }}
+                >
+                  <div className={styles.customSelectValue}>
+                    <img 
+                      src="/grupo.png" 
+                      alt="personas" 
+                      className={styles.selectIconLeft}
+                    />
+                    <span>
+                      {formData.cantidadPersonas 
+                        ? `${formData.cantidadPersonas} personas`
+                        : 'Selecciona la cantidad de personas'
+                      }
+                    </span>
+                  </div>
+                  <div className={styles.customSelectArrow}>▼</div>
+                </div>
+                <div id="cantidadDropdown" className={styles.customSelectDropdown}>
+                  {Array.from({ length: Math.max(0, maxPersonas - 9) }, (_, i) => i + 10).map(num => (
+                    <div
+                      key={num}
+                      className={`${styles.customSelectOption} ${num > maxPersonas ? styles.disabled : ''}`}
+                      onClick={() => {
+                        if (num <= maxPersonas) {
+                          setFormData(prev => ({ ...prev, cantidadPersonas: num.toString() }));
+                          if (errors.cantidadPersonas) {
+                            setErrors(prev => ({ ...prev, cantidadPersonas: '' }));
+                          }
+                          const dropdown = document.getElementById('cantidadDropdown');
+                          dropdown?.classList.remove(styles.show);
+                        }
+                      }}
+                    >
+                      <img 
+                        src="/grupo.png" 
+                        alt="personas" 
+                        className={styles.selectIconLeft}
+                      />
+                      <span>
+                        {`${num} personas`}
+                        {num > maxPersonas && ` (No disponible)`}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {errors.cantidadPersonas && <div className={styles.error}>{errors.cantidadPersonas}</div>}
+              {formData.turno && cuposDisponibles === 0 && (
+                <div className={styles.error}>No hay cupos disponibles para este horario</div>
+              )}
             </div>
 
             <button 

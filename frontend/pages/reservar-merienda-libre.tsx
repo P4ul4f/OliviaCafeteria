@@ -316,9 +316,48 @@ export default function ReservarMeriendaLibre() {
               {errors.telefono && <div className={styles.error}>{errors.telefono}</div>}
             </div>
 
+
+
+            <div className={styles.formGroup}>
+              <label htmlFor="fecha" className={styles.label}>
+                Fecha *
+              </label>
+              <div className={styles.datePickerContainer}>
+                <DatePicker
+                  selected={formData.fecha}
+                  onChange={handleDateChange}
+                  className={styles.datePicker}
+                  filterDate={filterDate}
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText={loading ? "Cargando fechas..." : "Selecciona una fecha"}
+                  disabled={loading}
+                />
+              </div>
+              {errors.fecha && <div className={styles.error}>{errors.fecha}</div>}
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label}>
+                Turno *
+              </label>
+              <div className={styles.turnosContainer}>
+                {turnos.map(turno => (
+                  <button
+                    key={turno.id}
+                    type="button"
+                    className={`${styles.turnoButton} ${formData.turno === turno.id ? styles.turnoButtonActive : ''}`}
+                    onClick={() => handleTurnoChange(turno.id)}
+                  >
+                    {turno.label}
+                  </button>
+                ))}
+              </div>
+              {errors.turno && <div className={styles.error}>{errors.turno}</div>}
+            </div>
+
             <div className={styles.formGroup}>
               <label htmlFor="cantidadPersonas" className={styles.label}>
-                Cantidad de personas (máximo según disponibilidad) *
+                Cantidad de personas *
                 {formData.turno && (
                   <span className={styles.cuposInfo}>
                     {loadingCupos ? 'Cargando cupos...' : `${cuposDisponibles} cupos disponibles`}
@@ -383,43 +422,6 @@ export default function ReservarMeriendaLibre() {
               {formData.turno && cuposDisponibles === 0 && (
                 <div className={styles.error}>No hay cupos disponibles para este turno</div>
               )}
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="fecha" className={styles.label}>
-                Fecha *
-              </label>
-              <div className={styles.datePickerContainer}>
-                <DatePicker
-                  selected={formData.fecha}
-                  onChange={handleDateChange}
-                  className={styles.datePicker}
-                  filterDate={filterDate}
-                  dateFormat="yyyy-MM-dd"
-                  placeholderText={loading ? "Cargando fechas..." : "Selecciona una fecha"}
-                  disabled={loading}
-                />
-              </div>
-              {errors.fecha && <div className={styles.error}>{errors.fecha}</div>}
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.label}>
-                Turno *
-              </label>
-              <div className={styles.turnosContainer}>
-                {turnos.map(turno => (
-                  <button
-                    key={turno.id}
-                    type="button"
-                    className={`${styles.turnoButton} ${formData.turno === turno.id ? styles.turnoButtonActive : ''}`}
-                    onClick={() => handleTurnoChange(turno.id)}
-                  >
-                    {turno.label}
-                  </button>
-                ))}
-              </div>
-              {errors.turno && <div className={styles.error}>{errors.turno}</div>}
             </div>
 
             <div className={styles.fechasDisponibles}>

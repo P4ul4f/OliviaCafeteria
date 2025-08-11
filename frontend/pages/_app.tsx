@@ -10,6 +10,7 @@ import '../styles/datepicker-custom.css';
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const isAdminRoute = router.pathname.startsWith('/admin');
+  const isHomePage = router.pathname === '/';
   const { isLoading, loadingProgress } = useLoadingState();
 
   return (
@@ -22,7 +23,8 @@ export default function App({ Component, pageProps }: AppProps) {
         <link rel="preload" href="/canter-bold.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
       </Head>
       
-      <LoadingSpinner isLoading={isLoading} progress={loadingProgress} />
+      {/* El spinner solo aparece en la página de inicio */}
+      {isHomePage && <LoadingSpinner isLoading={isLoading} progress={loadingProgress} />}
       
       {isAdminRoute ? (
         <AuthProvider>
