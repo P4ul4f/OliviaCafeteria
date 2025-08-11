@@ -554,25 +554,6 @@ export class PagoService {
 
       this.logger.log('✅ Mercado Pago está configurado correctamente');
 
-      // MODO SIMULACIÓN: Si usamos credenciales genéricas, simulamos la respuesta
-      const isUsingGenericCredentials = mercadopagoConfig.accessToken?.startsWith('TEST-2952372186360544');
-      
-      if (isUsingGenericCredentials) {
-        this.logger.log('🎭 Modo simulación activado - usando credenciales genéricas');
-        
-        // Simular una preferencia de Mercado Pago
-        const simulatedPreference = {
-          id: `TEST_GIFTCARD_PREF_${Date.now()}`,
-          init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
-          sandbox_init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
-          external_reference: externalReference,
-        };
-
-        this.logger.log(`✅ Preferencia simulada creada: ${simulatedPreference.id}`);
-        
-        return simulatedPreference;
-      }
-
       const preference = new Preference(this.mercadopago!);
       
       this.logger.log('🏭 Instancia de Preference creada');
@@ -632,19 +613,25 @@ export class PagoService {
       } catch (createError) {
         this.logger.error('❌ Error específico al crear preferencia GiftCard:', createError.message);
         
-        // Si hay cualquier error con las credenciales, activar modo simulación
-        this.logger.log('🎭 Activando modo simulación por error en Mercado Pago para GiftCard');
-        
-        const simulatedPreference = {
-          id: `SIMULATED_GIFTCARD_PREF_${Date.now()}`,
-          init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
-          sandbox_init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
-          external_reference: externalReference,
-        };
+        // Solo activar simulación si es un error de credenciales inválidas
+        if (createError.message && createError.message.includes('invalid access token')) {
+          this.logger.log('🎭 Activando modo simulación por credenciales inválidas para GiftCard');
+          
+          const simulatedPreference = {
+            id: `SIMULATED_GIFTCARD_PREF_${Date.now()}`,
+            init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
+            sandbox_init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
+            external_reference: externalReference,
+          };
 
-        this.logger.log(`✅ Preferencia simulada por error: ${simulatedPreference.id}`);
-        
-        return simulatedPreference;
+          this.logger.log(`✅ Preferencia simulada por credenciales inválidas: ${simulatedPreference.id}`);
+          
+          return simulatedPreference;
+        }
+
+        // Para otros errores, lanzar la excepción para que el frontend la maneje
+        this.logger.error('❌ Error no manejable en Mercado Pago para GiftCard:', createError);
+        throw new InternalServerErrorException(`Error al crear la preferencia de pago: ${createError.message}`);
       }
     } catch (error) {
       this.logger.error('❌ Error detallado al crear preferencia GiftCard:', {
@@ -655,7 +642,7 @@ export class PagoService {
         status: error.response?.status || 'No status',
       });
 
-      // Detectar el error específico de credenciales inválidas
+      // Solo activar simulación si es un error de credenciales inválidas
       if (error.message && error.message.includes('invalid access token')) {
         this.logger.log('🎭 Activando modo simulación por credenciales inválidas para GiftCard');
         
@@ -670,26 +657,14 @@ export class PagoService {
           external_reference: externalReference,
         };
 
-        this.logger.log(`✅ Preferencia simulada por error para GiftCard: ${simulatedPreference.id}`);
+        this.logger.log(`✅ Preferencia simulada por credenciales inválidas: ${simulatedPreference.id}`);
         
         return simulatedPreference;
       }
 
-      // Para cualquier otro error, también activar modo simulación (como en reservas)
-      this.logger.log('🎭 Activando modo simulación por error general para GiftCard');
-      
-      const externalReference = `giftcard_olivia_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-      
-      const simulatedPreference = {
-        id: `SIMULATED_GIFTCARD_PREF_${Date.now()}`,
-        init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
-        sandbox_init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
-        external_reference: externalReference,
-      };
-
-      this.logger.log(`✅ Preferencia simulada por error general para GiftCard: ${simulatedPreference.id}`);
-      
-      return simulatedPreference;
+      // Para cualquier otro error, lanzar la excepción
+      this.logger.error('❌ Error no manejable para GiftCard:', error);
+      throw new InternalServerErrorException(`Error al crear la preferencia de pago: ${error.message}`);
     }
   }
 

@@ -487,22 +487,19 @@ let ReservaService = class ReservaService {
                 estado: reserva_entity_1.EstadoReserva.CONFIRMADA,
             },
         });
-        let capacidadOcupada = 0;
-        const ventanasTiempo = new Map();
-        for (const reserva of reservasCompartidas) {
-            const horaReserva = new Date(reserva.fechaHora);
-            const horaInicio = horaReserva.getHours() + horaReserva.getMinutes() / 60;
-            const duracionEstadia = 1;
-            for (let i = 0; i < duracionEstadia * 2; i++) {
-                const ventanaHora = horaInicio + (i * 0.5);
-                const ventanaKey = `${Math.floor(ventanaHora)}:${(ventanaHora % 1) * 60}`;
-                const capacidadActual = ventanasTiempo.get(ventanaKey) || 0;
-                ventanasTiempo.set(ventanaKey, capacidadActual + reserva.cantidadPersonas);
-            }
-        }
-        for (const capacidad of ventanasTiempo.values()) {
-            capacidadOcupada = Math.max(capacidadOcupada, capacidad);
-        }
+        const capacidadOcupada = reservasCompartidas.reduce((total, reserva) => total + reserva.cantidadPersonas, 0);
+        console.log(`🔍 calcularCapacidadCompartida para ${fecha.toDateString()}:`, {
+            fecha: fecha.toISOString(),
+            turno,
+            reservasEncontradas: reservasCompartidas.length,
+            capacidadOcupada,
+            detalles: reservasCompartidas.map(r => ({
+                id: r.id,
+                tipo: r.tipoReserva,
+                personas: r.cantidadPersonas,
+                hora: r.fechaHora.toTimeString()
+            }))
+        });
         return capacidadOcupada;
     }
     async calcularPrecio(tipoReserva, cantidadPersonas) {

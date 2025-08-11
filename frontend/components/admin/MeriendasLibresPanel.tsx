@@ -38,6 +38,20 @@ function SuccessModal({ open, onClose, mensaje }: any) {
 }
 
 export default function MeriendasLibresPanel() {
+  // Helper function para formatear fechas sin problemas de timezone
+  const formatDateForBackend = (date: Date): string => {
+    // Crear una nueva fecha con la fecha seleccionada pero a mediodía para evitar timezone
+    const fechaMediodia = new Date(date);
+    fechaMediodia.setHours(12, 0, 0, 0);
+    
+    // Convertir a formato YYYY-MM-DD
+    const year = fechaMediodia.getFullYear();
+    const month = String(fechaMediodia.getMonth() + 1).padStart(2, '0');
+    const day = String(fechaMediodia.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+  };
+
   const [fechas, setFechas] = useState<any[]>([]);
   const [fechasEdit, setFechasEdit] = useState<any[]>([]); // Para edición en lote
   const [precio, setPrecio] = useState<number>(0);
@@ -271,7 +285,7 @@ export default function MeriendasLibresPanel() {
     try {
       const fechasToUpdate = fechasEdit.filter(f => f.id).map(f => ({
         ...f,
-        fecha: f.fecha ? new Date(f.fecha).toLocaleDateString('en-CA') : null // Formato YYYY-MM-DD sin timezone
+        fecha: f.fecha ? formatDateForBackend(new Date(f.fecha)) : null // Usar helper function
       }));
       
       for (const fecha of fechasToUpdate) {
@@ -385,7 +399,7 @@ export default function MeriendasLibresPanel() {
 
       // Crear objeto con solo los turnos válidos
       const fechaData = {
-        fecha: nuevaFecha.fecha ? nuevaFecha.fecha.toLocaleDateString('en-CA') : null, // Formato YYYY-MM-DD sin timezone
+        fecha: nuevaFecha.fecha ? formatDateForBackend(nuevaFecha.fecha) : null, // Usar helper function
         tipoReserva: 'merienda-libre',
         turnos: turnosValidos,
         activo: true

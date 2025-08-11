@@ -633,31 +633,24 @@ export class ReservaService {
       },
     });
 
-    // Calcular capacidad ocupada considerando estadía variable para ambos tipos
-    let capacidadOcupada = 0;
-    const ventanasTiempo = new Map<string, number>();
+    // SIMPLIFICADO: Sumar directamente la cantidad de personas de todas las reservas del día
+    const capacidadOcupada = reservasCompartidas.reduce(
+      (total, reserva) => total + reserva.cantidadPersonas,
+      0
+    );
 
-    for (const reserva of reservasCompartidas) {
-      const horaReserva = new Date(reserva.fechaHora);
-      const horaInicio = horaReserva.getHours() + horaReserva.getMinutes() / 60;
-      
-      // Para ambos tipos: estadía de 1 hora (comparten el mismo espacio)
-      const duracionEstadia = 1;
-      
-      // Calcular ventanas de tiempo afectadas
-      for (let i = 0; i < duracionEstadia * 2; i++) { // Multiplicar por 2 porque hay ventanas cada 30 min
-        const ventanaHora = horaInicio + (i * 0.5);
-        const ventanaKey = `${Math.floor(ventanaHora)}:${(ventanaHora % 1) * 60}`;
-        
-        const capacidadActual = ventanasTiempo.get(ventanaKey) || 0;
-        ventanasTiempo.set(ventanaKey, capacidadActual + reserva.cantidadPersonas);
-      }
-    }
-
-    // Encontrar la ventana con mayor capacidad ocupada
-    for (const capacidad of ventanasTiempo.values()) {
-      capacidadOcupada = Math.max(capacidadOcupada, capacidad);
-    }
+    console.log(`🔍 calcularCapacidadCompartida para ${fecha.toDateString()}:`, {
+      fecha: fecha.toISOString(),
+      turno,
+      reservasEncontradas: reservasCompartidas.length,
+      capacidadOcupada,
+      detalles: reservasCompartidas.map(r => ({
+        id: r.id,
+        tipo: r.tipoReserva,
+        personas: r.cantidadPersonas,
+        hora: r.fechaHora.toTimeString()
+      }))
+    });
 
     return capacidadOcupada;
   }
