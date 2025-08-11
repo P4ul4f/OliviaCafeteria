@@ -13,7 +13,7 @@ import { GiftCardService } from '../giftcard/giftcard.service';
 @Injectable()
 export class PagoService {
   private readonly logger = new Logger(PagoService.name);
-  private mercadopago: MercadoPagoConfig;
+  private mercadopago: MercadoPagoConfig | null;
 
   constructor(
     @InjectRepository(Pago)
@@ -94,7 +94,7 @@ export class PagoService {
         return simulatedPreference;
       }
 
-      const preference = new Preference(this.mercadopago);
+      const preference = new Preference(this.mercadopago!);
       
       this.logger.log('🏭 Instancia de Preference creada');
       
@@ -211,7 +211,11 @@ export class PagoService {
       }
 
       // Obtener información del pago desde Mercado Pago
-      const payment = new Payment(this.mercadopago);
+      if (!this.mercadopago) {
+        throw new BadRequestException('Mercado Pago no está configurado');
+      }
+      
+      const payment = new Payment(this.mercadopago!);
       const paymentData = await payment.get({ id: notificationData.data.id });
 
       this.logger.log(`💳 Estado del pago: ${paymentData.status}`);
@@ -336,7 +340,7 @@ export class PagoService {
         };
       }
 
-      const payment = new Payment(this.mercadopago);
+      const payment = new Payment(this.mercadopago!);
       
       this.logger.log('🏭 Instancia de Payment creada para tarjeta');
       
@@ -525,7 +529,7 @@ export class PagoService {
         return simulatedPreference;
       }
 
-      const preference = new Preference(this.mercadopago);
+      const preference = new Preference(this.mercadopago!);
       
       this.logger.log('🏭 Instancia de Preference creada');
       
@@ -634,7 +638,7 @@ export class PagoService {
         };
       }
 
-      const payment = new Payment(this.mercadopago);
+      const payment = new Payment(this.mercadopago!);
       
       const paymentData = {
         transaction_amount: monto,
