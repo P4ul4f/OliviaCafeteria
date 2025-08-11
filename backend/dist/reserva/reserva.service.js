@@ -270,6 +270,7 @@ let ReservaService = class ReservaService {
                 for (const horario of horarios) {
                     const capacidadCompartida = await this.calcularCapacidadCompartida(fecha, horario);
                     const capacidadMaxima = await this.preciosConfigService.getCapacidadMaximaCompartida();
+                    console.log(`🏢 Capacidad máxima obtenida del servicio: ${capacidadMaxima}`);
                     const cuposDisponiblesHorario = Math.max(0, capacidadMaxima - capacidadCompartida);
                     if (cuposDisponiblesHorario > 0) {
                         fechaDisponible = true;
@@ -373,6 +374,7 @@ let ReservaService = class ReservaService {
             for (const horario of horariosBase) {
                 const capacidadCompartida = await this.calcularCapacidadCompartida(fecha, horario);
                 const capacidadMaxima = await this.preciosConfigService.getCapacidadMaximaCompartida();
+                console.log(`🏢 Capacidad máxima obtenida del servicio: ${capacidadMaxima}`);
                 const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadCompartida);
                 const disponible = cuposDisponibles > 0;
                 horariosConCupos.push({
@@ -416,6 +418,13 @@ let ReservaService = class ReservaService {
             };
         }
         else if (tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA || tipoReserva === reserva_entity_1.TipoReserva.TARDE_TE) {
+            console.log(`🔍 === INICIO getCuposDisponibles para ${tipoReserva} ===`);
+            console.log(`📅 Fecha recibida:`, {
+                fecha: fecha.toISOString(),
+                fechaLocal: fecha.toLocaleDateString('es-ES'),
+                timestamp: fecha.getTime()
+            });
+            console.log(`🕒 Turno: ${turno}`);
             const reservasCompartidas = await this.reservaRepository.find({
                 where: {
                     fechaHora: (0, typeorm_2.Between)(fechaInicio, fechaFin),
@@ -423,8 +432,19 @@ let ReservaService = class ReservaService {
                     estado: reserva_entity_1.EstadoReserva.CONFIRMADA,
                 },
             });
+            console.log(`📊 Reservas encontradas:`, reservasCompartidas.length);
+            if (reservasCompartidas.length > 0) {
+                console.log(`📋 Detalles de reservas:`, reservasCompartidas.map(r => ({
+                    id: r.id,
+                    tipo: r.tipoReserva,
+                    personas: r.cantidadPersonas,
+                    fecha: r.fechaHora.toISOString(),
+                    turno: r.turno
+                })));
+            }
             const capacidadOcupada = reservasCompartidas.reduce((total, reserva) => total + reserva.cantidadPersonas, 0);
             const capacidadMaxima = await this.preciosConfigService.getCapacidadMaximaCompartida();
+            console.log(`🏢 Capacidad máxima obtenida del servicio: ${capacidadMaxima}`);
             const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadOcupada);
             console.log(`🔍 Cupos para ${tipoReserva} en ${fecha.toDateString()}:`, {
                 capacidadMaxima,
@@ -438,6 +458,7 @@ let ReservaService = class ReservaService {
                     hora: r.fechaHora.toTimeString()
                 }))
             });
+            console.log(`🔍 === FIN getCuposDisponibles para ${tipoReserva} ===`);
             return {
                 cuposDisponibles,
                 capacidadMaxima,

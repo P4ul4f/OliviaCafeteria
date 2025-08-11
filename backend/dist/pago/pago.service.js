@@ -424,8 +424,8 @@ let PagoService = PagoService_1 = class PagoService {
                 this.logger.warn('⚠️ Mercado Pago no está configurado, activando modo simulación automáticamente');
                 const simulatedPreference = {
                     id: `SIMULATED_GIFTCARD_PREF_${Date.now()}`,
-                    init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
-                    sandbox_init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
+                    init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
+                    sandbox_init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
                     external_reference: externalReference,
                 };
                 this.logger.log(`✅ Preferencia simulada creada (Mercado Pago no configurado): ${simulatedPreference.id}`);
@@ -437,8 +437,8 @@ let PagoService = PagoService_1 = class PagoService {
                 this.logger.log('🎭 Modo simulación activado - usando credenciales genéricas');
                 const simulatedPreference = {
                     id: `TEST_GIFTCARD_PREF_${Date.now()}`,
-                    init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
-                    sandbox_init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved`,
+                    init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
+                    sandbox_init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
                     external_reference: externalReference,
                 };
                 this.logger.log(`✅ Preferencia simulada creada: ${simulatedPreference.id}`);
@@ -503,7 +503,7 @@ let PagoService = PagoService_1 = class PagoService {
                     sandbox_init_point: `https://olivia-cafeteria.vercel.app/pago/success?payment_id=SIMULATED_${externalReference}&status=approved&external_reference=${externalReference}`,
                     external_reference: externalReference,
                 };
-                this.logger.log(`✅ Preferencia simulada por error para GiftCard: ${simulatedPreference.id}`);
+                this.logger.log(`✅ Preferencia simulada por error: ${simulatedPreference.id}`);
                 return simulatedPreference;
             }
         }

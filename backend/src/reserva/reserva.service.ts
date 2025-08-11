@@ -343,6 +343,8 @@ export class ReservaService {
           // Calcular capacidad compartida considerando ambos tipos de reserva
           const capacidadCompartida = await this.calcularCapacidadCompartida(fecha, horario);
           const capacidadMaxima = await this.preciosConfigService.getCapacidadMaximaCompartida();
+          console.log(`🏢 Capacidad máxima obtenida del servicio: ${capacidadMaxima}`);
+          
           const cuposDisponiblesHorario = Math.max(0, capacidadMaxima - capacidadCompartida);
           
           if (cuposDisponiblesHorario > 0) {
@@ -484,6 +486,7 @@ export class ReservaService {
         // Calcular capacidad compartida para este horario específico (considerando ambos tipos)
         const capacidadCompartida = await this.calcularCapacidadCompartida(fecha, horario);
         const capacidadMaxima = await this.preciosConfigService.getCapacidadMaximaCompartida();
+        console.log(`🏢 Capacidad máxima obtenida del servicio: ${capacidadMaxima}`);
         const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadCompartida);
         const disponible = cuposDisponibles > 0;
 
@@ -544,6 +547,14 @@ export class ReservaService {
       };
     } else if (tipoReserva === TipoReserva.A_LA_CARTA || tipoReserva === TipoReserva.TARDE_TE) {
       // Para a la carta y tardes de té: COMPARTEN el mismo salón (65 personas máximo por día)
+      console.log(`🔍 === INICIO getCuposDisponibles para ${tipoReserva} ===`);
+      console.log(`📅 Fecha recibida:`, {
+        fecha: fecha.toISOString(),
+        fechaLocal: fecha.toLocaleDateString('es-ES'),
+        timestamp: fecha.getTime()
+      });
+      console.log(`🕒 Turno: ${turno}`);
+      
       const reservasCompartidas = await this.reservaRepository.find({
         where: {
           fechaHora: Between(fechaInicio, fechaFin),
@@ -552,6 +563,17 @@ export class ReservaService {
         },
       });
 
+      console.log(`📊 Reservas encontradas:`, reservasCompartidas.length);
+      if (reservasCompartidas.length > 0) {
+        console.log(`📋 Detalles de reservas:`, reservasCompartidas.map(r => ({
+          id: r.id,
+          tipo: r.tipoReserva,
+          personas: r.cantidadPersonas,
+          fecha: r.fechaHora.toISOString(),
+          turno: r.turno
+        })));
+      }
+
       // Calcular capacidad ocupada sumando todas las reservas del día (sin ventanas de tiempo complejas)
       const capacidadOcupada = reservasCompartidas.reduce(
         (total, reserva) => total + reserva.cantidadPersonas,
@@ -559,6 +581,7 @@ export class ReservaService {
       );
       
       const capacidadMaxima = await this.preciosConfigService.getCapacidadMaximaCompartida();
+      console.log(`🏢 Capacidad máxima obtenida del servicio: ${capacidadMaxima}`);
       const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadOcupada);
 
       console.log(`🔍 Cupos para ${tipoReserva} en ${fecha.toDateString()}:`, {
@@ -573,6 +596,8 @@ export class ReservaService {
           hora: r.fechaHora.toTimeString()
         }))
       });
+      
+      console.log(`🔍 === FIN getCuposDisponibles para ${tipoReserva} ===`);
 
       return {
         cuposDisponibles,

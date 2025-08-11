@@ -271,7 +271,7 @@ export default function MeriendasLibresPanel() {
     try {
       const fechasToUpdate = fechasEdit.filter(f => f.id).map(f => ({
         ...f,
-        fecha: f.fecha ? new Date(f.fecha).toISOString().split('T')[0] : null
+        fecha: f.fecha ? new Date(f.fecha).toLocaleDateString('en-CA') : null // Formato YYYY-MM-DD sin timezone
       }));
       
       for (const fecha of fechasToUpdate) {
@@ -309,8 +309,12 @@ export default function MeriendasLibresPanel() {
   };
 
   const handleAgregarNueva = () => {
+    // Crear fecha actual sin problemas de timezone
+    const hoy = new Date();
+    hoy.setHours(12, 0, 0, 0); // Establecer a mediodía para evitar problemas de timezone
+    
     setNuevaFecha({
-      fecha: new Date(),
+      fecha: hoy,
       turnos: [''],
       activo: true,
       observaciones: ''
@@ -381,7 +385,7 @@ export default function MeriendasLibresPanel() {
 
       // Crear objeto con solo los turnos válidos
       const fechaData = {
-        fecha: nuevaFecha.fecha ? nuevaFecha.fecha.toISOString().split('T')[0] : null,
+        fecha: nuevaFecha.fecha ? nuevaFecha.fecha.toLocaleDateString('en-CA') : null, // Formato YYYY-MM-DD sin timezone
         tipoReserva: 'merienda-libre',
         turnos: turnosValidos,
         activo: true

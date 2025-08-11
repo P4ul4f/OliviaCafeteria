@@ -209,6 +209,49 @@ export class ReservaController {
     }
   }
 
+  @Get('test-cupos')
+  testCupos(
+    @Query('fecha') fecha: string,
+    @Query('turno') turno: string,
+    @Query('tipoReserva') tipoReservaString: string
+  ) {
+    try {
+      console.log('🧪 === TEST ENDPOINT CUPOS ===');
+      console.log('📅 Fecha recibida:', fecha);
+      console.log('🕒 Turno recibido:', turno);
+      console.log('🎯 Tipo de reserva recibido:', tipoReservaString);
+      
+      // Validar y convertir el tipo de reserva
+      const tipoReserva = tipoReservaString as TipoReserva;
+      if (!Object.values(TipoReserva).includes(tipoReserva)) {
+        throw new Error(`Tipo de reserva inválido: ${tipoReservaString}`);
+      }
+      
+      // Parsear la fecha
+      const fechaObj = new Date(fecha);
+      if (isNaN(fechaObj.getTime())) {
+        throw new Error('Fecha inválida');
+      }
+      
+      console.log('✅ Fecha parseada:', {
+        fechaISO: fechaObj.toISOString(),
+        fechaLocal: fechaObj.toLocaleDateString('es-ES'),
+        timestamp: fechaObj.getTime()
+      });
+      
+      console.log('✅ Tipo de reserva validado:', tipoReserva);
+      
+      // Test directo del servicio
+      const resultado = this.reservaService.getCuposDisponibles(fechaObj, turno, tipoReserva);
+      
+      console.log('🧪 === FIN TEST ENDPOINT CUPOS ===');
+      return resultado;
+    } catch (error) {
+      console.error('❌ Error en test endpoint:', error);
+      throw new BadRequestException(`Error en test: ${error.message}`);
+    }
+  }
+
   @Post(':id/confirmar-pago')
   confirmarPago(
     @Param('id') id: string,

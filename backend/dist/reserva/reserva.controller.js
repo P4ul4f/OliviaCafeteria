@@ -159,6 +159,35 @@ let ReservaController = class ReservaController {
             throw new common_1.BadRequestException(`Error al procesar la solicitud: ${error.message}`);
         }
     }
+    testCupos(fecha, turno, tipoReservaString) {
+        try {
+            console.log('🧪 === TEST ENDPOINT CUPOS ===');
+            console.log('📅 Fecha recibida:', fecha);
+            console.log('🕒 Turno recibido:', turno);
+            console.log('🎯 Tipo de reserva recibido:', tipoReservaString);
+            const tipoReserva = tipoReservaString;
+            if (!Object.values(reserva_entity_1.TipoReserva).includes(tipoReserva)) {
+                throw new Error(`Tipo de reserva inválido: ${tipoReservaString}`);
+            }
+            const fechaObj = new Date(fecha);
+            if (isNaN(fechaObj.getTime())) {
+                throw new Error('Fecha inválida');
+            }
+            console.log('✅ Fecha parseada:', {
+                fechaISO: fechaObj.toISOString(),
+                fechaLocal: fechaObj.toLocaleDateString('es-ES'),
+                timestamp: fechaObj.getTime()
+            });
+            console.log('✅ Tipo de reserva validado:', tipoReserva);
+            const resultado = this.reservaService.getCuposDisponibles(fechaObj, turno, tipoReserva);
+            console.log('🧪 === FIN TEST ENDPOINT CUPOS ===');
+            return resultado;
+        }
+        catch (error) {
+            console.error('❌ Error en test endpoint:', error);
+            throw new common_1.BadRequestException(`Error en test: ${error.message}`);
+        }
+    }
     confirmarPago(id, body) {
         return this.reservaService.confirmarPago(Number(id), body.idPagoExterno, body.metodoPago);
     }
@@ -247,6 +276,15 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", void 0)
 ], ReservaController.prototype, "getCuposDisponibles", null);
+__decorate([
+    (0, common_1.Get)('test-cupos'),
+    __param(0, (0, common_1.Query)('fecha')),
+    __param(1, (0, common_1.Query)('turno')),
+    __param(2, (0, common_1.Query)('tipoReserva')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", void 0)
+], ReservaController.prototype, "testCupos", null);
 __decorate([
     (0, common_1.Post)(':id/confirmar-pago'),
     __param(0, (0, common_1.Param)('id')),
