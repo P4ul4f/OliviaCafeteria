@@ -551,12 +551,12 @@ export class ReservaService {
         reservasExistentes: reservasExistentes.length,
       };
     } else {
-      // Para a la carta: sin límite específico
+      // Para otros tipos de reserva que no están implementados
       return {
-        cuposDisponibles: 999,
-        capacidadMaxima: 999,
-        capacidadOcupada: reservasExistentes.length,
-        reservasExistentes: reservasExistentes.length,
+        cuposDisponibles: 0,
+        capacidadMaxima: 0,
+        capacidadOcupada: 0,
+        reservasExistentes: 0,
       };
     }
   }

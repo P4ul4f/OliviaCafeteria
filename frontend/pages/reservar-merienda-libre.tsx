@@ -214,7 +214,11 @@ export default function ReservarMeriendaLibre() {
       const reservaDataForPayment = {
         nombre: formData.nombre,
         cantidadPersonas: formData.cantidadPersonas,
-        fecha: formData.fecha ? formData.fecha.toLocaleDateString('es-ES') : '',
+        fecha: formData.fecha ? formData.fecha.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        }) : '',
         turno: formData.turno,
         tipoReserva: formData.tipoReserva,
       };

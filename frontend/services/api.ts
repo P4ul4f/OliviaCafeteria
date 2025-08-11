@@ -207,6 +207,11 @@ class ApiService {
     return this.request('/reserva/test-db');
   }
 
+  // Verificar estado del servicio de pagos
+  async checkPaymentHealth(): Promise<any> {
+    return this.request('/pago/health');
+  }
+
   // Obtener fechas disponibles por tipo de reserva
   async getFechasDisponibles(tipoReserva: string): Promise<Date[]> {
     const fechas = await this.request<string[]>(`/reserva/fechas-disponibles/${tipoReserva}`);

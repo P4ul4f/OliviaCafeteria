@@ -100,6 +100,35 @@ export class PagoController {
     }
   }
 
+  @Get('health')
+  async checkHealth() {
+    this.logger.log(`🏥 Verificando estado de Mercado Pago`);
+    
+    try {
+      const isConfigured = this.pagoService.isMercadoPagoConfigured();
+      return {
+        status: 'ok',
+        mercadopago: {
+          configured: isConfigured,
+          message: isConfigured 
+            ? 'Mercado Pago está configurado correctamente' 
+            : 'Mercado Pago no está configurado. Se requieren credenciales válidas.'
+        },
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      this.logger.error(`❌ Error en health check: ${error.message}`);
+      return {
+        status: 'error',
+        mercadopago: {
+          configured: false,
+          message: `Error al verificar configuración: ${error.message}`
+        },
+        timestamp: new Date().toISOString()
+      };
+    }
+  }
+
   @Post()
   create(@Body() createPagoDto: CreatePagoDto) {
     return this.pagoService.create(createPagoDto);

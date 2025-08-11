@@ -100,6 +100,11 @@ export default function ReservarALaCarta() {
       fecha: date
     }));
     
+    // Limpiar cupos y cantidad de personas cuando cambia la fecha
+    setCuposDisponibles(0);
+    setMaxPersonas(0);
+    setFormData(prev => ({ ...prev, cantidadPersonas: '' }));
+    
     if (errors.fecha) {
       setErrors(prev => ({
         ...prev,
@@ -113,6 +118,9 @@ export default function ReservarALaCarta() {
       ...prev,
       turno: horario
     }));
+    
+    // Limpiar cantidad de personas cuando cambia el horario
+    setFormData(prev => ({ ...prev, cantidadPersonas: '' }));
     
     if (errors.turno) {
       setErrors(prev => ({
@@ -182,7 +190,11 @@ export default function ReservarALaCarta() {
       const reservaDataForPayment = {
         nombre: formData.nombre,
         cantidadPersonas: formData.cantidadPersonas,
-        fecha: formData.fecha ? formData.fecha.toLocaleDateString('es-ES') : '',
+        fecha: formData.fecha ? formData.fecha.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        }) : '',
         turno: formData.turno,
         tipoReserva: formData.tipoReserva,
       };
@@ -213,12 +225,18 @@ export default function ReservarALaCarta() {
     
     try {
       setLoadingCupos(true);
+      console.log('🔍 Cargando cupos para:', { fecha: fecha.toISOString(), horario, tipoReserva: 'a-la-carta' });
+      
       const cuposData = await apiService.getCuposDisponibles(fecha, horario, 'a-la-carta');
+      console.log('📊 Datos de cupos recibidos:', cuposData);
+      
       setCuposDisponibles(cuposData.cuposDisponibles);
       // Para a la carta: máximo 10 personas por reserva
       setMaxPersonas(Math.min(cuposData.cuposDisponibles, 10));
+      
+      console.log('✅ Cupos configurados:', { cuposDisponibles: cuposData.cuposDisponibles, maxPersonas: Math.min(cuposData.cuposDisponibles, 10) });
     } catch (error) {
-      console.error('Error cargando cupos disponibles:', error);
+      console.error('❌ Error cargando cupos disponibles:', error);
       setCuposDisponibles(0);
       setMaxPersonas(0);
     } finally {

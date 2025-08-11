@@ -102,8 +102,8 @@ export default function MeriendasLibresPanel() {
           turnos: turnos
         };
       });
-      setFechas(normalizadas.filter((f: any) => f.activa || new Date(f.fecha) >= new Date()));
-      setFechasEdit(normalizadas.filter((f: any) => f.activa || new Date(f.fecha) >= new Date()));
+      setFechas(normalizadas.filter((f: any) => f.activo || new Date(f.fecha) >= new Date()));
+      setFechasEdit(normalizadas.filter((f: any) => f.activo || new Date(f.fecha) >= new Date()));
       const precioData = await apiService.getPrecioMeriendaLibre();
       setPrecio(precioData);
       setPrecioEdit(precioData);
@@ -308,7 +308,7 @@ export default function MeriendasLibresPanel() {
     setNuevaFecha({
       fecha: new Date(),
       turnos: [''],
-      activa: true,
+      activo: true,
       observaciones: ''
     });
   };
@@ -378,8 +378,9 @@ export default function MeriendasLibresPanel() {
       // Crear objeto con solo los turnos válidos
       const fechaData = {
         fecha: nuevaFecha.fecha,
+        tipoReserva: 'merienda-libre',
         turnos: turnosValidos,
-        activa: true
+        activo: true
       };
 
       await apiService.createFechaConfig(fechaData, adminToken);

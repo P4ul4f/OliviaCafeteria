@@ -69,6 +69,30 @@
   gap: 2rem;
 }
 
+/* Nota informativa sobre Mercado Pago */
+.infoNote {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.infoNote p {
+  margin: 0.5rem 0;
+  color: #856404;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.infoNote p:first-child {
+  margin-top: 0;
+}
+
+.infoNote p:last-child {
+  margin-bottom: 0;
+}
+
 .formSection {
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -351,7 +375,23 @@
 }
 
 .dropdownOption:not(.selected):hover {
-  background-color: #f0e5d0;
+  background-color: #f5f5f5;
+}
+
+.dropdownOption.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f9f9f9;
+}
+
+.dropdownOption.disabled:hover {
+  background-color: #f9f9f9;
+}
+
+.disabledNote {
+  color: #999;
+  font-style: italic;
+  font-size: 0.8em;
 }
 
 /* Fix para autofill en inputs */

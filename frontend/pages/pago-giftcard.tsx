@@ -21,6 +21,7 @@ interface FormData {
 interface DropdownOption {
   value: string;
   label: string;
+  disabled?: boolean;
 }
 
 export default function PagoGiftCard() {
@@ -34,6 +35,8 @@ export default function PagoGiftCard() {
   const [mp, setMp] = useState<any>(null);
   const [isMetodoDropdownOpen, setIsMetodoDropdownOpen] = useState(false);
   const metodoDropdownRef = useRef<HTMLDivElement>(null);
+  const [paymentHealth, setPaymentHealth] = useState<any>(null);
+  const [isHealthLoading, setIsHealthLoading] = useState(true);
 
   useEffect(() => {
     // Cargar datos de la gift card desde localStorage
@@ -51,6 +54,33 @@ export default function PagoGiftCard() {
       router.push('/giftcard');
     }
   }, [router]);
+
+  // Verificar estado del servicio de pagos
+  useEffect(() => {
+    const checkPaymentHealth = async () => {
+      try {
+        const health = await apiService.checkPaymentHealth();
+        setPaymentHealth(health);
+        
+        // Si Mercado Pago no está disponible, cambiar automáticamente a tarjeta
+        if (!health?.mercadopago?.configured && formData.metodoPago === 'mercadopago') {
+          setFormData(prev => ({ ...prev, metodoPago: 'tarjeta' }));
+        }
+      } catch (error) {
+        console.error('Error al verificar estado del servicio de pagos:', error);
+        setPaymentHealth({ status: 'error', mercadopago: { configured: false } });
+        
+        // Si hay error, cambiar a tarjeta
+        if (formData.metodoPago === 'mercadopago') {
+          setFormData(prev => ({ ...prev, metodoPago: 'tarjeta' }));
+        }
+      } finally {
+        setIsHealthLoading(false);
+      }
+    };
+
+    checkPaymentHealth();
+  }, [formData.metodoPago]);
 
   // Click outside para cerrar dropdown
   useEffect(() => {
@@ -224,6 +254,10 @@ export default function PagoGiftCard() {
         errorMessage = 'Mercado Pago requiere credenciales válidas. Por favor, usa el método de pago con tarjeta mientras configuramos la integración.';
       } else if (error.message && error.message.includes('invalid access token')) {
         errorMessage = 'Hay un problema con la configuración de Mercado Pago. Por favor, usa el método de pago con tarjeta.';
+      } else if (error.message && error.message.includes('Mercado Pago no está configurado')) {
+        errorMessage = 'Mercado Pago no está configurado en el servidor. Por favor, usa el método de pago con tarjeta o contacta al administrador.';
+      } else if (error.message && error.message.includes('Error al crear preferencia')) {
+        errorMessage = 'Error al crear la preferencia de pago en Mercado Pago. Por favor, usa el método de pago con tarjeta.';
       }
       
       setErrors({ submit: errorMessage });
@@ -268,8 +302,15 @@ export default function PagoGiftCard() {
   };
 
   const metodoPagoOptions: DropdownOption[] = [
-    { value: 'mercadopago', label: 'Mercado Pago' },
-    { value: 'tarjeta', label: 'Tarjeta de Crédito/Débito' }
+    { 
+      value: 'mercadopago', 
+      label: 'Mercado Pago',
+      disabled: !paymentHealth?.mercadopago?.configured
+    },
+    { 
+      value: 'tarjeta', 
+      label: 'Tarjeta de Crédito/Débito' 
+    }
   ];
 
   const handleMetodoSelect = (value: string) => {
@@ -318,6 +359,23 @@ export default function PagoGiftCard() {
 
         {/* Formulario de pago */}
         <form onSubmit={handleSubmit} className={styles.paymentForm}>
+          {/* Nota informativa sobre Mercado Pago */}
+          <div className={styles.infoNote}>
+            {isHealthLoading ? (
+              <p>🔄 Verificando estado del servicio de pagos...</p>
+            ) : paymentHealth?.mercadopago?.configured ? (
+              <>
+                <p>✅ <strong>Mercado Pago disponible:</strong> Puedes usar cualquier método de pago</p>
+                <p>💳 También puedes usar tarjeta de crédito/débito</p>
+              </>
+            ) : (
+              <>
+                <p>💳 <strong>Método de pago recomendado:</strong> Tarjeta de Crédito/Débito</p>
+                <p>📱 Mercado Pago está en configuración. Por favor, usa el método de tarjeta para completar tu compra.</p>
+              </>
+            )}
+          </div>
+
           {/* Método de pago */}
           <div className={styles.inputGroup}>
             <label htmlFor="metodoPago">Método de pago *</label>
@@ -334,10 +392,11 @@ export default function PagoGiftCard() {
                   {metodoPagoOptions.map((option) => (
                     <div
                       key={option.value}
-                      className={`${styles.dropdownOption} ${formData.metodoPago === option.value ? styles.selected : ''}`}
-                      onClick={() => handleMetodoSelect(option.value)}
+                      className={`${styles.dropdownOption} ${formData.metodoPago === option.value ? styles.selected : ''} ${option.disabled ? styles.disabled : ''}`}
+                      onClick={() => !option.disabled && handleMetodoSelect(option.value)}
                     >
                       {option.label}
+                      {option.disabled && <span className={styles.disabledNote}> (No disponible)</span>}
                     </div>
                   ))}
                 </div>

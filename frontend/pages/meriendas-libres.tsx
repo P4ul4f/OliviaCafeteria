@@ -190,7 +190,7 @@ export default function MeriendasLibres() {
       apiService.getMeriendasLibresContenido()
     ]).then(([precio, fechas, contenidoData]) => {
       setPrecio(precio);
-      setFechas(fechas.filter(f => f.activa !== false));
+      setFechas(fechas.filter(f => f.activo !== false));
       if (contenidoData) {
         setProductosData(contenidoData);
       }

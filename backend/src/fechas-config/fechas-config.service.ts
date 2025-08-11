@@ -21,8 +21,20 @@ export class FechasConfigService {
   }
 
   async create(data: Partial<FechasConfig>): Promise<FechasConfig> {
-    const nueva = this.fechasConfigRepo.create(data);
-    return this.fechasConfigRepo.save(nueva);
+    console.log('🔍 FechasConfigService.create - Datos recibidos:', data);
+    
+    try {
+      const nueva = this.fechasConfigRepo.create(data);
+      console.log('✅ FechasConfigService.create - Entidad creada:', nueva);
+      
+      const resultado = await this.fechasConfigRepo.save(nueva);
+      console.log('✅ FechasConfigService.create - Guardado exitoso:', resultado);
+      
+      return resultado;
+    } catch (error) {
+      console.error('❌ FechasConfigService.create - Error:', error);
+      throw error;
+    }
   }
 
   async update(id: number, data: Partial<FechasConfig>): Promise<FechasConfig> {

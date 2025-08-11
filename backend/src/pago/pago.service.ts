@@ -27,7 +27,8 @@ export class PagoService {
   private initializeMercadoPago() {
     try {
       if (!mercadopagoConfig.isConfigured()) {
-        this.logger.error('Mercado Pago no está configurado correctamente');
+        this.logger.warn('⚠️ Mercado Pago no está configurado. Las funciones de pago no estarán disponibles.');
+        this.mercadopago = null;
         return;
       }
 
@@ -35,7 +36,13 @@ export class PagoService {
       this.logger.log('✅ Mercado Pago inicializado correctamente');
     } catch (error) {
       this.logger.error('❌ Error al inicializar Mercado Pago:', error.message);
+      this.mercadopago = null;
     }
+  }
+
+  // Método público para verificar si Mercado Pago está configurado
+  isMercadoPagoConfigured(): boolean {
+    return this.mercadopago !== null;
   }
 
   // Crear preferencia de pago
@@ -560,7 +567,21 @@ export class PagoService {
       return result;
     } catch (error) {
       this.logger.error('❌ Error al crear preferencia GiftCard:', error.message);
-      throw new InternalServerErrorException('Error al crear preferencia de pago para GiftCard');
+      
+      // Proporcionar mensajes de error más específicos
+      if (error.message && error.message.includes('access_token')) {
+        throw new BadRequestException('Error de credenciales de Mercado Pago. El token de acceso no es válido.');
+      } else if (error.message && error.message.includes('invalid_access_token')) {
+        throw new BadRequestException('Token de acceso de Mercado Pago inválido. Verifica las credenciales.');
+      } else if (error.message && error.message.includes('unauthorized')) {
+        throw new BadRequestException('No autorizado para crear preferencias de pago. Verifica las credenciales de Mercado Pago.');
+      } else if (error.message && error.message.includes('bad_request')) {
+        throw new BadRequestException('Datos de preferencia inválidos. Verifica la información de la gift card.');
+      } else if (error.message && error.message.includes('timeout')) {
+        throw new BadRequestException('Timeout al conectar con Mercado Pago. Inténtalo de nuevo.');
+      } else {
+        throw new InternalServerErrorException('Error al crear preferencia de pago para GiftCard. Por favor, usa el método de pago con tarjeta.');
+      }
     }
   }
 
