@@ -32,14 +32,35 @@ let FechasConfigService = class FechasConfigService {
             throw new common_1.InternalServerErrorException('Error creating date configuration');
         }
     }
+    serializeFechas(fechas) {
+        return fechas.map(fecha => ({
+            ...fecha,
+            fecha: fecha.fecha ? fecha.fecha.toISOString().split('T')[0] : null
+        }));
+    }
     async findAll() {
         try {
             console.log('🔍 FechasConfigService.findAll() - Iniciando consulta...');
             const result = await this.fechasConfigRepository.find({
                 order: { fecha: 'ASC' }
             });
+            console.log('📅 Fechas encontradas:', result.length);
+            result.forEach((fecha, index) => {
+                console.log(`📅 Fecha ${index + 1}:`, {
+                    id: fecha.id,
+                    fecha: fecha.fecha,
+                    fechaType: typeof fecha.fecha,
+                    fechaISO: fecha.fecha?.toISOString(),
+                    fechaLocal: fecha.fecha?.toLocaleDateString('es-ES'),
+                    activo: fecha.activo,
+                    tipoReserva: fecha.tipoReserva,
+                    turnos: fecha.turnos
+                });
+            });
             console.log('✅ FechasConfigService.findAll() - Resultado:', result?.length || 0, 'registros');
-            return result;
+            const fechasSerializadas = this.serializeFechas(result);
+            console.log('📤 Fechas serializadas para frontend:', fechasSerializadas.length);
+            return fechasSerializadas;
         }
         catch (error) {
             console.error('❌ Error in FechasConfigService.findAll():', error);
@@ -92,13 +113,31 @@ let FechasConfigService = class FechasConfigService {
     }
     async findByTipoReserva(tipoReserva) {
         try {
-            return await this.fechasConfigRepository.find({
+            console.log(`🔍 FechasConfigService.findByTipoReserva('${tipoReserva}') - Iniciando consulta...`);
+            const result = await this.fechasConfigRepository.find({
                 where: {
                     activo: true,
                     tipoReserva: tipoReserva
                 },
                 order: { fecha: 'ASC' }
             });
+            console.log(`📅 Fechas encontradas para ${tipoReserva}:`, result.length);
+            result.forEach((fecha, index) => {
+                console.log(`📅 Fecha ${tipoReserva} ${index + 1}:`, {
+                    id: fecha.id,
+                    fecha: fecha.fecha,
+                    fechaType: typeof fecha.fecha,
+                    fechaISO: fecha.fecha?.toISOString(),
+                    fechaLocal: fecha.fecha?.toLocaleDateString('es-ES'),
+                    activo: fecha.activo,
+                    tipoReserva: fecha.tipoReserva,
+                    turnos: fecha.turnos
+                });
+            });
+            console.log(`✅ FechasConfigService.findByTipoReserva('${tipoReserva}') - Resultado:`, result?.length || 0, 'registros');
+            const fechasSerializadas = this.serializeFechas(result);
+            console.log(`📤 Fechas serializadas para frontend (${tipoReserva}):`, fechasSerializadas.length);
+            return fechasSerializadas;
         }
         catch (error) {
             console.error('❌ Error in FechasConfigService.findByTipoReserva():', error);

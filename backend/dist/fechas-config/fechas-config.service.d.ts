@@ -5,6 +5,7 @@ export declare class FechasConfigService {
     private fechasConfigRepository;
     constructor(fechasConfigRepository: Repository<FechasConfig>);
     create(createFechasConfigDto: CreateFechasConfigDto): Promise<FechasConfig>;
+    private serializeFechas;
     findAll(): Promise<FechasConfig[]>;
     findOne(id: number): Promise<FechasConfig>;
     update(id: number, updateFechasConfigDto: Partial<CreateFechasConfigDto>): Promise<FechasConfig>;
