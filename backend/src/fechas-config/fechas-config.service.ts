@@ -24,7 +24,7 @@ export class FechasConfigService {
     console.log('🔍 FechasConfigService.create - Datos recibidos:', data);
     
     try {
-      // SOLUCIÓN DEFINITIVA: Usar constructor de Date con mediodía para evitar zona horaria
+      // SOLUCIÓN DEFINITIVA: Solo manejar strings de fecha
       if (data.fecha && typeof data.fecha === 'string') {
         const fechaString = data.fecha as string;
         
@@ -33,55 +33,38 @@ export class FechasConfigService {
           throw new Error(`Formato de fecha inválido: ${fechaString}. Debe ser YYYY-MM-DD`);
         }
         
-        const [year, month, day] = fechaString.split('-').map(Number);
-        
-        // SOLUCIÓN: Constructor con mediodía (12:00:00) para evitar problemas de zona horaria
-        // Al estar en el medio del día, no hay riesgo de desplazamiento por zona horaria
-        const fechaNormalizada = new Date(year, month - 1, day, 12, 0, 0, 0);
-        
-        console.log('🔍 Debug fecha string convertida a Date (SOLUCIÓN DEFINITIVA):', {
+        // La fecha ya es string, no necesita conversión
+        console.log('🔍 Debug fecha string (formato válido):', {
           fechaString,
-          year,
-          month,
-          day,
-          fechaNormalizada: fechaNormalizada.toISOString(),
-          fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
-          fechaDateString: fechaNormalizada.toDateString(),
-          fechaTime: fechaNormalizada.getTime(),
-          getDate: fechaNormalizada.getDate(),
-          getUTCDate: fechaNormalizada.getUTCDate()
+          tipo: typeof data.fecha,
+          longitud: fechaString.length,
+          formato: fechaString
         });
         
-        data.fecha = fechaNormalizada;
+        // No cambiar nada - data.fecha ya es el string correcto
         
       } else if (data.fecha && data.fecha instanceof Date) {
-        // Si ya es un Date, crear uno nuevo con solo los componentes de fecha
-        const originalDate = data.fecha;
-        const year = originalDate.getFullYear();
-        const month = originalDate.getMonth();
-        const day = originalDate.getDate();
+        // Si por alguna razón llega un Date, convertirlo a string YYYY-MM-DD
+        const year = data.fecha.getFullYear();
+        const month = String(data.fecha.getMonth() + 1).padStart(2, '0');
+        const day = String(data.fecha.getDate()).padStart(2, '0');
+        const fechaString = `${year}-${month}-${day}`;
         
-        // SOLUCIÓN: Constructor con mediodía para evitar problemas de zona horaria
-        const fechaNormalizada = new Date(year, month, day, 12, 0, 0, 0);
-        
-        console.log('🔍 Debug fecha Date normalizada (SOLUCIÓN DEFINITIVA):', {
-          fechaOriginal: originalDate.toISOString(),
-          year,
-          month,
-          day,
-          fechaNormalizada: fechaNormalizada.toISOString(),
-          fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
-          getDate: fechaNormalizada.getDate(),
-          getUTCDate: fechaNormalizada.getUTCDate()
+        console.log('🔍 Debug fecha Date convertida a string:', {
+          fechaOriginal: data.fecha.toISOString(),
+          fechaConvertida: fechaString,
+          tipo: typeof fechaString
         });
         
-        data.fecha = fechaNormalizada;
+        data.fecha = fechaString;
+      } else if (!data.fecha) {
+        throw new Error('La fecha es requerida');
       }
       
       console.log('📅 Fecha final que se enviará a la BD:', {
         fecha: data.fecha,
         tipo: typeof data.fecha,
-        valor: data.fecha instanceof Date ? data.fecha.toISOString() : data.fecha
+        valor: data.fecha
       });
       
       const nueva = this.fechasConfigRepo.create(data);
@@ -100,7 +83,7 @@ export class FechasConfigService {
   async update(id: number, data: Partial<FechasConfig>): Promise<FechasConfig> {
     const fecha = await this.findOne(id);
     
-    // SOLUCIÓN DEFINITIVA: Usar constructor de Date con mediodía para evitar zona horaria
+    // SOLUCIÓN DEFINITIVA: Solo manejar strings de fecha
     if (data.fecha && typeof data.fecha === 'string') {
       const fechaString = data.fecha as string;
       
@@ -109,55 +92,36 @@ export class FechasConfigService {
         throw new Error(`Formato de fecha inválido: ${fechaString}. Debe ser YYYY-MM-DD`);
       }
       
-      const [year, month, day] = fechaString.split('-').map(Number);
-      
-      // SOLUCIÓN: Constructor con mediodía (12:00:00) para evitar problemas de zona horaria
-      // Al estar en el medio del día, no hay riesgo de desplazamiento por zona horaria
-      const fechaNormalizada = new Date(year, month - 1, day, 12, 0, 0, 0);
-      
-      console.log('🔍 Debug fecha update string convertida a Date (SOLUCIÓN DEFINITIVA):', {
+      // La fecha ya es string, no necesita conversión
+      console.log('🔍 Debug fecha update string (formato válido):', {
         fechaString,
-        year,
-        month,
-        day,
-        fechaNormalizada: fechaNormalizada.toISOString(),
-        fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
-        fechaDateString: fechaNormalizada.toDateString(),
-        fechaTime: fechaNormalizada.getTime(),
-        getDate: fechaNormalizada.getDate(),
-        getUTCDate: fechaNormalizada.getUTCDate()
+        tipo: typeof data.fecha,
+        longitud: fechaString.length,
+        formato: fechaString
       });
       
-      data.fecha = fechaNormalizada;
+      // No cambiar nada - data.fecha ya es el string correcto
       
     } else if (data.fecha && data.fecha instanceof Date) {
-      // Si ya es un Date, crear uno nuevo con solo los componentes de fecha
-      const originalDate = data.fecha;
-      const year = originalDate.getFullYear();
-      const month = originalDate.getMonth();
-      const day = originalDate.getDate();
+      // Si por alguna razón llega un Date, convertirlo a string YYYY-MM-DD
+      const year = data.fecha.getFullYear();
+      const month = String(data.fecha.getMonth() + 1).padStart(2, '0');
+      const day = String(data.fecha.getDate()).padStart(2, '0');
+      const fechaString = `${year}-${month}-${day}`;
       
-      // SOLUCIÓN: Constructor con mediodía para evitar problemas de zona horaria
-      const fechaNormalizada = new Date(year, month, day, 12, 0, 0, 0);
-      
-      console.log('🔍 Debug fecha update Date normalizada (SOLUCIÓN DEFINITIVA):', {
-        fechaOriginal: originalDate.toISOString(),
-        year,
-        month,
-        day,
-        fechaNormalizada: fechaNormalizada.toISOString(),
-        fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
-        getDate: fechaNormalizada.getDate(),
-        getUTCDate: fechaNormalizada.getUTCDate()
+      console.log('🔍 Debug fecha update Date convertida a string:', {
+        fechaOriginal: data.fecha.toISOString(),
+        fechaConvertida: fechaString,
+        tipo: typeof fechaString
       });
       
-      data.fecha = fechaNormalizada;
+      data.fecha = fechaString;
     }
     
     console.log('📅 Fecha final que se enviará a la BD en update:', {
       fecha: data.fecha,
       tipo: typeof data.fecha,
-      valor: data.fecha instanceof Date ? data.fecha.toISOString() : data.fecha
+      valor: data.fecha
     });
     
     Object.assign(fecha, data);

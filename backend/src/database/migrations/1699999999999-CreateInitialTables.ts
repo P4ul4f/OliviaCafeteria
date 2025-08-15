@@ -8,7 +8,7 @@ export class CreateInitialTables1699999999999 implements MigrationInterface {
         await queryRunner.query(`
             CREATE TABLE "fechas_config" (
                 "id" SERIAL NOT NULL,
-                "fecha" date NOT NULL,
+                "fecha" text NOT NULL,
                 "tipoReserva" character varying NOT NULL,
                 "turnosDisponibles" jsonb,
                 "cupos" integer,

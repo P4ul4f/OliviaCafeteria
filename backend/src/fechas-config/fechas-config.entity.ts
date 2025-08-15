@@ -6,10 +6,10 @@ export class FechasConfig {
   id: number;
 
   @Column({ 
-    type: 'date', // Usar tipo 'date' para evitar problemas de zona horaria
-    comment: 'Fecha en formato YYYY-MM-DD sin zona horaria'
+    type: 'text', // Usar tipo 'text' para almacenar strings de fecha sin problemas de zona horaria
+    comment: 'Fecha en formato YYYY-MM-DD como string'
   })
-  fecha: Date; // Mantener como Date para compatibilidad con PostgreSQL
+  fecha: string; // Solo string para consistencia total
 
   @Column()
   tipoReserva: string;
