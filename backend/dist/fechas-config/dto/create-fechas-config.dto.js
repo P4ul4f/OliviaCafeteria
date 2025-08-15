@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateFechasConfigDto = void 0;
 class CreateFechasConfigDto {
     fecha;
-    activa;
+    activo;
     observaciones;
     turnos;
 }

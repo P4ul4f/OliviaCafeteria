@@ -110,7 +110,7 @@ async function seedInitialData(dataSource) {
             const fechaConfig = fechasConfigRepo.create({
                 fecha: fechaData.fecha,
                 turnos: ['16:30-18:30', '19:00-21:00'],
-                activa: fechaData.activo
+                activo: fechaData.activo
             });
             await fechasConfigRepo.save(fechaConfig);
         }

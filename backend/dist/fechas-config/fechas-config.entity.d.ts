@@ -1,7 +1,7 @@
 export declare class FechasConfig {
     id: number;
     fecha: Date;
-    activa: boolean;
+    activo: boolean;
     observaciones: string;
     turnos: any;
     fechaCreacion: Date;

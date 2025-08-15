@@ -16,7 +16,7 @@ export class FechasConfig {
     default: true,
     comment: 'Indica si la fecha está activa'
   })
-  activa: boolean;
+  activo: boolean;
 
   @Column({
     type: 'varchar',

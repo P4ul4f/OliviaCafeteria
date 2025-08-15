@@ -84,7 +84,7 @@ export class FechasConfigService {
       // Como no tenemos columna tipoReserva, devolver todas las fechas activas
       // El filtrado por tipo se puede hacer en el frontend o en otro servicio
       return await this.fechasConfigRepository.find({
-        where: { activa: true },
+        where: { activo: true },
         order: { fecha: 'ASC' }
       });
     } catch (error) {

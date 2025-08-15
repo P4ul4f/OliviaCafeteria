@@ -8,7 +8,7 @@ class CreateInitialTables1699999999999 {
             CREATE TABLE "fechas_config" (
                 "id" SERIAL NOT NULL,
                 "fecha" timestamp without time zone NOT NULL,
-                "activa" boolean NOT NULL DEFAULT true,
+                "activo" boolean NOT NULL DEFAULT true,
                 "observaciones" character varying,
                 "turnos" jsonb,
                 "fechaCreacion" TIMESTAMP NOT NULL DEFAULT now(),

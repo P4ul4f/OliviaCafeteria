@@ -14,7 +14,7 @@ const typeorm_1 = require("typeorm");
 let FechasConfig = class FechasConfig {
     id;
     fecha;
-    activa;
+    activo;
     observaciones;
     turnos;
     fechaCreacion;
@@ -39,7 +39,7 @@ __decorate([
         comment: 'Indica si la fecha está activa'
     }),
     __metadata("design:type", Boolean)
-], FechasConfig.prototype, "activa", void 0);
+], FechasConfig.prototype, "activo", void 0);
 __decorate([
     (0, typeorm_1.Column)({
         type: 'varchar',

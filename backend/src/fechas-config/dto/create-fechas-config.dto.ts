@@ -1,6 +1,6 @@
 export class CreateFechasConfigDto {
   fecha: Date;
-  activa?: boolean;
+  activo?: boolean;
   observaciones?: string;
   turnos?: any;
 }
