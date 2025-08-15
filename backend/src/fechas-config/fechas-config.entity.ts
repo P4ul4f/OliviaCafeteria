@@ -9,7 +9,7 @@ export class FechasConfig {
     type: 'date', // Usar tipo 'date' para evitar problemas de zona horaria
     comment: 'Fecha en formato YYYY-MM-DD sin zona horaria'
   })
-  fecha: Date;
+  fecha: Date; // Mantener como Date para compatibilidad con PostgreSQL
 
   @Column()
   tipoReserva: string;

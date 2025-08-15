@@ -24,50 +24,65 @@ export class FechasConfigService {
     console.log('🔍 FechasConfigService.create - Datos recibidos:', data);
     
     try {
-      // Normalizar la fecha para evitar problemas de zona horaria
-      if (data.fecha) {
-        let fechaNormalizada: Date;
+      // SOLUCIÓN CORREGIDA: Crear Date correctamente para evitar problemas de zona horaria
+      if (data.fecha && typeof data.fecha === 'string') {
+        const fechaString = data.fecha as string;
         
-        if (typeof data.fecha === 'string') {
-          // Si es un string, parsearlo correctamente
-          const fechaString = data.fecha as string;
-          const [year, month, day] = fechaString.split('-').map(Number);
-          
-          // SOLUCIÓN ROBUSTA: Crear la fecha usando el constructor local
-          // y asegurarnos de que se mantenga en la zona horaria local
-          fechaNormalizada = new Date(year, month - 1, day);
-          
-          console.log('🔍 Debug fecha string:', {
-            fechaString,
-            year,
-            month,
-            day,
-            fechaNormalizada: fechaNormalizada.toISOString(),
-            fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
-            fechaDateString: fechaNormalizada.toDateString(),
-            fechaTime: fechaNormalizada.getTime()
-          });
-        } else {
-          // Si ya es un Date, crear uno nuevo para evitar mutaciones
-          const originalDate = data.fecha;
-          fechaNormalizada = new Date(
-            originalDate.getFullYear(),
-            originalDate.getMonth(),
-            originalDate.getDate()
-          );
+        // Validar que el formato sea correcto (YYYY-MM-DD)
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaString)) {
+          throw new Error(`Formato de fecha inválido: ${fechaString}. Debe ser YYYY-MM-DD`);
         }
         
-        data.fecha = fechaNormalizada;
+        const [year, month, day] = fechaString.split('-').map(Number);
         
-        console.log('📅 Fecha normalizada:', {
-          original: data.fecha,
-          normalizada: fechaNormalizada,
-          fechaISO: fechaNormalizada.toISOString(),
+        // SOLUCIÓN: Usar Date.UTC() para crear timestamp UTC, luego convertir a Date local
+        // Esto evita que JavaScript interprete la fecha en la zona horaria local
+        const timestampUTC = Date.UTC(year, month - 1, day);
+        const fechaNormalizada = new Date(timestampUTC);
+        
+        console.log('🔍 Debug fecha string convertida a Date:', {
+          fechaString,
+          year,
+          month,
+          day,
+          timestampUTC,
+          fechaNormalizada: fechaNormalizada.toISOString(),
           fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
           fechaDateString: fechaNormalizada.toDateString(),
           fechaTime: fechaNormalizada.getTime()
         });
+        
+        data.fecha = fechaNormalizada;
+        
+      } else if (data.fecha && data.fecha instanceof Date) {
+        // Si ya es un Date, crear uno nuevo con solo los componentes de fecha
+        const originalDate = data.fecha;
+        const year = originalDate.getFullYear();
+        const month = originalDate.getMonth();
+        const day = originalDate.getDate();
+        
+        // Usar Date.UTC() para evitar problemas de zona horaria
+        const timestampUTC = Date.UTC(year, month, day);
+        const fechaNormalizada = new Date(timestampUTC);
+        
+        console.log('🔍 Debug fecha Date normalizada:', {
+          fechaOriginal: originalDate.toISOString(),
+          year,
+          month,
+          day,
+          timestampUTC,
+          fechaNormalizada: fechaNormalizada.toISOString(),
+          fechaLocal: fechaNormalizada.toLocaleDateString('es-ES')
+        });
+        
+        data.fecha = fechaNormalizada;
       }
+      
+      console.log('📅 Fecha final que se enviará a la BD:', {
+        fecha: data.fecha,
+        tipo: typeof data.fecha,
+        valor: data.fecha instanceof Date ? data.fecha.toISOString() : data.fecha
+      });
       
       const nueva = this.fechasConfigRepo.create(data);
       console.log('✅ FechasConfigService.create - Entidad creada:', nueva);
@@ -85,50 +100,65 @@ export class FechasConfigService {
   async update(id: number, data: Partial<FechasConfig>): Promise<FechasConfig> {
     const fecha = await this.findOne(id);
     
-    // Normalizar la fecha si se está actualizando
-    if (data.fecha) {
-      let fechaNormalizada: Date;
+    // SOLUCIÓN CORREGIDA: Crear Date correctamente para evitar problemas de zona horaria
+    if (data.fecha && typeof data.fecha === 'string') {
+      const fechaString = data.fecha as string;
       
-      if (typeof data.fecha === 'string') {
-        // Si es un string, parsearlo correctamente
-        const fechaString = data.fecha as string;
-        const [year, month, day] = fechaString.split('-').map(Number);
-        
-        // SOLUCIÓN ROBUSTA: Crear la fecha usando el constructor local
-        // y asegurarnos de que se mantenga en la zona horaria local
-        fechaNormalizada = new Date(year, month - 1, day);
-        
-        console.log('🔍 Debug fecha update string:', {
-          fechaString,
-          year,
-          month,
-          day,
-          fechaNormalizada: fechaNormalizada.toISOString(),
-          fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
-          fechaDateString: fechaNormalizada.toDateString(),
-          fechaTime: fechaNormalizada.getTime()
-        });
-      } else {
-        // Si ya es un Date, crear uno nuevo para evitar mutaciones
-        const originalDate = data.fecha;
-        fechaNormalizada = new Date(
-          originalDate.getFullYear(),
-          originalDate.getMonth(),
-          originalDate.getDate()
-        );
+      // Validar que el formato sea correcto (YYYY-MM-DD)
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaString)) {
+        throw new Error(`Formato de fecha inválido: ${fechaString}. Debe ser YYYY-MM-DD`);
       }
       
-      data.fecha = fechaNormalizada;
+      const [year, month, day] = fechaString.split('-').map(Number);
       
-      console.log('📅 Fecha actualizada normalizada:', {
-        original: data.fecha,
-        normalizada: fechaNormalizada,
-        fechaISO: fechaNormalizada.toISOString(),
+      // SOLUCIÓN: Usar Date.UTC() para crear timestamp UTC, luego convertir a Date local
+      // Esto evita que JavaScript interprete la fecha en la zona horaria local
+      const timestampUTC = Date.UTC(year, month - 1, day);
+      const fechaNormalizada = new Date(timestampUTC);
+      
+      console.log('🔍 Debug fecha update string convertida a Date:', {
+        fechaString,
+        year,
+        month,
+        day,
+        timestampUTC,
+        fechaNormalizada: fechaNormalizada.toISOString(),
         fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
         fechaDateString: fechaNormalizada.toDateString(),
         fechaTime: fechaNormalizada.getTime()
       });
+      
+      data.fecha = fechaNormalizada;
+      
+    } else if (data.fecha && data.fecha instanceof Date) {
+      // Si ya es un Date, crear uno nuevo con solo los componentes de fecha
+      const originalDate = data.fecha;
+      const year = originalDate.getFullYear();
+      const month = originalDate.getMonth();
+      const day = originalDate.getDate();
+      
+      // Usar Date.UTC() para evitar problemas de zona horaria
+      const timestampUTC = Date.UTC(year, month, day);
+      const fechaNormalizada = new Date(timestampUTC);
+      
+      console.log('🔍 Debug fecha update Date normalizada:', {
+        fechaOriginal: originalDate.toISOString(),
+        year,
+        month,
+        day,
+        timestampUTC,
+        fechaNormalizada: fechaNormalizada.toISOString(),
+        fechaLocal: fechaNormalizada.toLocaleDateString('es-ES')
+      });
+      
+      data.fecha = fechaNormalizada;
     }
+    
+    console.log('📅 Fecha final que se enviará a la BD en update:', {
+      fecha: data.fecha,
+      tipo: typeof data.fecha,
+      valor: data.fecha instanceof Date ? data.fecha.toISOString() : data.fecha
+    });
     
     Object.assign(fecha, data);
     return this.fechasConfigRepo.save(fecha);
