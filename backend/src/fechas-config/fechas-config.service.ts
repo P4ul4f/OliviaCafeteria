@@ -32,11 +32,29 @@ export class FechasConfigService {
           // Si es un string, parsearlo correctamente
           const fechaString = data.fecha as string;
           const [year, month, day] = fechaString.split('-').map(Number);
-          fechaNormalizada = new Date(year, month - 1, day, 12, 0, 0, 0);
+          
+          // SOLUCIÓN ROBUSTA: Crear la fecha usando el constructor local
+          // y asegurarnos de que se mantenga en la zona horaria local
+          fechaNormalizada = new Date(year, month - 1, day);
+          
+          console.log('🔍 Debug fecha string:', {
+            fechaString,
+            year,
+            month,
+            day,
+            fechaNormalizada: fechaNormalizada.toISOString(),
+            fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
+            fechaDateString: fechaNormalizada.toDateString(),
+            fechaTime: fechaNormalizada.getTime()
+          });
         } else {
           // Si ya es un Date, crear uno nuevo para evitar mutaciones
-          fechaNormalizada = new Date(data.fecha);
-          fechaNormalizada.setHours(12, 0, 0, 0);
+          const originalDate = data.fecha;
+          fechaNormalizada = new Date(
+            originalDate.getFullYear(),
+            originalDate.getMonth(),
+            originalDate.getDate()
+          );
         }
         
         data.fecha = fechaNormalizada;
@@ -46,7 +64,8 @@ export class FechasConfigService {
           normalizada: fechaNormalizada,
           fechaISO: fechaNormalizada.toISOString(),
           fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
-          fechaString: `${fechaNormalizada.getFullYear()}-${String(fechaNormalizada.getMonth() + 1).padStart(2, '0')}-${String(fechaNormalizada.getDate()).padStart(2, '0')}`
+          fechaDateString: fechaNormalizada.toDateString(),
+          fechaTime: fechaNormalizada.getTime()
         });
       }
       
@@ -74,11 +93,29 @@ export class FechasConfigService {
         // Si es un string, parsearlo correctamente
         const fechaString = data.fecha as string;
         const [year, month, day] = fechaString.split('-').map(Number);
-        fechaNormalizada = new Date(year, month - 1, day, 12, 0, 0, 0);
+        
+        // SOLUCIÓN ROBUSTA: Crear la fecha usando el constructor local
+        // y asegurarnos de que se mantenga en la zona horaria local
+        fechaNormalizada = new Date(year, month - 1, day);
+        
+        console.log('🔍 Debug fecha update string:', {
+          fechaString,
+          year,
+          month,
+          day,
+          fechaNormalizada: fechaNormalizada.toISOString(),
+          fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
+          fechaDateString: fechaNormalizada.toDateString(),
+          fechaTime: fechaNormalizada.getTime()
+        });
       } else {
         // Si ya es un Date, crear uno nuevo para evitar mutaciones
-        fechaNormalizada = new Date(data.fecha);
-        fechaNormalizada.setHours(12, 0, 0, 0);
+        const originalDate = data.fecha;
+        fechaNormalizada = new Date(
+          originalDate.getFullYear(),
+          originalDate.getMonth(),
+          originalDate.getDate()
+        );
       }
       
       data.fecha = fechaNormalizada;
@@ -88,7 +125,8 @@ export class FechasConfigService {
         normalizada: fechaNormalizada,
         fechaISO: fechaNormalizada.toISOString(),
         fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
-        fechaString: `${fechaNormalizada.getFullYear()}-${String(fechaNormalizada.getMonth() + 1).padStart(2, '0')}-${String(fechaNormalizada.getDate()).padStart(2, '0')}`
+        fechaDateString: fechaNormalizada.toDateString(),
+        fechaTime: fechaNormalizada.getTime()
       });
     }
     
