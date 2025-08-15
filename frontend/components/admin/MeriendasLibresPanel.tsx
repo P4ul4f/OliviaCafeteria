@@ -140,27 +140,14 @@ export default function MeriendasLibresPanel() {
     setFechasError('');
     try {
       const fechasData = await apiService.getFechasConfig();
-      // Normalizar turnos
+      // Normalizar los datos de fechas
       const normalizadas = fechasData.map((f: any) => {
         let turnos: string[] = [];
         
-        if (Array.isArray(f.turnos) && f.turnos.length && typeof f.turnos[0] === 'string') {
-          // Ya está en el formato correcto
+        if (Array.isArray(f.turnos)) {
           turnos = f.turnos;
-        } else if (Array.isArray(f.turnosDisponibles)) {
-          // Caso legacy: turnosDisponibles
-          turnos = f.turnosDisponibles;
-        } else if (f.turnosDisponibles && typeof f.turnosDisponibles === 'object') {
-          // Objeto con mañana/tarde
-          for (const key of Object.keys(f.turnosDisponibles)) {
-            const turno = f.turnosDisponibles[key];
-            if (turno && typeof turno.horario === 'string' && turno.horario.trim() !== '') {
-              const partes = turno.horario.split(/y|Y/).map((s: string) => s.trim()).filter(Boolean);
-              turnos.push(...partes);
-            }
-          }
-        } else if (typeof f.turnosDisponibles === 'string') {
-          const partes = f.turnosDisponibles.split(/y|Y/).map((s: string) => s.trim()).filter(Boolean);
+        } else if (typeof f.turnos === 'string') {
+          const partes = f.turnos.split(/y|Y/).map((s: string) => s.trim()).filter(Boolean);
           turnos = partes;
         }
         
@@ -335,20 +322,28 @@ export default function MeriendasLibresPanel() {
   const handleTurnoEdit = (id: number, turno: 'mañana'|'tarde', campo: string, valor: any) => {
     setFechasEdit(fechasEdit.map(f => {
       if (f.id !== id) return f;
+      
+      // Crear un nuevo array de turnos
+      const turnosActuales = Array.isArray(f.turnos) ? [...f.turnos] : [];
+      
+      // Si es el primer turno, asegurar que exista
+      if (turno === 'mañana' && turnosActuales.length === 0) {
+        turnosActuales.push('');
+      }
+      if (turno === 'tarde' && turnosActuales.length < 2) {
+        while (turnosActuales.length < 2) {
+          turnosActuales.push('');
+        }
+      }
+      
       return {
         ...f,
-        turnosDisponibles: {
-          ...f.turnosDisponibles,
-          [turno]: {
-            ...f.turnosDisponibles[turno],
-            [campo]: campo === 'cupos' ? Number(valor) : valor
-          }
-        }
+        turnos: turnosActuales
       };
     }));
   };
   const handleObsEdit = (id: number, valor: string) => {
-    setFechasEdit(fechasEdit.map(f => f.id === id ? { ...f, observaciones: valor } : f));
+    setFechasEdit(fechasEdit.map(f => f.id === id ? { ...f, tipoReserva: valor } : f));
   };
   const handleGuardarFechas = async () => {
     setFechasError('');
@@ -415,7 +410,7 @@ export default function MeriendasLibresPanel() {
       fecha: hoy,
       turnos: [''],
       activo: true,
-      observaciones: ''
+      tipoReserva: 'merienda_libre'
     });
   };
 
@@ -493,7 +488,7 @@ export default function MeriendasLibresPanel() {
       // Crear objeto con solo los turnos válidos
       const fechaData = {
         fecha: fechaFormateada, // Usar helper function
-        tipoReserva: 'merienda-libre',
+        tipoReserva: 'merienda_libre',
         turnos: turnosValidos,
         activo: true
       };
@@ -547,7 +542,8 @@ export default function MeriendasLibresPanel() {
     setFechasEdit(fechasEdit.map(f => {
       if (f.id !== id) return f;
       const newTurnos = [...f.turnos];
-      newTurnos[idx] = { ...newTurnos[idx], cupos: Number(valor) || 0 };
+      // En la nueva estructura, los turnos son strings, no objetos con cupos
+      // Esta función ya no es necesaria, pero la mantenemos por compatibilidad
       return { ...f, turnos: newTurnos };
     }));
   };
