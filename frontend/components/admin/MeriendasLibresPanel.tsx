@@ -129,8 +129,20 @@ export default function MeriendasLibresPanel() {
           turnos: turnos
         };
       });
-      setFechas(normalizadas.filter((f: any) => f.activo || new Date(f.fecha) >= new Date()));
-      setFechasEdit(normalizadas.filter((f: any) => f.activo || new Date(f.fecha) >= new Date()));
+      
+      // Filtrar fechas activas y futuras usando strings directamente
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      const hoyString = hoy.toISOString().split('T')[0];
+      
+      const fechasFiltradas = normalizadas.filter((f: any) => {
+        if (f.activo) return true;
+        // Comparar strings de fecha directamente
+        return f.fecha >= hoyString;
+      });
+      
+      setFechas(fechasFiltradas);
+      setFechasEdit(fechasFiltradas);
       const precioData = await apiService.getPrecioMeriendaLibre();
       setPrecio(precioData);
       setPrecioEdit(precioData);
@@ -297,20 +309,29 @@ export default function MeriendasLibresPanel() {
     setFechasError('');
     try {
       const fechasToUpdate = fechasEdit.filter(f => f.id).map(f => {
-        const fechaFormateada = f.fecha ? formatDateForBackend(new Date(f.fecha)) : null;
+        // Si la fecha ya es un string, usarla directamente
+        // Si es un Date, convertirlo a string
+        let fechaFormateada: string;
+        
+        if (typeof f.fecha === 'string') {
+          fechaFormateada = f.fecha;
+        } else if (f.fecha instanceof Date) {
+          fechaFormateada = formatDateForBackend(f.fecha);
+        } else {
+          fechaFormateada = '';
+        }
         
         // Debug: mostrar información de la fecha antes de enviar
         console.log('🔍 Debug - Fecha existente antes de enviar:', {
           id: f.id,
           fechaOriginal: f.fecha,
           fechaFormateada: fechaFormateada,
-          fechaISO: f.fecha ? new Date(f.fecha).toISOString() : null,
-          fechaLocal: f.fecha ? new Date(f.fecha).toLocaleDateString('es-ES') : null
+          tipoFecha: typeof f.fecha
         });
         
         return {
           ...f,
-          fecha: fechaFormateada // Usar helper function
+          fecha: fechaFormateada
         };
       });
       

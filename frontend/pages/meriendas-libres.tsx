@@ -141,13 +141,19 @@ const comoReservarItems = [
 function agruparFechasPorSemana(fechas) {
   // Agrupa fechas por semana (lunes a domingo)
   if (!fechas || !fechas.length) return [];
-  // Ordenar por fecha
-  const ordenadas = [...fechas].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+  
+  // Ordenar por fecha usando strings directamente
+  const ordenadas = [...fechas].sort((a, b) => a.fecha.localeCompare(b.fecha));
+  
   const grupos = [];
   let grupo = [];
   let semanaActual = null;
+  
   for (const f of ordenadas) {
-    const fechaObj = new Date(f.fecha);
+    // Parsear la fecha del string YYYY-MM-DD
+    const [year, month, day] = f.fecha.split('-').map(Number);
+    const fechaObj = new Date(year, month - 1, day, 12, 0, 0, 0); // Mediodía para evitar timezone
+    
     // getDay: 0=domingo, 1=lunes, ..., 6=sabado
     const diaSemana = fechaObj.getDay();
     if (semanaActual === null) {
@@ -242,7 +248,12 @@ export default function MeriendasLibres() {
                 <div key={idx} className={styles.fechaGrupo} style={{ borderColor: idx === semanaSeleccionada ? '#c2d29b' : undefined }} onClick={() => setSemanaSeleccionada(idx)}>
                   {grupo.map((f, i) => (
                     <div className={styles.fechaItem} key={i}>
-                      {new Date(f.fecha).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' }).replace(/^\w/, c => c.toUpperCase())}
+                      {(() => {
+                        // Parsear la fecha del string YYYY-MM-DD
+                        const [year, month, day] = f.fecha.split('-').map(Number);
+                        const fechaObj = new Date(year, month - 1, day, 12, 0, 0, 0);
+                        return fechaObj.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' }).replace(/^\w/, c => c.toUpperCase());
+                      })()}
                     </div>
                   ))}
                 </div>

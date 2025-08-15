@@ -178,7 +178,9 @@ export default function ReservarMeriendaLibre() {
       selectedDate.setHours(0, 0, 0, 0);
       
       const fechaSeleccionada = fechasConCupos.find(fecha => {
-        const availableDate = new Date(fecha.fecha);
+        // Parsear la fecha del string YYYY-MM-DD
+        const [year, month, day] = fecha.fecha.split('-').map(Number);
+        const availableDate = new Date(year, month - 1, day, 12, 0, 0, 0);
         availableDate.setHours(0, 0, 0, 0);
         return selectedDate.getTime() === availableDate.getTime();
       });
@@ -250,7 +252,9 @@ export default function ReservarMeriendaLibre() {
     dateToCheck.setHours(0, 0, 0, 0);
     
     return fechasConCupos.some(fecha => {
-      const availableDate = new Date(fecha.fecha);
+      // Parsear la fecha del string YYYY-MM-DD
+      const [year, month, day] = fecha.fecha.split('-').map(Number);
+      const availableDate = new Date(year, month - 1, day, 12, 0, 0, 0);
       availableDate.setHours(0, 0, 0, 0);
       return dateToCheck.getTime() === availableDate.getTime() && fecha.disponible;
     });
