@@ -1,6 +1,6 @@
 export declare class FechasConfig {
     id: number;
-    fecha: Date;
+    fecha: string;
     tipoReserva: string;
     turnos: string[];
     activo: boolean;

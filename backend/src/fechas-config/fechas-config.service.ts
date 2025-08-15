@@ -43,22 +43,10 @@ export class FechasConfigService {
         
         // No cambiar nada - data.fecha ya es el string correcto
         
-      } else if (data.fecha && data.fecha instanceof Date) {
-        // Si por alguna razón llega un Date, convertirlo a string YYYY-MM-DD
-        const year = data.fecha.getFullYear();
-        const month = String(data.fecha.getMonth() + 1).padStart(2, '0');
-        const day = String(data.fecha.getDate()).padStart(2, '0');
-        const fechaString = `${year}-${month}-${day}`;
-        
-        console.log('🔍 Debug fecha Date convertida a string:', {
-          fechaOriginal: data.fecha.toISOString(),
-          fechaConvertida: fechaString,
-          tipo: typeof fechaString
-        });
-        
-        data.fecha = fechaString;
       } else if (!data.fecha) {
         throw new Error('La fecha es requerida');
+      } else {
+        throw new Error(`Tipo de fecha inválido: ${typeof data.fecha}. Debe ser string en formato YYYY-MM-DD`);
       }
       
       console.log('📅 Fecha final que se enviará a la BD:', {
@@ -102,20 +90,8 @@ export class FechasConfigService {
       
       // No cambiar nada - data.fecha ya es el string correcto
       
-    } else if (data.fecha && data.fecha instanceof Date) {
-      // Si por alguna razón llega un Date, convertirlo a string YYYY-MM-DD
-      const year = data.fecha.getFullYear();
-      const month = String(data.fecha.getMonth() + 1).padStart(2, '0');
-      const day = String(data.fecha.getDate()).padStart(2, '0');
-      const fechaString = `${year}-${month}-${day}`;
-      
-      console.log('🔍 Debug fecha update Date convertida a string:', {
-        fechaOriginal: data.fecha.toISOString(),
-        fechaConvertida: fechaString,
-        tipo: typeof fechaString
-      });
-      
-      data.fecha = fechaString;
+    } else if (data.fecha) {
+      throw new Error(`Tipo de fecha inválido: ${typeof data.fecha}. Debe ser string en formato YYYY-MM-DD`);
     }
     
     console.log('📅 Fecha final que se enviará a la BD en update:', {

@@ -223,11 +223,16 @@ export class ReservaService {
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
         
-        // Obtener fechas activas y futuras de la base de datos
+        // Convertir fechas a strings YYYY-MM-DD para la consulta
+        const hoyString = hoy.toISOString().split('T')[0];
+        const fechaLimite = new Date(hoy.getTime() + 90 * 24 * 60 * 60 * 1000);
+        const fechaLimiteString = fechaLimite.toISOString().split('T')[0];
+        
+        // Obtener fechas activas y futuras de la base de datos usando strings
         const fechasConfig = await this.fechasConfigRepository.find({
           where: {
             activo: true,
-            fecha: Between(hoy, new Date(hoy.getTime() + 90 * 24 * 60 * 60 * 1000)) // 90 días hacia adelante
+            fecha: Between(hoyString, fechaLimiteString) // Usar strings en lugar de Date
           },
           order: {
             fecha: 'ASC'
@@ -250,11 +255,15 @@ export class ReservaService {
       const fechaLimite = new Date();
       fechaLimite.setMonth(fechaLimite.getMonth() + 3); // 3 meses hacia adelante
 
-      // Obtener días de meriendas libres para excluirlos
+      // Convertir fechas a strings para la consulta
+      const hoyString = hoy.toISOString().split('T')[0];
+      const fechaLimiteString = fechaLimite.toISOString().split('T')[0];
+
+      // Obtener días de meriendas libres para excluirlos usando strings
       const diasMeriendasLibres = await this.fechasConfigRepository.find({
         where: {
           activo: true,
-          fecha: Between(hoy, fechaLimite)
+          fecha: Between(hoyString, fechaLimiteString) // Usar strings en lugar de Date
         }
       });
       

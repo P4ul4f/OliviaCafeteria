@@ -183,10 +183,13 @@ let ReservaService = class ReservaService {
             if (tipoReserva === reserva_entity_1.TipoReserva.MERIENDA_LIBRE) {
                 const hoy = new Date();
                 hoy.setHours(0, 0, 0, 0);
+                const hoyString = hoy.toISOString().split('T')[0];
+                const fechaLimite = new Date(hoy.getTime() + 90 * 24 * 60 * 60 * 1000);
+                const fechaLimiteString = fechaLimite.toISOString().split('T')[0];
                 const fechasConfig = await this.fechasConfigRepository.find({
                     where: {
                         activo: true,
-                        fecha: (0, typeorm_2.Between)(hoy, new Date(hoy.getTime() + 90 * 24 * 60 * 60 * 1000))
+                        fecha: (0, typeorm_2.Between)(hoyString, fechaLimiteString)
                     },
                     order: {
                         fecha: 'ASC'
@@ -203,10 +206,12 @@ let ReservaService = class ReservaService {
             hoy.setHours(0, 0, 0, 0);
             const fechaLimite = new Date();
             fechaLimite.setMonth(fechaLimite.getMonth() + 3);
+            const hoyString = hoy.toISOString().split('T')[0];
+            const fechaLimiteString = fechaLimite.toISOString().split('T')[0];
             const diasMeriendasLibres = await this.fechasConfigRepository.find({
                 where: {
                     activo: true,
-                    fecha: (0, typeorm_2.Between)(hoy, fechaLimite)
+                    fecha: (0, typeorm_2.Between)(hoyString, fechaLimiteString)
                 }
             });
             console.log('🔍 Días de meriendas libres encontrados:', diasMeriendasLibres.length);

@@ -34,17 +34,29 @@ let FechasConfigService = class FechasConfigService {
     async create(data) {
         console.log('🔍 FechasConfigService.create - Datos recibidos:', data);
         try {
-            if (data.fecha) {
-                const fechaNormalizada = new Date(data.fecha);
-                fechaNormalizada.setHours(12, 0, 0, 0);
-                data.fecha = fechaNormalizada;
-                console.log('📅 Fecha normalizada:', {
-                    original: data.fecha,
-                    normalizada: fechaNormalizada,
-                    fechaISO: fechaNormalizada.toISOString(),
-                    fechaLocal: fechaNormalizada.toLocaleDateString('es-ES')
+            if (data.fecha && typeof data.fecha === 'string') {
+                const fechaString = data.fecha;
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaString)) {
+                    throw new Error(`Formato de fecha inválido: ${fechaString}. Debe ser YYYY-MM-DD`);
+                }
+                console.log('🔍 Debug fecha string (formato válido):', {
+                    fechaString,
+                    tipo: typeof data.fecha,
+                    longitud: fechaString.length,
+                    formato: fechaString
                 });
             }
+            else if (!data.fecha) {
+                throw new Error('La fecha es requerida');
+            }
+            else {
+                throw new Error(`Tipo de fecha inválido: ${typeof data.fecha}. Debe ser string en formato YYYY-MM-DD`);
+            }
+            console.log('📅 Fecha final que se enviará a la BD:', {
+                fecha: data.fecha,
+                tipo: typeof data.fecha,
+                valor: data.fecha
+            });
             const nueva = this.fechasConfigRepo.create(data);
             console.log('✅ FechasConfigService.create - Entidad creada:', nueva);
             const resultado = await this.fechasConfigRepo.save(nueva);
@@ -58,17 +70,26 @@ let FechasConfigService = class FechasConfigService {
     }
     async update(id, data) {
         const fecha = await this.findOne(id);
-        if (data.fecha) {
-            const fechaNormalizada = new Date(data.fecha);
-            fechaNormalizada.setHours(12, 0, 0, 0);
-            data.fecha = fechaNormalizada;
-            console.log('📅 Fecha actualizada normalizada:', {
-                original: data.fecha,
-                normalizada: fechaNormalizada,
-                fechaISO: fechaNormalizada.toISOString(),
-                fechaLocal: fechaNormalizada.toLocaleDateString('es-ES')
+        if (data.fecha && typeof data.fecha === 'string') {
+            const fechaString = data.fecha;
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaString)) {
+                throw new Error(`Formato de fecha inválido: ${fechaString}. Debe ser YYYY-MM-DD`);
+            }
+            console.log('🔍 Debug fecha update string (formato válido):', {
+                fechaString,
+                tipo: typeof data.fecha,
+                longitud: fechaString.length,
+                formato: fechaString
             });
         }
+        else if (data.fecha) {
+            throw new Error(`Tipo de fecha inválido: ${typeof data.fecha}. Debe ser string en formato YYYY-MM-DD`);
+        }
+        console.log('📅 Fecha final que se enviará a la BD en update:', {
+            fecha: data.fecha,
+            tipo: typeof data.fecha,
+            valor: data.fecha
+        });
         Object.assign(fecha, data);
         return this.fechasConfigRepo.save(fecha);
     }

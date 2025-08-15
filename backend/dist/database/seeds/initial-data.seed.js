@@ -89,12 +89,12 @@ async function seedInitialData(dataSource) {
     const fechasExistentes = await fechasConfigRepo.count();
     if (fechasExistentes === 0) {
         const fechasMeriendas = [
-            { fecha: new Date(2025, 7, 8), activo: true },
-            { fecha: new Date(2025, 7, 9), activo: true },
-            { fecha: new Date(2025, 7, 15), activo: true },
-            { fecha: new Date(2025, 7, 16), activo: true },
-            { fecha: new Date(2025, 7, 29), activo: true },
-            { fecha: new Date(2025, 7, 30), activo: true },
+            { fecha: '2025-08-08', activo: true },
+            { fecha: '2025-08-09', activo: true },
+            { fecha: '2025-08-15', activo: true },
+            { fecha: '2025-08-16', activo: true },
+            { fecha: '2025-08-29', activo: true },
+            { fecha: '2025-08-30', activo: true },
         ];
         for (const fechaData of fechasMeriendas) {
             const fechaConfig = fechasConfigRepo.create({
