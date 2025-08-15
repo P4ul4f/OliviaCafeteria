@@ -14,11 +14,11 @@ const typeorm_1 = require("typeorm");
 let FechasConfig = class FechasConfig {
     id;
     fecha;
+    tipoReserva;
     activo;
-    observaciones;
     turnos;
-    fechaCreacion;
-    fechaActualizacion;
+    createdAt;
+    updatedAt;
 };
 exports.FechasConfig = FechasConfig;
 __decorate([
@@ -26,48 +26,29 @@ __decorate([
     __metadata("design:type", Number)
 ], FechasConfig.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({
-        type: 'timestamp',
-        comment: 'Fecha de la configuración'
-    }),
+    (0, typeorm_1.Column)({ type: 'timestamp', comment: 'Fecha de la configuración' }),
     __metadata("design:type", Date)
 ], FechasConfig.prototype, "fecha", void 0);
 __decorate([
-    (0, typeorm_1.Column)({
-        type: 'boolean',
-        default: true,
-        comment: 'Indica si la fecha está activa'
-    }),
+    (0, typeorm_1.Column)({ type: 'varchar', comment: 'Tipo de reserva' }),
+    __metadata("design:type", String)
+], FechasConfig.prototype, "tipoReserva", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'boolean', default: true, comment: 'Indica si la fecha está activa' }),
     __metadata("design:type", Boolean)
 ], FechasConfig.prototype, "activo", void 0);
 __decorate([
-    (0, typeorm_1.Column)({
-        type: 'varchar',
-        nullable: true,
-        comment: 'Observaciones adicionales'
-    }),
-    __metadata("design:type", String)
-], FechasConfig.prototype, "observaciones", void 0);
-__decorate([
-    (0, typeorm_1.Column)({
-        type: 'jsonb',
-        nullable: true,
-        comment: 'Turnos disponibles con horarios y cupos'
-    }),
+    (0, typeorm_1.Column)({ type: 'jsonb', nullable: true, comment: 'Turnos disponibles con horarios y cupos' }),
     __metadata("design:type", Object)
 ], FechasConfig.prototype, "turnos", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({
-        name: 'fechaCreacion'
-    }),
+    (0, typeorm_1.CreateDateColumn)({ name: 'createdAt' }),
     __metadata("design:type", Date)
-], FechasConfig.prototype, "fechaCreacion", void 0);
+], FechasConfig.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)({
-        name: 'fechaActualizacion'
-    }),
+    (0, typeorm_1.UpdateDateColumn)({ name: 'updatedAt' }),
     __metadata("design:type", Date)
-], FechasConfig.prototype, "fechaActualizacion", void 0);
+], FechasConfig.prototype, "updatedAt", void 0);
 exports.FechasConfig = FechasConfig = __decorate([
     (0, typeorm_1.Entity)('fechas_config')
 ], FechasConfig);

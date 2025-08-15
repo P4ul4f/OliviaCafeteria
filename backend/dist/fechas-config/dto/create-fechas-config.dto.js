@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateFechasConfigDto = void 0;
 class CreateFechasConfigDto {
     fecha;
+    tipoReserva;
     activo;
-    observaciones;
     turnos;
 }
 exports.CreateFechasConfigDto = CreateFechasConfigDto;

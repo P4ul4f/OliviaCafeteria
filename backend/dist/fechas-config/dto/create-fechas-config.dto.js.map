@@ -1,1 +1,1 @@
-{"version":3,"file":"create-fechas-config.dto.js","sourceRoot":"","sources":["../../../src/fechas-config/dto/create-fechas-config.dto.ts"],"names":[],"mappings":";;;AAAA,MAAa,qBAAqB;IAChC,KAAK,CAAO;IACZ,MAAM,CAAW;IACjB,aAAa,CAAU;IACvB,MAAM,CAAO;CACd;AALD,sDAKC"}
+{"version":3,"file":"create-fechas-config.dto.js","sourceRoot":"","sources":["../../../src/fechas-config/dto/create-fechas-config.dto.ts"],"names":[],"mappings":";;;AAAA,MAAa,qBAAqB;IAChC,KAAK,CAAO;IACZ,WAAW,CAAS;IACpB,MAAM,CAAW;IACjB,MAAM,CAAO;CACd;AALD,sDAKC"}

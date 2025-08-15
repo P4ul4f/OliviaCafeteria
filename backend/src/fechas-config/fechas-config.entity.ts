@@ -5,40 +5,21 @@ export class FechasConfig {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({
-    type: 'timestamp',
-    comment: 'Fecha de la configuración'
-  })
+  @Column({ type: 'timestamp', comment: 'Fecha de la configuración' })
   fecha: Date;
 
-  @Column({
-    type: 'boolean',
-    default: true,
-    comment: 'Indica si la fecha está activa'
-  })
+  @Column({ type: 'varchar', comment: 'Tipo de reserva' })
+  tipoReserva: string;
+
+  @Column({ type: 'boolean', default: true, comment: 'Indica si la fecha está activa' })
   activo: boolean;
 
-  @Column({
-    type: 'varchar',
-    nullable: true,
-    comment: 'Observaciones adicionales'
-  })
-  observaciones: string;
-
-  @Column({
-    type: 'jsonb',
-    nullable: true,
-    comment: 'Turnos disponibles con horarios y cupos'
-  })
+  @Column({ type: 'jsonb', nullable: true, comment: 'Turnos disponibles con horarios y cupos' })
   turnos: any;
 
-  @CreateDateColumn({
-    name: 'fechaCreacion'
-  })
-  fechaCreacion: Date;
+  @CreateDateColumn({ name: 'createdAt' })
+  createdAt: Date;
 
-  @UpdateDateColumn({
-    name: 'fechaActualizacion'
-  })
-  fechaActualizacion: Date;
+  @UpdateDateColumn({ name: 'updatedAt' })
+  updatedAt: Date;
 } 
