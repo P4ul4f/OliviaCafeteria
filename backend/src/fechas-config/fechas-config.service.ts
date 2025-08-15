@@ -30,7 +30,8 @@ export class FechasConfigService {
         
         if (typeof data.fecha === 'string') {
           // Si es un string, parsearlo correctamente
-          const [year, month, day] = data.fecha.split('-').map(Number);
+          const fechaString = data.fecha as string;
+          const [year, month, day] = fechaString.split('-').map(Number);
           fechaNormalizada = new Date(year, month - 1, day, 12, 0, 0, 0);
         } else {
           // Si ya es un Date, crear uno nuevo para evitar mutaciones
@@ -71,7 +72,8 @@ export class FechasConfigService {
       
       if (typeof data.fecha === 'string') {
         // Si es un string, parsearlo correctamente
-        const [year, month, day] = data.fecha.split('-').map(Number);
+        const fechaString = data.fecha as string;
+        const [year, month, day] = fechaString.split('-').map(Number);
         fechaNormalizada = new Date(year, month - 1, day, 12, 0, 0, 0);
       } else {
         // Si ya es un Date, crear uno nuevo para evitar mutaciones
