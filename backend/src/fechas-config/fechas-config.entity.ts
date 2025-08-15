@@ -12,26 +12,6 @@ export class FechasConfig {
   fecha: Date;
 
   @Column({
-    type: 'varchar',
-    comment: 'Tipo de reserva (merienda-libre, tarde-te, a-la-carta)'
-  })
-  tipoReserva: string;
-
-  @Column({
-    type: 'jsonb',
-    nullable: true,
-    comment: 'Turnos disponibles con horarios y cupos'
-  })
-  turnos: any;
-
-  @Column({
-    type: 'int',
-    nullable: true,
-    comment: 'Cupos totales disponibles'
-  })
-  cupos: number;
-
-  @Column({
     type: 'boolean',
     default: true,
     comment: 'Indica si la fecha está activa'
@@ -44,6 +24,13 @@ export class FechasConfig {
     comment: 'Observaciones adicionales'
   })
   observaciones: string;
+
+  @Column({
+    type: 'jsonb',
+    nullable: true,
+    comment: 'Turnos disponibles con horarios y cupos'
+  })
+  turnos: any;
 
   @CreateDateColumn({
     name: 'fechaCreacion'

@@ -81,8 +81,10 @@ export class FechasConfigService {
 
   async findByTipoReserva(tipoReserva: string): Promise<FechasConfig[]> {
     try {
+      // Como no tenemos columna tipoReserva, devolver todas las fechas activas
+      // El filtrado por tipo se puede hacer en el frontend o en otro servicio
       return await this.fechasConfigRepository.find({
-        where: { tipoReserva, activa: true },
+        where: { activa: true },
         order: { fecha: 'ASC' }
       });
     } catch (error) {

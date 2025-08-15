@@ -8,11 +8,9 @@ class CreateInitialTables1699999999999 {
             CREATE TABLE "fechas_config" (
                 "id" SERIAL NOT NULL,
                 "fecha" timestamp without time zone NOT NULL,
-                "tipoReserva" character varying NOT NULL,
-                "turnos" jsonb,
-                "cupos" integer,
                 "activa" boolean NOT NULL DEFAULT true,
                 "observaciones" character varying,
+                "turnos" jsonb,
                 "fechaCreacion" TIMESTAMP NOT NULL DEFAULT now(),
                 "fechaActualizacion" TIMESTAMP NOT NULL DEFAULT now(),
                 CONSTRAINT "PK_fechas_config" PRIMARY KEY ("id")

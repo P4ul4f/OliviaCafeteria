@@ -14,11 +14,9 @@ const typeorm_1 = require("typeorm");
 let FechasConfig = class FechasConfig {
     id;
     fecha;
-    tipoReserva;
-    turnos;
-    cupos;
     activa;
     observaciones;
+    turnos;
     fechaCreacion;
     fechaActualizacion;
 };
@@ -36,29 +34,6 @@ __decorate([
 ], FechasConfig.prototype, "fecha", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        type: 'varchar',
-        comment: 'Tipo de reserva (merienda-libre, tarde-te, a-la-carta)'
-    }),
-    __metadata("design:type", String)
-], FechasConfig.prototype, "tipoReserva", void 0);
-__decorate([
-    (0, typeorm_1.Column)({
-        type: 'jsonb',
-        nullable: true,
-        comment: 'Turnos disponibles con horarios y cupos'
-    }),
-    __metadata("design:type", Object)
-], FechasConfig.prototype, "turnos", void 0);
-__decorate([
-    (0, typeorm_1.Column)({
-        type: 'int',
-        nullable: true,
-        comment: 'Cupos totales disponibles'
-    }),
-    __metadata("design:type", Number)
-], FechasConfig.prototype, "cupos", void 0);
-__decorate([
-    (0, typeorm_1.Column)({
         type: 'boolean',
         default: true,
         comment: 'Indica si la fecha está activa'
@@ -73,6 +48,14 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], FechasConfig.prototype, "observaciones", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        type: 'jsonb',
+        nullable: true,
+        comment: 'Turnos disponibles con horarios y cupos'
+    }),
+    __metadata("design:type", Object)
+], FechasConfig.prototype, "turnos", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({
         name: 'fechaCreacion'

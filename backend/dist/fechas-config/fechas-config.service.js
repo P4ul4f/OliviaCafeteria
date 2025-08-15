@@ -93,7 +93,7 @@ let FechasConfigService = class FechasConfigService {
     async findByTipoReserva(tipoReserva) {
         try {
             return await this.fechasConfigRepository.find({
-                where: { tipoReserva, activa: true },
+                where: { activa: true },
                 order: { fecha: 'ASC' }
             });
         }

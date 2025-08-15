@@ -123,7 +123,6 @@ export async function seedInitialData(dataSource: DataSource) {
     for (const fechaData of fechasMeriendas) {
       const fechaConfig = fechasConfigRepo.create({
         fecha: fechaData.fecha,
-        tipoReserva: 'merienda_libre',
         turnos: ['16:30-18:30', '19:00-21:00'],
         activa: fechaData.activo
       });
