@@ -11,6 +11,47 @@ interface FechaConCupos {
   cuposDisponibles: number;
 }
 
+// FUNCIÓN DE SEGURIDAD: Parsear cualquier fecha de forma segura
+function safeParseDate(fecha: any): Date {
+  try {
+    if (fecha instanceof Date) {
+      return fecha;
+    }
+    
+    if (typeof fecha === 'string') {
+      // Si es un string ISO válido
+      if (fecha.includes('T') || fecha.includes('Z')) {
+        const parsed = new Date(fecha);
+        if (!isNaN(parsed.getTime())) {
+          return parsed;
+        }
+      }
+      
+      // Si es un string YYYY-MM-DD
+      if (/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+        const [year, month, day] = fecha.split('-').map(Number);
+        return new Date(year, month - 1, day, 12, 0, 0, 0);
+      }
+    }
+    
+    // Si es un timestamp numérico
+    if (typeof fecha === 'number') {
+      const parsed = new Date(fecha);
+      if (!isNaN(parsed.getTime())) {
+        return parsed;
+      }
+    }
+    
+    // Fallback: fecha actual
+    console.warn('⚠️ No se pudo parsear la fecha:', fecha, 'usando fecha actual');
+    return new Date();
+    
+  } catch (error) {
+    console.error('❌ Error parseando fecha:', fecha, error);
+    return new Date();
+  }
+}
+
 export default function ReservarMeriendaLibre() {
   const [formData, setFormData] = useState({
     nombre: '',
@@ -174,11 +215,11 @@ export default function ReservarMeriendaLibre() {
       newErrors.fecha = 'La fecha es requerida';
     } else {
       // Verificar que la fecha seleccionada esté disponible y tenga cupos
-      const selectedDate = new Date(formData.fecha);
+      const selectedDate = safeParseDate(formData.fecha);
       selectedDate.setHours(0, 0, 0, 0);
       
       const fechaSeleccionada = fechasConCupos.find(fecha => {
-        const availableDate = new Date(fecha.fecha);
+        const availableDate = safeParseDate(fecha.fecha);
         availableDate.setHours(0, 0, 0, 0);
         return selectedDate.getTime() === availableDate.getTime();
       });
@@ -246,11 +287,11 @@ export default function ReservarMeriendaLibre() {
 
   // Función para filtrar fechas en el DatePicker
   const filterDate = (date: Date) => {
-    const dateToCheck = new Date(date);
+    const dateToCheck = safeParseDate(date);
     dateToCheck.setHours(0, 0, 0, 0);
     
     return fechasConCupos.some(fecha => {
-      const availableDate = new Date(fecha.fecha);
+      const availableDate = safeParseDate(fecha.fecha);
       availableDate.setHours(0, 0, 0, 0);
       return dateToCheck.getTime() === availableDate.getTime() && fecha.disponible;
     });

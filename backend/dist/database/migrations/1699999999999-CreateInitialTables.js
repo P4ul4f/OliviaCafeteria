@@ -7,11 +7,12 @@ class CreateInitialTables1699999999999 {
         await queryRunner.query(`
             CREATE TABLE "fechas_config" (
                 "id" SERIAL NOT NULL,
-                "fecha" text NOT NULL,
+                "fecha" date NOT NULL,
                 "tipoReserva" character varying NOT NULL,
                 "turnosDisponibles" jsonb,
                 "cupos" integer,
                 "activo" boolean NOT NULL DEFAULT true,
+                "observaciones" text,
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
                 CONSTRAINT "PK_fechas_config" PRIMARY KEY ("id")

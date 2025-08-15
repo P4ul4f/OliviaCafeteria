@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FechasConfigController = void 0;
 const common_1 = require("@nestjs/common");
 const fechas_config_service_1 = require("./fechas-config.service");
+const create_fechas_config_dto_1 = require("./dto/create-fechas-config.dto");
 let FechasConfigController = class FechasConfigController {
     fechasConfigService;
     constructor(fechasConfigService) {
@@ -54,7 +55,7 @@ __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [create_fechas_config_dto_1.CreateFechasConfigDto]),
     __metadata("design:returntype", Promise)
 ], FechasConfigController.prototype, "create", null);
 __decorate([

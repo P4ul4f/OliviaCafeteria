@@ -1,11 +1,13 @@
 import { Repository } from 'typeorm';
 import { FechasConfig } from './fechas-config.entity';
+import { CreateFechasConfigDto } from './dto/create-fechas-config.dto';
 export declare class FechasConfigService {
-    private readonly fechasConfigRepo;
-    constructor(fechasConfigRepo: Repository<FechasConfig>);
+    private fechasConfigRepository;
+    constructor(fechasConfigRepository: Repository<FechasConfig>);
+    create(createFechasConfigDto: CreateFechasConfigDto): Promise<FechasConfig>;
     findAll(): Promise<FechasConfig[]>;
     findOne(id: number): Promise<FechasConfig>;
-    create(data: Partial<FechasConfig>): Promise<FechasConfig>;
-    update(id: number, data: Partial<FechasConfig>): Promise<FechasConfig>;
+    update(id: number, updateFechasConfigDto: Partial<CreateFechasConfigDto>): Promise<FechasConfig>;
     remove(id: number): Promise<void>;
+    findByTipoReserva(tipoReserva: string): Promise<FechasConfig[]>;
 }

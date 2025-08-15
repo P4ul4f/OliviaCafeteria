@@ -138,27 +138,82 @@ const comoReservarItems = [
   "Se abona el TOTAL de todas las personas que asisten, con el fin de aprovechar al 100% el tiempo de consumición 😊"
 ];
 
+// FUNCIÓN DE SEGURIDAD: Parsear cualquier fecha de forma segura
+function safeParseDate(fecha: any): Date {
+  try {
+    if (fecha instanceof Date) {
+      return fecha;
+    }
+    
+    if (typeof fecha === 'string') {
+      // Si es un string ISO válido
+      if (fecha.includes('T') || fecha.includes('Z')) {
+        const parsed = new Date(fecha);
+        if (!isNaN(parsed.getTime())) {
+          return parsed;
+        }
+      }
+      
+      // Si es un string YYYY-MM-DD
+      if (/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+        const [year, month, day] = fecha.split('-').map(Number);
+        return new Date(year, month - 1, day, 12, 0, 0, 0);
+      }
+    }
+    
+    // Si es un timestamp numérico
+    if (typeof fecha === 'number') {
+      const parsed = new Date(fecha);
+      if (!isNaN(parsed.getTime())) {
+        return parsed;
+      }
+    }
+    
+    // Fallback: fecha actual
+    console.warn('⚠️ No se pudo parsear la fecha:', fecha, 'usando fecha actual');
+    return new Date();
+    
+  } catch (error) {
+    console.error('❌ Error parseando fecha:', fecha, error);
+    return new Date();
+  }
+}
+
 function agruparFechasPorSemana(fechas) {
   // Agrupa fechas por semana (lunes a domingo)
   if (!fechas || !fechas.length) return [];
-  // Ordenar por fecha
-  const ordenadas = [...fechas].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+  // Ordenar por fecha usando safeParseDate
+  const ordenadas = [...fechas].sort((a, b) => {
+    try {
+      const fechaA = safeParseDate(a.fecha);
+      const fechaB = safeParseDate(b.fecha);
+      return fechaA.getTime() - fechaB.getTime();
+    } catch (error) {
+      console.error('❌ Error ordenando fechas:', error);
+      return 0;
+    }
+  });
   const grupos = [];
   let grupo = [];
   let semanaActual = null;
   for (const f of ordenadas) {
-    const fechaObj = new Date(f.fecha);
-    // getDay: 0=domingo, 1=lunes, ..., 6=sabado
-    const diaSemana = fechaObj.getDay();
-    if (semanaActual === null) {
-      semanaActual = getStartOfWeek(fechaObj);
+    try {
+      const fechaObj = safeParseDate(f.fecha);
+      // getDay: 0=domingo, 1=lunes, ..., 6=sabado
+      const diaSemana = fechaObj.getDay();
+      if (semanaActual === null) {
+        semanaActual = getStartOfWeek(fechaObj);
+      }
+      if (fechaObj < semanaActual || fechaObj >= addDays(semanaActual, 7)) {
+        if (grupo.length) grupos.push(grupo);
+        grupo = [];
+        semanaActual = getStartOfWeek(fechaObj);
+      }
+      grupo.push(f);
+    } catch (error) {
+      console.error('❌ Error procesando fecha:', f.fecha, error);
+      // Continuar con la siguiente fecha
     }
-    if (fechaObj < semanaActual || fechaObj >= addDays(semanaActual, 7)) {
-      if (grupo.length) grupos.push(grupo);
-      grupo = [];
-      semanaActual = getStartOfWeek(fechaObj);
-    }
-    grupo.push(f);
   }
   if (grupo.length) grupos.push(grupo);
   return grupos;
@@ -242,7 +297,15 @@ export default function MeriendasLibres() {
                 <div key={idx} className={styles.fechaGrupo} style={{ borderColor: idx === semanaSeleccionada ? '#c2d29b' : undefined }} onClick={() => setSemanaSeleccionada(idx)}>
                   {grupo.map((f, i) => (
                     <div className={styles.fechaItem} key={i}>
-                      {new Date(f.fecha).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' }).replace(/^\w/, c => c.toUpperCase())}
+                      {(() => {
+                        try {
+                          const fechaObj = safeParseDate(f.fecha);
+                          return fechaObj.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' }).replace(/^\w/, c => c.toUpperCase());
+                        } catch (error) {
+                          console.error('❌ Error renderizando fecha:', f.fecha, error);
+                          return 'Fecha inválida';
+                        }
+                      })()}
                     </div>
                   ))}
                 </div>

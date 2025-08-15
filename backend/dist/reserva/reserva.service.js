@@ -183,20 +183,18 @@ let ReservaService = class ReservaService {
             if (tipoReserva === reserva_entity_1.TipoReserva.MERIENDA_LIBRE) {
                 const hoy = new Date();
                 hoy.setHours(0, 0, 0, 0);
-                const hoyString = hoy.toISOString().split('T')[0];
                 const fechaLimite = new Date(hoy.getTime() + 90 * 24 * 60 * 60 * 1000);
-                const fechaLimiteString = fechaLimite.toISOString().split('T')[0];
                 const fechasConfig = await this.fechasConfigRepository.find({
                     where: {
                         activo: true,
-                        fecha: (0, typeorm_2.Between)(hoyString, fechaLimiteString)
+                        fecha: (0, typeorm_2.Between)(hoy, fechaLimite)
                     },
                     order: {
                         fecha: 'ASC'
                     }
                 });
                 const fechasDisponibles = fechasConfig
-                    .map(fechaConfig => new Date(fechaConfig.fecha))
+                    .map(fechaConfig => fechaConfig.fecha)
                     .filter(fecha => fecha >= hoy)
                     .sort((a, b) => a.getTime() - b.getTime());
                 return fechasDisponibles;
@@ -206,28 +204,26 @@ let ReservaService = class ReservaService {
             hoy.setHours(0, 0, 0, 0);
             const fechaLimite = new Date();
             fechaLimite.setMonth(fechaLimite.getMonth() + 3);
-            const hoyString = hoy.toISOString().split('T')[0];
-            const fechaLimiteString = fechaLimite.toISOString().split('T')[0];
             const diasMeriendasLibres = await this.fechasConfigRepository.find({
                 where: {
                     activo: true,
-                    fecha: (0, typeorm_2.Between)(hoyString, fechaLimiteString)
+                    fecha: (0, typeorm_2.Between)(hoy, fechaLimite)
                 }
             });
             console.log('🔍 Días de meriendas libres encontrados:', diasMeriendasLibres.length);
             const fechasMeriendasLibres = new Set(diasMeriendasLibres.map(fechaConfig => {
                 const fecha = new Date(fechaConfig.fecha);
                 fecha.setHours(0, 0, 0, 0);
-                return fecha.toISOString().split('T')[0];
+                return fecha.getTime();
             }));
-            console.log('📅 Fechas de meriendas libres a excluir:', Array.from(fechasMeriendasLibres));
+            console.log('📅 Fechas de meriendas libres a excluir:', Array.from(fechasMeriendasLibres).map(timestamp => new Date(timestamp).toISOString().split('T')[0]));
             for (let fecha = new Date(hoy); fecha <= fechaLimite; fecha.setDate(fecha.getDate() + 1)) {
                 const fechaIteracion = new Date(fecha);
                 fechaIteracion.setHours(0, 0, 0, 0);
                 if (fechaIteracion.getDay() !== 0) {
-                    const fechaString = fechaIteracion.toISOString().split('T')[0];
-                    console.log(`🔍 Verificando fecha: ${fechaString} - ¿Es de meriendas libres? ${fechasMeriendasLibres.has(fechaString)}`);
-                    if (!fechasMeriendasLibres.has(fechaString)) {
+                    const fechaTimestamp = fechaIteracion.getTime();
+                    console.log(`🔍 Verificando fecha: ${fechaIteracion.toISOString().split('T')[0]} - ¿Es de meriendas libres? ${fechasMeriendasLibres.has(fechaTimestamp)}`);
+                    if (!fechasMeriendasLibres.has(fechaTimestamp)) {
                         if (tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA) {
                             fechasDisponibles.push(new Date(fechaIteracion));
                         }
@@ -241,7 +237,7 @@ let ReservaService = class ReservaService {
                         }
                     }
                     else {
-                        console.log(`❌ Fecha ${fechaString} excluida por ser día de meriendas libres`);
+                        console.log(`❌ Fecha ${fechaIteracion.toISOString().split('T')[0]} excluida por ser día de meriendas libres`);
                     }
                 }
             }

@@ -18,83 +18,38 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const fechas_config_entity_1 = require("./fechas-config.entity");
 let FechasConfigService = class FechasConfigService {
-    fechasConfigRepo;
-    constructor(fechasConfigRepo) {
-        this.fechasConfigRepo = fechasConfigRepo;
+    fechasConfigRepository;
+    constructor(fechasConfigRepository) {
+        this.fechasConfigRepository = fechasConfigRepository;
+    }
+    async create(createFechasConfigDto) {
+        const fechasConfig = this.fechasConfigRepository.create(createFechasConfigDto);
+        return await this.fechasConfigRepository.save(fechasConfig);
     }
     async findAll() {
-        return this.fechasConfigRepo.find({ order: { fecha: 'ASC' } });
+        return await this.fechasConfigRepository.find({ order: { fecha: 'ASC' } });
     }
     async findOne(id) {
-        const fecha = await this.fechasConfigRepo.findOne({ where: { id } });
-        if (!fecha)
-            throw new common_1.NotFoundException('Fecha no encontrada');
-        return fecha;
+        const fechasConfig = await this.fechasConfigRepository.findOne({ where: { id } });
+        if (!fechasConfig) {
+            throw new common_1.NotFoundException(`FechasConfig with ID ${id} not found`);
+        }
+        return fechasConfig;
     }
-    async create(data) {
-        console.log('🔍 FechasConfigService.create - Datos recibidos:', data);
-        try {
-            if (data.fecha && typeof data.fecha === 'string') {
-                const fechaString = data.fecha;
-                if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaString)) {
-                    throw new Error(`Formato de fecha inválido: ${fechaString}. Debe ser YYYY-MM-DD`);
-                }
-                console.log('🔍 Debug fecha string (formato válido):', {
-                    fechaString,
-                    tipo: typeof data.fecha,
-                    longitud: fechaString.length,
-                    formato: fechaString
-                });
-            }
-            else if (!data.fecha) {
-                throw new Error('La fecha es requerida');
-            }
-            else {
-                throw new Error(`Tipo de fecha inválido: ${typeof data.fecha}. Debe ser string en formato YYYY-MM-DD`);
-            }
-            console.log('📅 Fecha final que se enviará a la BD:', {
-                fecha: data.fecha,
-                tipo: typeof data.fecha,
-                valor: data.fecha
-            });
-            const nueva = this.fechasConfigRepo.create(data);
-            console.log('✅ FechasConfigService.create - Entidad creada:', nueva);
-            const resultado = await this.fechasConfigRepo.save(nueva);
-            console.log('✅ FechasConfigService.create - Guardado exitoso:', resultado);
-            return resultado;
-        }
-        catch (error) {
-            console.error('❌ FechasConfigService.create - Error:', error);
-            throw error;
-        }
-    }
-    async update(id, data) {
-        const fecha = await this.findOne(id);
-        if (data.fecha && typeof data.fecha === 'string') {
-            const fechaString = data.fecha;
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaString)) {
-                throw new Error(`Formato de fecha inválido: ${fechaString}. Debe ser YYYY-MM-DD`);
-            }
-            console.log('🔍 Debug fecha update string (formato válido):', {
-                fechaString,
-                tipo: typeof data.fecha,
-                longitud: fechaString.length,
-                formato: fechaString
-            });
-        }
-        else if (data.fecha) {
-            throw new Error(`Tipo de fecha inválido: ${typeof data.fecha}. Debe ser string en formato YYYY-MM-DD`);
-        }
-        console.log('📅 Fecha final que se enviará a la BD en update:', {
-            fecha: data.fecha,
-            tipo: typeof data.fecha,
-            valor: data.fecha
-        });
-        Object.assign(fecha, data);
-        return this.fechasConfigRepo.save(fecha);
+    async update(id, updateFechasConfigDto) {
+        const fechasConfig = await this.findOne(id);
+        Object.assign(fechasConfig, updateFechasConfigDto);
+        return await this.fechasConfigRepository.save(fechasConfig);
     }
     async remove(id) {
-        await this.fechasConfigRepo.delete(id);
+        const fechasConfig = await this.findOne(id);
+        await this.fechasConfigRepository.remove(fechasConfig);
+    }
+    async findByTipoReserva(tipoReserva) {
+        return await this.fechasConfigRepository.find({
+            where: { tipoReserva, activo: true },
+            order: { fecha: 'ASC' }
+        });
     }
 };
 exports.FechasConfigService = FechasConfigService;

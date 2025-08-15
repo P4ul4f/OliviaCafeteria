@@ -1,28 +1,53 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity()
+@Entity('fechas_config')
 export class FechasConfig {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ 
-    type: 'text', // Usar tipo 'text' para almacenar strings de fecha sin problemas de zona horaria
-    comment: 'Fecha en formato YYYY-MM-DD como string'
+  @Column({
+    type: 'date',
+    comment: 'Fecha de la configuración'
   })
-  fecha: string; // Solo string para consistencia total
+  fecha: Date;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    comment: 'Tipo de reserva (merienda-libre, tarde-te, a-la-carta)'
+  })
   tipoReserva: string;
 
-  @Column('jsonb')
-  turnos: string[];
+  @Column({
+    type: 'jsonb',
+    nullable: true,
+    comment: 'Turnos disponibles con horarios y cupos'
+  })
+  turnosDisponibles: any;
 
-  @Column({ default: true })
+  @Column({
+    type: 'int',
+    nullable: true,
+    comment: 'Cupos totales disponibles'
+  })
+  cupos: number;
+
+  @Column({
+    type: 'boolean',
+    default: true,
+    comment: 'Indica si la fecha está activa'
+  })
   activo: boolean;
 
-  @CreateDateColumn({ name: 'createdAt' })
+  @Column({
+    type: 'text',
+    nullable: true,
+    comment: 'Observaciones adicionales'
+  })
+  observaciones: string;
+
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updatedAt' })
+  @UpdateDateColumn()
   updatedAt: Date;
 } 

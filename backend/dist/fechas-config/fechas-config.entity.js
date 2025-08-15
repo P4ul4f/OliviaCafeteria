@@ -15,8 +15,10 @@ let FechasConfig = class FechasConfig {
     id;
     fecha;
     tipoReserva;
-    turnos;
+    turnosDisponibles;
+    cupos;
     activo;
+    observaciones;
     createdAt;
     updatedAt;
 };
@@ -27,32 +29,59 @@ __decorate([
 ], FechasConfig.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        type: 'text',
-        comment: 'Fecha en formato YYYY-MM-DD como string'
+        type: 'date',
+        comment: 'Fecha de la configuración'
     }),
-    __metadata("design:type", String)
+    __metadata("design:type", Date)
 ], FechasConfig.prototype, "fecha", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({
+        type: 'varchar',
+        comment: 'Tipo de reserva (merienda-libre, tarde-te, a-la-carta)'
+    }),
     __metadata("design:type", String)
 ], FechasConfig.prototype, "tipoReserva", void 0);
 __decorate([
-    (0, typeorm_1.Column)('jsonb'),
-    __metadata("design:type", Array)
-], FechasConfig.prototype, "turnos", void 0);
+    (0, typeorm_1.Column)({
+        type: 'jsonb',
+        nullable: true,
+        comment: 'Turnos disponibles con horarios y cupos'
+    }),
+    __metadata("design:type", Object)
+], FechasConfig.prototype, "turnosDisponibles", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ default: true }),
+    (0, typeorm_1.Column)({
+        type: 'int',
+        nullable: true,
+        comment: 'Cupos totales disponibles'
+    }),
+    __metadata("design:type", Number)
+], FechasConfig.prototype, "cupos", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        type: 'boolean',
+        default: true,
+        comment: 'Indica si la fecha está activa'
+    }),
     __metadata("design:type", Boolean)
 ], FechasConfig.prototype, "activo", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ name: 'createdAt' }),
+    (0, typeorm_1.Column)({
+        type: 'text',
+        nullable: true,
+        comment: 'Observaciones adicionales'
+    }),
+    __metadata("design:type", String)
+], FechasConfig.prototype, "observaciones", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], FechasConfig.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)({ name: 'updatedAt' }),
+    (0, typeorm_1.UpdateDateColumn)(),
     __metadata("design:type", Date)
 ], FechasConfig.prototype, "updatedAt", void 0);
 exports.FechasConfig = FechasConfig = __decorate([
-    (0, typeorm_1.Entity)()
+    (0, typeorm_1.Entity)('fechas_config')
 ], FechasConfig);
 //# sourceMappingURL=fechas-config.entity.js.map

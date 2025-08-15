@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Patch, Delete, Param, Body, ParseIntPipe } from '@nestjs/common';
 import { FechasConfigService } from './fechas-config.service';
 import { FechasConfig } from './fechas-config.entity';
+import { CreateFechasConfigDto } from './dto/create-fechas-config.dto';
 
 @Controller('fechas-config')
 export class FechasConfigController {
@@ -17,12 +18,12 @@ export class FechasConfigController {
   }
 
   @Post()
-  create(@Body() data: Partial<FechasConfig>): Promise<FechasConfig> {
+  create(@Body() data: CreateFechasConfigDto): Promise<FechasConfig> {
     return this.fechasConfigService.create(data);
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() data: Partial<FechasConfig>): Promise<FechasConfig> {
+  update(@Param('id', ParseIntPipe) id: number, @Body() data: Partial<CreateFechasConfigDto>): Promise<FechasConfig> {
     return this.fechasConfigService.update(id, data);
   }
 

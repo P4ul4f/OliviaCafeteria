@@ -65,6 +65,46 @@ export default function MeriendasLibresPanel() {
     return new Date(year, month - 1, day, 12, 0, 0, 0);
   };
 
+  // FUNCIÓN DE SEGURIDAD: Parsear cualquier fecha de forma segura
+  const safeParseDate = (fecha: any): Date => {
+    try {
+      if (fecha instanceof Date) {
+        return fecha;
+      }
+      
+      if (typeof fecha === 'string') {
+        // Si es un string ISO válido
+        if (fecha.includes('T') || fecha.includes('Z')) {
+          const parsed = new Date(fecha);
+          if (!isNaN(parsed.getTime())) {
+            return parsed;
+          }
+        }
+        
+        // Si es un string YYYY-MM-DD
+        if (/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+          return parseDateFromBackend(fecha);
+        }
+      }
+      
+      // Si es un timestamp numérico
+      if (typeof fecha === 'number') {
+        const parsed = new Date(fecha);
+        if (!isNaN(parsed.getTime())) {
+          return parsed;
+        }
+      }
+      
+      // Fallback: fecha actual
+      console.warn('⚠️ No se pudo parsear la fecha:', fecha, 'usando fecha actual');
+      return new Date();
+      
+    } catch (error) {
+      console.error('❌ Error parseando fecha:', fecha, error);
+      return new Date();
+    }
+  };
+
   const [fechas, setFechas] = useState<any[]>([]);
   const [fechasEdit, setFechasEdit] = useState<any[]>([]); // Para edición en lote
   const [precio, setPrecio] = useState<number>(0);
@@ -130,8 +170,24 @@ export default function MeriendasLibresPanel() {
         };
       });
       
-      setFechas(normalizadas.filter((f: any) => f.activo || new Date(f.fecha) >= new Date()));
-      setFechasEdit(normalizadas.filter((f: any) => f.activo || new Date(f.fecha) >= new Date()));
+      setFechas(normalizadas.filter((f: any) => {
+        try {
+          const fechaParsed = safeParseDate(f.fecha);
+          return f.activo || fechaParsed >= new Date();
+        } catch (error) {
+          console.error('❌ Error filtrando fecha:', f.fecha, error);
+          return f.activo; // Si hay error, solo mostrar si está activo
+        }
+      }));
+      setFechasEdit(normalizadas.filter((f: any) => {
+        try {
+          const fechaParsed = safeParseDate(f.fecha);
+          return f.activo || fechaParsed >= new Date();
+        } catch (error) {
+          console.error('❌ Error filtrando fecha:', f.fecha, error);
+          return f.activo; // Si hay error, solo mostrar si está activo
+        }
+      }));
       const precioData = await apiService.getPrecioMeriendaLibre();
       setPrecio(precioData);
       setPrecioEdit(precioData);

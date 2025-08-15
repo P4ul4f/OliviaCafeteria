@@ -223,25 +223,22 @@ export class ReservaService {
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
         
-        // Convertir fechas a strings YYYY-MM-DD para la consulta
-        const hoyString = hoy.toISOString().split('T')[0];
         const fechaLimite = new Date(hoy.getTime() + 90 * 24 * 60 * 60 * 1000);
-        const fechaLimiteString = fechaLimite.toISOString().split('T')[0];
         
-        // Obtener fechas activas y futuras de la base de datos usando strings
+        // Obtener fechas activas y futuras de la base de datos
         const fechasConfig = await this.fechasConfigRepository.find({
           where: {
             activo: true,
-            fecha: Between(hoyString, fechaLimiteString) // Usar strings en lugar de Date
+            fecha: Between(hoy, fechaLimite)
           },
           order: {
             fecha: 'ASC'
           }
         });
         
-        // Convertir a objetos Date y filtrar solo fechas futuras
+        // Convert to objects Date and filter only future dates
         const fechasDisponibles = fechasConfig
-          .map(fechaConfig => new Date(fechaConfig.fecha))
+          .map(fechaConfig => fechaConfig.fecha)
           .filter(fecha => fecha >= hoy)
           .sort((a, b) => a.getTime() - b.getTime());
         
@@ -255,31 +252,26 @@ export class ReservaService {
       const fechaLimite = new Date();
       fechaLimite.setMonth(fechaLimite.getMonth() + 3); // 3 meses hacia adelante
 
-      // Convertir fechas a strings para la consulta
-      const hoyString = hoy.toISOString().split('T')[0];
-      const fechaLimiteString = fechaLimite.toISOString().split('T')[0];
-
-      // Obtener días de meriendas libres para excluirlos usando strings
+      // Obtener días de meriendas libres para excluirlos
       const diasMeriendasLibres = await this.fechasConfigRepository.find({
         where: {
           activo: true,
-          fecha: Between(hoyString, fechaLimiteString) // Usar strings en lugar de Date
+          fecha: Between(hoy, fechaLimite)
         }
       });
       
       console.log('🔍 Días de meriendas libres encontrados:', diasMeriendasLibres.length);
       
       // Crear un Set con las fechas de meriendas libres para búsqueda rápida
-      // Usar formato YYYY-MM-DD para comparación más confiable
       const fechasMeriendasLibres = new Set(
         diasMeriendasLibres.map(fechaConfig => {
           const fecha = new Date(fechaConfig.fecha);
           fecha.setHours(0, 0, 0, 0); // Normalizar a inicio del día
-          return fecha.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+          return fecha.getTime(); // Usar timestamp para comparación más confiable
         })
       );
       
-      console.log('📅 Fechas de meriendas libres a excluir:', Array.from(fechasMeriendasLibres));
+      console.log('📅 Fechas de meriendas libres a excluir:', Array.from(fechasMeriendasLibres).map(timestamp => new Date(timestamp).toISOString().split('T')[0]));
 
       for (let fecha = new Date(hoy); fecha <= fechaLimite; fecha.setDate(fecha.getDate() + 1)) {
         // Normalizar la fecha de iteración
@@ -288,12 +280,12 @@ export class ReservaService {
         
         // Excluir domingos
         if (fechaIteracion.getDay() !== 0) {
-          // Excluir días de meriendas libres usando formato YYYY-MM-DD
-          const fechaString = fechaIteracion.toISOString().split('T')[0];
+          // Excluir días de meriendas libres
+          const fechaTimestamp = fechaIteracion.getTime();
           
-          console.log(`🔍 Verificando fecha: ${fechaString} - ¿Es de meriendas libres? ${fechasMeriendasLibres.has(fechaString)}`);
+          console.log(`🔍 Verificando fecha: ${fechaIteracion.toISOString().split('T')[0]} - ¿Es de meriendas libres? ${fechasMeriendasLibres.has(fechaTimestamp)}`);
           
-          if (!fechasMeriendasLibres.has(fechaString)) {
+          if (!fechasMeriendasLibres.has(fechaTimestamp)) {
             // Para a la carta, no hay restricción de anticipación
             if (tipoReserva === TipoReserva.A_LA_CARTA) {
               fechasDisponibles.push(new Date(fechaIteracion));
@@ -308,7 +300,7 @@ export class ReservaService {
               }
             }
           } else {
-            console.log(`❌ Fecha ${fechaString} excluida por ser día de meriendas libres`);
+            console.log(`❌ Fecha ${fechaIteracion.toISOString().split('T')[0]} excluida por ser día de meriendas libres`);
           }
         }
       }

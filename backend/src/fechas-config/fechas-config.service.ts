@@ -2,109 +2,47 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FechasConfig } from './fechas-config.entity';
+import { CreateFechasConfigDto } from './dto/create-fechas-config.dto';
 
 @Injectable()
 export class FechasConfigService {
   constructor(
     @InjectRepository(FechasConfig)
-    private readonly fechasConfigRepo: Repository<FechasConfig>,
+    private fechasConfigRepository: Repository<FechasConfig>,
   ) {}
 
+  async create(createFechasConfigDto: CreateFechasConfigDto): Promise<FechasConfig> {
+    const fechasConfig = this.fechasConfigRepository.create(createFechasConfigDto);
+    return await this.fechasConfigRepository.save(fechasConfig);
+  }
+
   async findAll(): Promise<FechasConfig[]> {
-    return this.fechasConfigRepo.find({ order: { fecha: 'ASC' } });
+    return await this.fechasConfigRepository.find({ order: { fecha: 'ASC' } });
   }
 
   async findOne(id: number): Promise<FechasConfig> {
-    const fecha = await this.fechasConfigRepo.findOne({ where: { id } });
-    if (!fecha) throw new NotFoundException('Fecha no encontrada');
-    return fecha;
+    const fechasConfig = await this.fechasConfigRepository.findOne({ where: { id } });
+    if (!fechasConfig) {
+      throw new NotFoundException(`FechasConfig with ID ${id} not found`);
+    }
+    return fechasConfig;
   }
 
-  async create(data: Partial<FechasConfig>): Promise<FechasConfig> {
-    console.log('🔍 FechasConfigService.create - Datos recibidos:', data);
-    
-    try {
-      // SOLUCIÓN DEFINITIVA: Solo manejar strings de fecha
-      if (data.fecha && typeof data.fecha === 'string') {
-        const fechaString = data.fecha as string;
-        
-        // Validar que el formato sea correcto (YYYY-MM-DD)
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaString)) {
-          throw new Error(`Formato de fecha inválido: ${fechaString}. Debe ser YYYY-MM-DD`);
-        }
-        
-        // La fecha ya es string, no necesita conversión
-        console.log('🔍 Debug fecha string (formato válido):', {
-          fechaString,
-          tipo: typeof data.fecha,
-          longitud: fechaString.length,
-          formato: fechaString
-        });
-        
-        // No cambiar nada - data.fecha ya es el string correcto
-        
-      } else if (!data.fecha) {
-        throw new Error('La fecha es requerida');
-      } else {
-        throw new Error(`Tipo de fecha inválido: ${typeof data.fecha}. Debe ser string en formato YYYY-MM-DD`);
-      }
-      
-      console.log('📅 Fecha final que se enviará a la BD:', {
-        fecha: data.fecha,
-        tipo: typeof data.fecha,
-        valor: data.fecha
-      });
-      
-      const nueva = this.fechasConfigRepo.create(data);
-      console.log('✅ FechasConfigService.create - Entidad creada:', nueva);
-      
-      const resultado = await this.fechasConfigRepo.save(nueva);
-      console.log('✅ FechasConfigService.create - Guardado exitoso:', resultado);
-      
-      return resultado;
-    } catch (error) {
-      console.error('❌ FechasConfigService.create - Error:', error);
-      throw error;
-    }
-  }
-
-  async update(id: number, data: Partial<FechasConfig>): Promise<FechasConfig> {
-    const fecha = await this.findOne(id);
-    
-    // SOLUCIÓN DEFINITIVA: Solo manejar strings de fecha
-    if (data.fecha && typeof data.fecha === 'string') {
-      const fechaString = data.fecha as string;
-      
-      // Validar que el formato sea correcto (YYYY-MM-DD)
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaString)) {
-        throw new Error(`Formato de fecha inválido: ${fechaString}. Debe ser YYYY-MM-DD`);
-      }
-      
-      // La fecha ya es string, no necesita conversión
-      console.log('🔍 Debug fecha update string (formato válido):', {
-        fechaString,
-        tipo: typeof data.fecha,
-        longitud: fechaString.length,
-        formato: fechaString
-      });
-      
-      // No cambiar nada - data.fecha ya es el string correcto
-      
-    } else if (data.fecha) {
-      throw new Error(`Tipo de fecha inválido: ${typeof data.fecha}. Debe ser string en formato YYYY-MM-DD`);
-    }
-    
-    console.log('📅 Fecha final que se enviará a la BD en update:', {
-      fecha: data.fecha,
-      tipo: typeof data.fecha,
-      valor: data.fecha
-    });
-    
-    Object.assign(fecha, data);
-    return this.fechasConfigRepo.save(fecha);
+  async update(id: number, updateFechasConfigDto: Partial<CreateFechasConfigDto>): Promise<FechasConfig> {
+    const fechasConfig = await this.findOne(id);
+    Object.assign(fechasConfig, updateFechasConfigDto);
+    return await this.fechasConfigRepository.save(fechasConfig);
   }
 
   async remove(id: number): Promise<void> {
-    await this.fechasConfigRepo.delete(id);
+    const fechasConfig = await this.findOne(id);
+    await this.fechasConfigRepository.remove(fechasConfig);
+  }
+
+  async findByTipoReserva(tipoReserva: string): Promise<FechasConfig[]> {
+    return await this.fechasConfigRepository.find({
+      where: { tipoReserva, activo: true },
+      order: { fecha: 'ASC' }
+    });
   }
 } 
