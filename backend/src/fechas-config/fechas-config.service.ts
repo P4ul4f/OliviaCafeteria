@@ -24,7 +24,7 @@ export class FechasConfigService {
     console.log('🔍 FechasConfigService.create - Datos recibidos:', data);
     
     try {
-      // SOLUCIÓN CORREGIDA: Crear Date correctamente para evitar problemas de zona horaria
+      // SOLUCIÓN DEFINITIVA: Usar constructor de Date con mediodía para evitar zona horaria
       if (data.fecha && typeof data.fecha === 'string') {
         const fechaString = data.fecha as string;
         
@@ -35,21 +35,21 @@ export class FechasConfigService {
         
         const [year, month, day] = fechaString.split('-').map(Number);
         
-        // SOLUCIÓN: Usar Date.UTC() para crear timestamp UTC, luego convertir a Date local
-        // Esto evita que JavaScript interprete la fecha en la zona horaria local
-        const timestampUTC = Date.UTC(year, month - 1, day);
-        const fechaNormalizada = new Date(timestampUTC);
+        // SOLUCIÓN: Constructor con mediodía (12:00:00) para evitar problemas de zona horaria
+        // Al estar en el medio del día, no hay riesgo de desplazamiento por zona horaria
+        const fechaNormalizada = new Date(year, month - 1, day, 12, 0, 0, 0);
         
-        console.log('🔍 Debug fecha string convertida a Date:', {
+        console.log('🔍 Debug fecha string convertida a Date (SOLUCIÓN DEFINITIVA):', {
           fechaString,
           year,
           month,
           day,
-          timestampUTC,
           fechaNormalizada: fechaNormalizada.toISOString(),
           fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
           fechaDateString: fechaNormalizada.toDateString(),
-          fechaTime: fechaNormalizada.getTime()
+          fechaTime: fechaNormalizada.getTime(),
+          getDate: fechaNormalizada.getDate(),
+          getUTCDate: fechaNormalizada.getUTCDate()
         });
         
         data.fecha = fechaNormalizada;
@@ -61,18 +61,18 @@ export class FechasConfigService {
         const month = originalDate.getMonth();
         const day = originalDate.getDate();
         
-        // Usar Date.UTC() para evitar problemas de zona horaria
-        const timestampUTC = Date.UTC(year, month, day);
-        const fechaNormalizada = new Date(timestampUTC);
+        // SOLUCIÓN: Constructor con mediodía para evitar problemas de zona horaria
+        const fechaNormalizada = new Date(year, month, day, 12, 0, 0, 0);
         
-        console.log('🔍 Debug fecha Date normalizada:', {
+        console.log('🔍 Debug fecha Date normalizada (SOLUCIÓN DEFINITIVA):', {
           fechaOriginal: originalDate.toISOString(),
           year,
           month,
           day,
-          timestampUTC,
           fechaNormalizada: fechaNormalizada.toISOString(),
-          fechaLocal: fechaNormalizada.toLocaleDateString('es-ES')
+          fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
+          getDate: fechaNormalizada.getDate(),
+          getUTCDate: fechaNormalizada.getUTCDate()
         });
         
         data.fecha = fechaNormalizada;
@@ -100,7 +100,7 @@ export class FechasConfigService {
   async update(id: number, data: Partial<FechasConfig>): Promise<FechasConfig> {
     const fecha = await this.findOne(id);
     
-    // SOLUCIÓN CORREGIDA: Crear Date correctamente para evitar problemas de zona horaria
+    // SOLUCIÓN DEFINITIVA: Usar constructor de Date con mediodía para evitar zona horaria
     if (data.fecha && typeof data.fecha === 'string') {
       const fechaString = data.fecha as string;
       
@@ -111,21 +111,21 @@ export class FechasConfigService {
       
       const [year, month, day] = fechaString.split('-').map(Number);
       
-      // SOLUCIÓN: Usar Date.UTC() para crear timestamp UTC, luego convertir a Date local
-      // Esto evita que JavaScript interprete la fecha en la zona horaria local
-      const timestampUTC = Date.UTC(year, month - 1, day);
-      const fechaNormalizada = new Date(timestampUTC);
+      // SOLUCIÓN: Constructor con mediodía (12:00:00) para evitar problemas de zona horaria
+      // Al estar en el medio del día, no hay riesgo de desplazamiento por zona horaria
+      const fechaNormalizada = new Date(year, month - 1, day, 12, 0, 0, 0);
       
-      console.log('🔍 Debug fecha update string convertida a Date:', {
+      console.log('🔍 Debug fecha update string convertida a Date (SOLUCIÓN DEFINITIVA):', {
         fechaString,
         year,
         month,
         day,
-        timestampUTC,
         fechaNormalizada: fechaNormalizada.toISOString(),
         fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
         fechaDateString: fechaNormalizada.toDateString(),
-        fechaTime: fechaNormalizada.getTime()
+        fechaTime: fechaNormalizada.getTime(),
+        getDate: fechaNormalizada.getDate(),
+        getUTCDate: fechaNormalizada.getUTCDate()
       });
       
       data.fecha = fechaNormalizada;
@@ -137,18 +137,18 @@ export class FechasConfigService {
       const month = originalDate.getMonth();
       const day = originalDate.getDate();
       
-      // Usar Date.UTC() para evitar problemas de zona horaria
-      const timestampUTC = Date.UTC(year, month, day);
-      const fechaNormalizada = new Date(timestampUTC);
+      // SOLUCIÓN: Constructor con mediodía para evitar problemas de zona horaria
+      const fechaNormalizada = new Date(year, month, day, 12, 0, 0, 0);
       
-      console.log('🔍 Debug fecha update Date normalizada:', {
+      console.log('🔍 Debug fecha update Date normalizada (SOLUCIÓN DEFINITIVA):', {
         fechaOriginal: originalDate.toISOString(),
         year,
         month,
         day,
-        timestampUTC,
         fechaNormalizada: fechaNormalizada.toISOString(),
-        fechaLocal: fechaNormalizada.toLocaleDateString('es-ES')
+        fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
+        getDate: fechaNormalizada.getDate(),
+        getUTCDate: fechaNormalizada.getUTCDate()
       });
       
       data.fecha = fechaNormalizada;
