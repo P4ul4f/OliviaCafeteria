@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Logger, BadRequestException } from '@nestjs/common';
 import { PagoService } from './pago.service';
 import { CreatePagoDto } from './dto/create-pago.dto';
 import { UpdatePagoDto } from './dto/update-pago.dto';
@@ -125,6 +125,128 @@ export class PagoController {
           message: `Error al verificar configuración: ${error.message}`
         },
         timestamp: new Date().toISOString()
+      };
+    }
+  }
+
+  // Endpoint de diagnóstico completo para los 3 problemas
+  @Get('diagnostico')
+  async diagnosticoCompleto() {
+    try {
+      console.log('🔍 === DIAGNÓSTICO COMPLETO INICIADO ===');
+      
+      // 1. DIAGNÓSTICO MERCADO PAGO
+      console.log('1️⃣ DIAGNÓSTICO MERCADO PAGO:');
+      const mercadopagoStatus = {
+        variablesEntorno: {
+          accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN ? 'CONFIGURADO' : 'NO CONFIGURADO',
+          publicKey: process.env.MERCADOPAGO_PUBLIC_KEY ? 'CONFIGURADO' : 'NO CONFIGURADO',
+        },
+        configuracion: {
+          isConfigured: this.pagoService.isMercadoPagoConfigured(),
+          accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN ? '***' + process.env.MERCADOPAGO_ACCESS_TOKEN.slice(-4) : 'NO HAY',
+          publicKey: process.env.MERCADOPAGO_PUBLIC_KEY ? '***' + process.env.MERCADOPAGO_PUBLIC_KEY.slice(-4) : 'NO HAY',
+        }
+      };
+      console.log('📊 Estado Mercado Pago:', mercadopagoStatus);
+
+      // 2. DIAGNÓSTICO CUPOS
+      console.log('2️⃣ DIAGNÓSTICO CUPOS:');
+      const fechaTest = new Date();
+      fechaTest.setDate(fechaTest.getDate() + 7); // 7 días en el futuro
+      fechaTest.setHours(12, 0, 0, 0);
+      
+      const cuposStatus = {
+        fechaTest: fechaTest.toISOString(),
+        horarioTest: '18:00-20:00',
+        tipoReserva: 'a-la-carta'
+      };
+      console.log('📊 Datos de prueba cupos:', cuposStatus);
+
+      // 3. DIAGNÓSTICO FECHAS
+      console.log('3️⃣ DIAGNÓSTICO FECHAS:');
+      const fechaStatus = {
+        fechaActual: new Date().toISOString(),
+        fechaTest: fechaTest.toISOString(),
+        formatoEsperado: 'YYYY-MM-DD'
+      };
+      console.log('📊 Datos de prueba fechas:', fechaStatus);
+
+      console.log('🔍 === DIAGNÓSTICO COMPLETO FINALIZADO ===');
+
+      return {
+        timestamp: new Date().toISOString(),
+        mercadopago: mercadopagoStatus,
+        cupos: cuposStatus,
+        fechas: fechaStatus,
+        recomendaciones: [
+          '1. Configurar MERCADOPAGO_ACCESS_TOKEN y MERCADOPAGO_PUBLIC_KEY para resolver problema de gift cards',
+          '2. Verificar método calcularCapacidadCompartida para resolver problema de cupos',
+          '3. Verificar normalización de fechas en backend para resolver problema de fechas'
+        ]
+      };
+    } catch (error) {
+      console.error('❌ Error en diagnóstico:', error);
+      throw new BadRequestException(`Error en diagnóstico: ${error.message}`);
+    }
+  }
+
+  // Endpoint de prueba específico para gift cards
+  @Get('test-giftcard-mercadopago')
+  async testGiftCardMercadoPago() {
+    try {
+      console.log('🧪 === TEST GIFT CARD MERCADO PAGO ===');
+      
+      // Simular datos de gift card
+      const giftCardData = {
+        nombreComprador: 'Test User',
+        emailComprador: 'test@test.com',
+        nombreDestinatario: 'Test Recipient',
+        monto: 10000
+      };
+      
+      console.log('📋 Datos de prueba:', giftCardData);
+      
+      // Verificar estado de Mercado Pago
+      const mercadopagoStatus = {
+        isConfigured: this.pagoService.isMercadoPagoConfigured(),
+        accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN ? '***' + process.env.MERCADOPAGO_ACCESS_TOKEN.slice(-4) : 'NO HAY',
+        publicKey: process.env.MERCADOPAGO_PUBLIC_KEY ? '***' + process.env.MERCADOPAGO_PUBLIC_KEY.slice(-4) : 'NO HAY'
+      };
+      
+      console.log('🔐 Estado Mercado Pago:', mercadopagoStatus);
+      
+      if (!mercadopagoStatus.isConfigured) {
+        return {
+          error: 'Mercado Pago no está configurado',
+          mercadopagoStatus
+        };
+      }
+      
+      // Intentar crear preferencia real
+      console.log('🚀 Intentando crear preferencia real...');
+      const result = await this.pagoService.crearPreferenciaGiftCard(
+        giftCardData,
+        giftCardData.monto,
+        'Gift Card Test'
+      );
+      
+      console.log('✅ Resultado:', result);
+      
+      return {
+        success: true,
+        result,
+        mercadopagoStatus
+      };
+      
+    } catch (error) {
+      console.error('❌ Error en test:', error);
+      return {
+        error: error.message,
+        stack: error.stack,
+        mercadopagoStatus: {
+          isConfigured: this.pagoService.isMercadoPagoConfigured()
+        }
       };
     }
   }

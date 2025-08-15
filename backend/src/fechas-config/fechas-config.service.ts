@@ -26,16 +26,26 @@ export class FechasConfigService {
     try {
       // Normalizar la fecha para evitar problemas de zona horaria
       if (data.fecha) {
-        const fechaNormalizada = new Date(data.fecha);
-        // Establecer la hora a mediodía para evitar problemas de zona horaria
-        fechaNormalizada.setHours(12, 0, 0, 0);
+        let fechaNormalizada: Date;
+        
+        if (typeof data.fecha === 'string') {
+          // Si es un string, parsearlo correctamente
+          const [year, month, day] = data.fecha.split('-').map(Number);
+          fechaNormalizada = new Date(year, month - 1, day, 12, 0, 0, 0);
+        } else {
+          // Si ya es un Date, crear uno nuevo para evitar mutaciones
+          fechaNormalizada = new Date(data.fecha);
+          fechaNormalizada.setHours(12, 0, 0, 0);
+        }
+        
         data.fecha = fechaNormalizada;
         
         console.log('📅 Fecha normalizada:', {
           original: data.fecha,
           normalizada: fechaNormalizada,
           fechaISO: fechaNormalizada.toISOString(),
-          fechaLocal: fechaNormalizada.toLocaleDateString('es-ES')
+          fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
+          fechaString: `${fechaNormalizada.getFullYear()}-${String(fechaNormalizada.getMonth() + 1).padStart(2, '0')}-${String(fechaNormalizada.getDate()).padStart(2, '0')}`
         });
       }
       
@@ -57,16 +67,26 @@ export class FechasConfigService {
     
     // Normalizar la fecha si se está actualizando
     if (data.fecha) {
-      const fechaNormalizada = new Date(data.fecha);
-      // Establecer la hora a mediodía para evitar problemas de zona horaria
-      fechaNormalizada.setHours(12, 0, 0, 0);
+      let fechaNormalizada: Date;
+      
+      if (typeof data.fecha === 'string') {
+        // Si es un string, parsearlo correctamente
+        const [year, month, day] = data.fecha.split('-').map(Number);
+        fechaNormalizada = new Date(year, month - 1, day, 12, 0, 0, 0);
+      } else {
+        // Si ya es un Date, crear uno nuevo para evitar mutaciones
+        fechaNormalizada = new Date(data.fecha);
+        fechaNormalizada.setHours(12, 0, 0, 0);
+      }
+      
       data.fecha = fechaNormalizada;
       
       console.log('📅 Fecha actualizada normalizada:', {
         original: data.fecha,
         normalizada: fechaNormalizada,
         fechaISO: fechaNormalizada.toISOString(),
-        fechaLocal: fechaNormalizada.toLocaleDateString('es-ES')
+        fechaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
+        fechaString: `${fechaNormalizada.getFullYear()}-${String(fechaNormalizada.getMonth() + 1).padStart(2, '0')}-${String(fechaNormalizada.getDate()).padStart(2, '0')}`
       });
     }
     

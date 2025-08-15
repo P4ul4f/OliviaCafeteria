@@ -40,16 +40,29 @@ function SuccessModal({ open, onClose, mensaje }: any) {
 export default function MeriendasLibresPanel() {
   // Helper function para formatear fechas sin problemas de timezone
   const formatDateForBackend = (date: Date): string => {
-    // Crear una nueva fecha con la fecha seleccionada pero a mediodía para evitar timezone
-    const fechaMediodia = new Date(date);
-    fechaMediodia.setHours(12, 0, 0, 0);
+    // Usar toISOString() y extraer solo la parte de la fecha para evitar problemas de timezone
+    const fechaISO = date.toISOString();
+    const fechaPart = fechaISO.split('T')[0]; // Obtener solo YYYY-MM-DD
     
-    // Convertir a formato YYYY-MM-DD
-    const year = fechaMediodia.getFullYear();
-    const month = String(fechaMediodia.getMonth() + 1).padStart(2, '0');
-    const day = String(fechaMediodia.getDate()).padStart(2, '0');
+    console.log('🔍 formatDateForBackend debug:', {
+      fechaEntrada: date,
+      fechaEntradaISO: date.toISOString(),
+      fechaEntradaLocal: date.toLocaleDateString('es-ES'),
+      fechaPart,
+      resultado: fechaPart
+    });
     
-    return `${year}-${month}-${day}`;
+    return fechaPart;
+  };
+
+  // Helper function para parsear fechas del backend sin problemas de timezone
+  const parseDateFromBackend = (dateString: string): Date => {
+    if (!dateString) return new Date();
+    
+    // Parsear la fecha del string YYYY-MM-DD
+    const [year, month, day] = dateString.split('-').map(Number);
+    // Crear fecha a mediodía para evitar problemas de zona horaria
+    return new Date(year, month - 1, day, 12, 0, 0, 0);
   };
 
   const [fechas, setFechas] = useState<any[]>([]);
@@ -283,10 +296,23 @@ export default function MeriendasLibresPanel() {
   const handleGuardarFechas = async () => {
     setFechasError('');
     try {
-      const fechasToUpdate = fechasEdit.filter(f => f.id).map(f => ({
-        ...f,
-        fecha: f.fecha ? formatDateForBackend(new Date(f.fecha)) : null // Usar helper function
-      }));
+      const fechasToUpdate = fechasEdit.filter(f => f.id).map(f => {
+        const fechaFormateada = f.fecha ? formatDateForBackend(new Date(f.fecha)) : null;
+        
+        // Debug: mostrar información de la fecha antes de enviar
+        console.log('🔍 Debug - Fecha existente antes de enviar:', {
+          id: f.id,
+          fechaOriginal: f.fecha,
+          fechaFormateada: fechaFormateada,
+          fechaISO: f.fecha ? new Date(f.fecha).toISOString() : null,
+          fechaLocal: f.fecha ? new Date(f.fecha).toLocaleDateString('es-ES') : null
+        });
+        
+        return {
+          ...f,
+          fecha: fechaFormateada // Usar helper function
+        };
+      });
       
       for (const fecha of fechasToUpdate) {
         await apiService.updateFechaConfig(fecha.id, fecha, adminToken || '');
@@ -325,7 +351,8 @@ export default function MeriendasLibresPanel() {
   const handleAgregarNueva = () => {
     // Crear fecha actual sin problemas de timezone
     const hoy = new Date();
-    hoy.setHours(12, 0, 0, 0); // Establecer a mediodía para evitar problemas de timezone
+    // Establecer a mediodía para evitar problemas de timezone
+    hoy.setHours(12, 0, 0, 0);
     
     setNuevaFecha({
       fecha: hoy,
@@ -397,9 +424,18 @@ export default function MeriendasLibresPanel() {
         return;
       }
 
+      // Debug: mostrar información de la fecha antes de enviar
+      const fechaFormateada = nuevaFecha.fecha ? formatDateForBackend(nuevaFecha.fecha) : null;
+      console.log('🔍 Debug - Fecha antes de enviar:', {
+        fechaOriginal: nuevaFecha.fecha,
+        fechaFormateada: fechaFormateada,
+        fechaISO: nuevaFecha.fecha?.toISOString(),
+        fechaLocal: nuevaFecha.fecha?.toLocaleDateString('es-ES')
+      });
+
       // Crear objeto con solo los turnos válidos
       const fechaData = {
-        fecha: nuevaFecha.fecha ? formatDateForBackend(nuevaFecha.fecha) : null, // Usar helper function
+        fecha: fechaFormateada, // Usar helper function
         tipoReserva: 'merienda-libre',
         turnos: turnosValidos,
         activo: true
@@ -524,7 +560,7 @@ export default function MeriendasLibresPanel() {
                 <td className={styles.meriendasTd} data-label="Fecha">
                   <div className={reservarStyles.datePickerContainer}>
                     <DatePicker
-                      selected={f.fecha ? new Date(f.fecha) : null}
+                      selected={f.fecha ? parseDateFromBackend(f.fecha) : null}
                       onChange={(date: Date | null) => handleFechaEdit(f.id, date || new Date())}
                       className={reservarStyles.datePicker}
                       placeholderText="Seleccionar fecha"
@@ -592,7 +628,7 @@ export default function MeriendasLibresPanel() {
                 <td className={styles.meriendasTd} data-label="Fecha">
                   <div className={reservarStyles.datePickerContainer}>
                     <DatePicker
-                      selected={nuevaFecha.fecha ? new Date(nuevaFecha.fecha) : null}
+                      selected={nuevaFecha.fecha ? parseDateFromBackend(nuevaFecha.fecha.toISOString().split('T')[0]) : null}
                       onChange={(date: Date | null) => handleNuevaFechaChange('fecha', date || new Date())}
                       className={reservarStyles.datePicker}
                       placeholderText="Seleccionar fecha"

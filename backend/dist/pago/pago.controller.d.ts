@@ -108,6 +108,65 @@ export declare class PagoController {
         };
         timestamp: string;
     }>;
+    diagnosticoCompleto(): Promise<{
+        timestamp: string;
+        mercadopago: {
+            variablesEntorno: {
+                accessToken: string;
+                publicKey: string;
+            };
+            configuracion: {
+                isConfigured: boolean;
+                accessToken: string;
+                publicKey: string;
+            };
+        };
+        cupos: {
+            fechaTest: string;
+            horarioTest: string;
+            tipoReserva: string;
+        };
+        fechas: {
+            fechaActual: string;
+            fechaTest: string;
+            formatoEsperado: string;
+        };
+        recomendaciones: string[];
+    }>;
+    testGiftCardMercadoPago(): Promise<{
+        error: string;
+        mercadopagoStatus: {
+            isConfigured: boolean;
+            accessToken: string;
+            publicKey: string;
+        };
+        success?: undefined;
+        result?: undefined;
+        stack?: undefined;
+    } | {
+        success: boolean;
+        result: {
+            id: string | undefined;
+            init_point: string | undefined;
+            sandbox_init_point: string | undefined;
+            external_reference: string;
+        };
+        mercadopagoStatus: {
+            isConfigured: boolean;
+            accessToken: string;
+            publicKey: string;
+        };
+        error?: undefined;
+        stack?: undefined;
+    } | {
+        error: any;
+        stack: any;
+        mercadopagoStatus: {
+            isConfigured: boolean;
+        };
+        success?: undefined;
+        result?: undefined;
+    }>;
     create(createPagoDto: CreatePagoDto): Promise<CreatePagoDto & import("./pago.entity").Pago>;
     findAll(): Promise<import("./pago.entity").Pago[]>;
     findOne(id: string): Promise<import("./pago.entity").Pago | null>;
