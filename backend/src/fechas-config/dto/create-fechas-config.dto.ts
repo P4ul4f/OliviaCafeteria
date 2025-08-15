@@ -1,8 +1,8 @@
 export class CreateFechasConfigDto {
   fecha: Date;
   tipoReserva: string;
-  turnosDisponibles?: any;
+  turnos?: any;
   cupos?: number;
-  activo?: boolean;
+  activa?: boolean;
   observaciones?: string;
 }

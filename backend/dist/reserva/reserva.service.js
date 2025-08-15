@@ -186,7 +186,7 @@ let ReservaService = class ReservaService {
                 const fechaLimite = new Date(hoy.getTime() + 90 * 24 * 60 * 60 * 1000);
                 const fechasConfig = await this.fechasConfigRepository.find({
                     where: {
-                        activo: true,
+                        activa: true,
                         fecha: (0, typeorm_2.Between)(hoy, fechaLimite)
                     },
                     order: {
@@ -206,7 +206,7 @@ let ReservaService = class ReservaService {
             fechaLimite.setMonth(fechaLimite.getMonth() + 3);
             const diasMeriendasLibres = await this.fechasConfigRepository.find({
                 where: {
-                    activo: true,
+                    activa: true,
                     fecha: (0, typeorm_2.Between)(hoy, fechaLimite)
                 }
             });

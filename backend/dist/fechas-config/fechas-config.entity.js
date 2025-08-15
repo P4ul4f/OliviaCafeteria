@@ -15,12 +15,12 @@ let FechasConfig = class FechasConfig {
     id;
     fecha;
     tipoReserva;
-    turnosDisponibles;
+    turnos;
     cupos;
-    activo;
+    activa;
     observaciones;
-    createdAt;
-    updatedAt;
+    fechaCreacion;
+    fechaActualizacion;
 };
 exports.FechasConfig = FechasConfig;
 __decorate([
@@ -29,7 +29,7 @@ __decorate([
 ], FechasConfig.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        type: 'date',
+        type: 'timestamp',
         comment: 'Fecha de la configuración'
     }),
     __metadata("design:type", Date)
@@ -48,7 +48,7 @@ __decorate([
         comment: 'Turnos disponibles con horarios y cupos'
     }),
     __metadata("design:type", Object)
-], FechasConfig.prototype, "turnosDisponibles", void 0);
+], FechasConfig.prototype, "turnos", void 0);
 __decorate([
     (0, typeorm_1.Column)({
         type: 'int',
@@ -64,23 +64,27 @@ __decorate([
         comment: 'Indica si la fecha está activa'
     }),
     __metadata("design:type", Boolean)
-], FechasConfig.prototype, "activo", void 0);
+], FechasConfig.prototype, "activa", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        type: 'text',
+        type: 'varchar',
         nullable: true,
         comment: 'Observaciones adicionales'
     }),
     __metadata("design:type", String)
 ], FechasConfig.prototype, "observaciones", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)(),
+    (0, typeorm_1.CreateDateColumn)({
+        name: 'fechaCreacion'
+    }),
     __metadata("design:type", Date)
-], FechasConfig.prototype, "createdAt", void 0);
+], FechasConfig.prototype, "fechaCreacion", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)(),
+    (0, typeorm_1.UpdateDateColumn)({
+        name: 'fechaActualizacion'
+    }),
     __metadata("design:type", Date)
-], FechasConfig.prototype, "updatedAt", void 0);
+], FechasConfig.prototype, "fechaActualizacion", void 0);
 exports.FechasConfig = FechasConfig = __decorate([
     (0, typeorm_1.Entity)('fechas_config')
 ], FechasConfig);

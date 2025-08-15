@@ -6,7 +6,7 @@ export class FechasConfig {
   id: number;
 
   @Column({
-    type: 'date',
+    type: 'timestamp',
     comment: 'Fecha de la configuración'
   })
   fecha: Date;
@@ -22,7 +22,7 @@ export class FechasConfig {
     nullable: true,
     comment: 'Turnos disponibles con horarios y cupos'
   })
-  turnosDisponibles: any;
+  turnos: any;
 
   @Column({
     type: 'int',
@@ -36,18 +36,22 @@ export class FechasConfig {
     default: true,
     comment: 'Indica si la fecha está activa'
   })
-  activo: boolean;
+  activa: boolean;
 
   @Column({
-    type: 'text',
+    type: 'varchar',
     nullable: true,
     comment: 'Observaciones adicionales'
   })
   observaciones: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @CreateDateColumn({
+    name: 'fechaCreacion'
+  })
+  fechaCreacion: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @UpdateDateColumn({
+    name: 'fechaActualizacion'
+  })
+  fechaActualizacion: Date;
 } 

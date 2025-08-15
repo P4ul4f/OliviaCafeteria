@@ -124,8 +124,8 @@ export async function seedInitialData(dataSource: DataSource) {
       const fechaConfig = fechasConfigRepo.create({
         fecha: fechaData.fecha,
         tipoReserva: 'merienda_libre',
-        turnosDisponibles: ['16:30-18:30', '19:00-21:00'],
-        activo: fechaData.activo
+        turnos: ['16:30-18:30', '19:00-21:00'],
+        activa: fechaData.activo
       });
       await fechasConfigRepo.save(fechaConfig);
     }

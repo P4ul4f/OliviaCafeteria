@@ -23,33 +23,84 @@ let FechasConfigService = class FechasConfigService {
         this.fechasConfigRepository = fechasConfigRepository;
     }
     async create(createFechasConfigDto) {
-        const fechasConfig = this.fechasConfigRepository.create(createFechasConfigDto);
-        return await this.fechasConfigRepository.save(fechasConfig);
+        try {
+            const fechasConfig = this.fechasConfigRepository.create(createFechasConfigDto);
+            return await this.fechasConfigRepository.save(fechasConfig);
+        }
+        catch (error) {
+            console.error('❌ Error creating FechasConfig:', error);
+            throw new common_1.InternalServerErrorException('Error creating date configuration');
+        }
     }
     async findAll() {
-        return await this.fechasConfigRepository.find({ order: { fecha: 'ASC' } });
+        try {
+            console.log('🔍 FechasConfigService.findAll() - Iniciando consulta...');
+            const result = await this.fechasConfigRepository.find({
+                order: { fecha: 'ASC' }
+            });
+            console.log('✅ FechasConfigService.findAll() - Resultado:', result?.length || 0, 'registros');
+            return result;
+        }
+        catch (error) {
+            console.error('❌ Error in FechasConfigService.findAll():', error);
+            console.error('❌ Error stack:', error.stack);
+            throw new common_1.InternalServerErrorException('Error retrieving date configurations');
+        }
     }
     async findOne(id) {
-        const fechasConfig = await this.fechasConfigRepository.findOne({ where: { id } });
-        if (!fechasConfig) {
-            throw new common_1.NotFoundException(`FechasConfig with ID ${id} not found`);
+        try {
+            const fechasConfig = await this.fechasConfigRepository.findOne({ where: { id } });
+            if (!fechasConfig) {
+                throw new common_1.NotFoundException(`FechasConfig with ID ${id} not found`);
+            }
+            return fechasConfig;
         }
-        return fechasConfig;
+        catch (error) {
+            if (error instanceof common_1.NotFoundException) {
+                throw error;
+            }
+            console.error('❌ Error in FechasConfigService.findOne():', error);
+            throw new common_1.InternalServerErrorException('Error retrieving date configuration');
+        }
     }
     async update(id, updateFechasConfigDto) {
-        const fechasConfig = await this.findOne(id);
-        Object.assign(fechasConfig, updateFechasConfigDto);
-        return await this.fechasConfigRepository.save(fechasConfig);
+        try {
+            const fechasConfig = await this.findOne(id);
+            Object.assign(fechasConfig, updateFechasConfigDto);
+            return await this.fechasConfigRepository.save(fechasConfig);
+        }
+        catch (error) {
+            if (error instanceof common_1.NotFoundException) {
+                throw error;
+            }
+            console.error('❌ Error in FechasConfigService.update():', error);
+            throw new common_1.InternalServerErrorException('Error updating date configuration');
+        }
     }
     async remove(id) {
-        const fechasConfig = await this.findOne(id);
-        await this.fechasConfigRepository.remove(fechasConfig);
+        try {
+            const fechasConfig = await this.findOne(id);
+            await this.fechasConfigRepository.remove(fechasConfig);
+        }
+        catch (error) {
+            if (error instanceof common_1.NotFoundException) {
+                throw error;
+            }
+            console.error('❌ Error in FechasConfigService.remove():', error);
+            throw new common_1.InternalServerErrorException('Error removing date configuration');
+        }
     }
     async findByTipoReserva(tipoReserva) {
-        return await this.fechasConfigRepository.find({
-            where: { tipoReserva, activo: true },
-            order: { fecha: 'ASC' }
-        });
+        try {
+            return await this.fechasConfigRepository.find({
+                where: { tipoReserva, activa: true },
+                order: { fecha: 'ASC' }
+            });
+        }
+        catch (error) {
+            console.error('❌ Error in FechasConfigService.findByTipoReserva():', error);
+            throw new common_1.InternalServerErrorException('Error retrieving date configurations by type');
+        }
     }
 };
 exports.FechasConfigService = FechasConfigService;

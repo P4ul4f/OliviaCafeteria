@@ -228,7 +228,7 @@ export class ReservaService {
         // Obtener fechas activas y futuras de la base de datos
         const fechasConfig = await this.fechasConfigRepository.find({
           where: {
-            activo: true,
+            activa: true,
             fecha: Between(hoy, fechaLimite)
           },
           order: {
@@ -255,7 +255,7 @@ export class ReservaService {
       // Obtener días de meriendas libres para excluirlos
       const diasMeriendasLibres = await this.fechasConfigRepository.find({
         where: {
-          activo: true,
+          activa: true,
           fecha: Between(hoy, fechaLimite)
         }
       });

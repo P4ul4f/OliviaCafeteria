@@ -8,14 +8,14 @@ export class CreateInitialTables1699999999999 implements MigrationInterface {
         await queryRunner.query(`
             CREATE TABLE "fechas_config" (
                 "id" SERIAL NOT NULL,
-                "fecha" date NOT NULL,
+                "fecha" timestamp without time zone NOT NULL,
                 "tipoReserva" character varying NOT NULL,
-                "turnosDisponibles" jsonb,
+                "turnos" jsonb,
                 "cupos" integer,
-                "activo" boolean NOT NULL DEFAULT true,
-                "observaciones" text,
-                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
+                "activa" boolean NOT NULL DEFAULT true,
+                "observaciones" character varying,
+                "fechaCreacion" TIMESTAMP NOT NULL DEFAULT now(),
+                "fechaActualizacion" TIMESTAMP NOT NULL DEFAULT now(),
                 CONSTRAINT "PK_fechas_config" PRIMARY KEY ("id")
             )
         `);
