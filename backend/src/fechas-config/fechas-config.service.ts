@@ -11,9 +11,36 @@ export class FechasConfigService {
     private fechasConfigRepository: Repository<FechasConfig>,
   ) {}
 
+  // Normaliza una fecha evitando problemas de timezone.
+  // Acepta 'YYYY-MM-DD' o Date y la fija a las 12:00 hora local.
+  private normalizeDateOnly(input: string | Date): Date {
+    if (!input) return null as any;
+    let d: Date;
+    if (typeof input === 'string') {
+      // Si viene como 'YYYY-MM-DD', construir manualmente
+      const match = input.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (match) {
+        const [_, y, m, day] = match;
+        d = new Date(Number(y), Number(m) - 1, Number(day), 12, 0, 0, 0);
+      } else {
+        // Fallback: parseo estándar
+        d = new Date(input);
+      }
+    } else {
+      d = new Date(input);
+    }
+    // Fijar a mediodía local para que al convertir a UTC no cambie el día
+    d.setHours(12, 0, 0, 0);
+    return d;
+  }
+
   async create(createFechasConfigDto: CreateFechasConfigDto): Promise<FechasConfig> {
     try {
-      const fechasConfig = this.fechasConfigRepository.create(createFechasConfigDto);
+      const payload: any = { ...createFechasConfigDto };
+      if (createFechasConfigDto.fecha) {
+        payload.fecha = this.normalizeDateOnly(createFechasConfigDto.fecha as any);
+      }
+      const fechasConfig = this.fechasConfigRepository.create(payload);
       return await this.fechasConfigRepository.save(fechasConfig);
     } catch (error) {
       console.error('❌ Error creating FechasConfig:', error);
@@ -84,7 +111,11 @@ export class FechasConfigService {
   async update(id: number, updateFechasConfigDto: Partial<CreateFechasConfigDto>): Promise<FechasConfig> {
     try {
       const fechasConfig = await this.findOne(id);
-      Object.assign(fechasConfig, updateFechasConfigDto);
+      const payload: any = { ...updateFechasConfigDto };
+      if (updateFechasConfigDto.fecha) {
+        payload.fecha = this.normalizeDateOnly(updateFechasConfigDto.fecha as any);
+      }
+      Object.assign(fechasConfig, payload);
       return await this.fechasConfigRepository.save(fechasConfig);
     } catch (error) {
       if (error instanceof NotFoundException) {

@@ -714,6 +714,16 @@
   background: #c2d29b;
 }
 
+/* Hacer que el dropdown de cantidad se despliegue hacia arriba */
+#cantidadDropdown {
+  top: auto;
+  bottom: 100%;
+  border-top: 2px solid #ccbb94;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 -4px 12px rgba(194, 210, 155, 0.2);
+}
+
 /* Personalización del calendario desplegable */
 .datePickerContainer :global(.react-datepicker) {
   font-family: 'Montserrat', sans-serif;

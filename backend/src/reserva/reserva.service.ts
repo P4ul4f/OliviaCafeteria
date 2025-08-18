@@ -150,6 +150,19 @@ export class ReservaService {
     const fechaFin = new Date(fecha);
     fechaFin.setHours(23, 59, 59, 999);
 
+    // Bloquear A LA CARTA y TARDES DE TÉ en días de Meriendas Libres
+    if (tipoReserva === TipoReserva.A_LA_CARTA || tipoReserva === TipoReserva.TARDE_TE) {
+      const esMeriendaLibre = await this.esDiaMeriendaLibre(fechaInicio);
+      if (esMeriendaLibre) {
+        return {
+          disponible: false,
+          capacidadDisponible: 0,
+          reservasExistentes: 0,
+          mensaje: 'No se permiten reservas de A la Carta ni Tardes de Té en días de Meriendas Libres',
+        };
+      }
+    }
+
     // Buscar reservas existentes para esa fecha, turno y tipo de reserva
     const reservasExistentes = await this.reservaRepository.find({
       where: {
@@ -393,6 +406,13 @@ export class ReservaService {
   }
 
   async getHorariosDisponibles(fecha: Date, tipoReserva: TipoReserva): Promise<string[]> {
+    // Bloquear A LA CARTA y TARDES DE TÉ en días de Meriendas Libres
+    if (tipoReserva === TipoReserva.A_LA_CARTA || tipoReserva === TipoReserva.TARDE_TE) {
+      const esMeriendaLibre = await this.esDiaMeriendaLibre(fecha);
+      if (esMeriendaLibre) {
+        return [];
+      }
+    }
     if (tipoReserva === TipoReserva.MERIENDA_LIBRE) {
       return ['16:30-18:30', '19:00-21:00'];
     }
@@ -480,6 +500,10 @@ export class ReservaService {
 
       return horariosConCupos;
     } else if (tipoReserva === TipoReserva.A_LA_CARTA || tipoReserva === TipoReserva.TARDE_TE) {
+      // Si es día de meriendas libres, no hay horarios
+      if (horariosBase.length === 0) {
+        return [];
+      }
       // Para a la carta y tardes de té: COMPARTEN el mismo salón (65 personas máximo por día)
       const horariosConCupos: { horario: string; disponible: boolean; cuposDisponibles: number }[] = [];
       
@@ -547,6 +571,16 @@ export class ReservaService {
         reservasExistentes: reservasExistentes.length,
       };
     } else if (tipoReserva === TipoReserva.A_LA_CARTA || tipoReserva === TipoReserva.TARDE_TE) {
+      // Bloquear en días de meriendas libres
+      const esMeriendaLibre = await this.esDiaMeriendaLibre(fechaInicio);
+      if (esMeriendaLibre) {
+        return {
+          cuposDisponibles: 0,
+          capacidadMaxima: 0,
+          capacidadOcupada: 0,
+          reservasExistentes: 0,
+        };
+      }
       // Para a la carta y tardes de té: COMPARTEN el mismo salón (65 personas máximo por día)
       console.log(`🔍 === INICIO getCuposDisponibles para ${tipoReserva} ===`);
       console.log(`📅 Fecha recibida:`, {
@@ -654,6 +688,22 @@ export class ReservaService {
     });
 
     return capacidadOcupada;
+  }
+
+  // Verificar si una fecha es día de Meriendas Libres
+  private async esDiaMeriendaLibre(fecha: Date): Promise<boolean> {
+    const inicio = new Date(fecha);
+    inicio.setHours(0, 0, 0, 0);
+    const fin = new Date(fecha);
+    fin.setHours(23, 59, 59, 999);
+
+    const count = await this.fechasConfigRepository.count({
+      where: {
+        fecha: Between(inicio, fin),
+        activo: true,
+      },
+    });
+    return count > 0;
   }
 
   private async calcularPrecio(tipoReserva: TipoReserva, cantidadPersonas: number): Promise<number> {

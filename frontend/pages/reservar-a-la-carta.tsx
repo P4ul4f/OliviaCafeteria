@@ -422,7 +422,7 @@ export default function ReservarALaCarta() {
                   <div className={styles.customSelectArrow}>▼</div>
                 </div>
                 <div id="cantidadDropdown" className={styles.customSelectDropdown}>
-                  {Array.from({ length: Math.min(maxPersonas, 10) }, (_, i) => i + 1).map(num => (
+                  {Array.from({ length: Math.min(maxPersonas, 65) }, (_, i) => i + 1).map(num => (
                     <div
                       key={num}
                       className={`${styles.customSelectOption} ${num > maxPersonas ? styles.disabled : ''}`}
