@@ -15,23 +15,26 @@ export class FechasConfigService {
   // Acepta 'YYYY-MM-DD' o Date y la fija a las 12:00 hora local.
   private normalizeDateOnly(input: string | Date): Date {
     if (!input) return null as any;
-    let d: Date;
+    // Construir SIEMPRE a mediodía UTC para evitar corrimientos por zona horaria
     if (typeof input === 'string') {
-      // Si viene como 'YYYY-MM-DD', construir manualmente
       const match = input.match(/^(\d{4})-(\d{2})-(\d{2})$/);
       if (match) {
-        const [_, y, m, day] = match;
-        d = new Date(Number(y), Number(m) - 1, Number(day), 12, 0, 0, 0);
-      } else {
-        // Fallback: parseo estándar
-        d = new Date(input);
+        const year = Number(match[1]);
+        const monthIndex = Number(match[2]) - 1;
+        const day = Number(match[3]);
+        return new Date(Date.UTC(year, monthIndex, day, 12, 0, 0, 0));
       }
-    } else {
-      d = new Date(input);
+      const parsed = new Date(input);
+      const year = parsed.getUTCFullYear();
+      const monthIndex = parsed.getUTCMonth();
+      const day = parsed.getUTCDate();
+      return new Date(Date.UTC(year, monthIndex, day, 12, 0, 0, 0));
     }
-    // Fijar a mediodía local para que al convertir a UTC no cambie el día
-    d.setHours(12, 0, 0, 0);
-    return d;
+    const d = new Date(input);
+    const year = d.getUTCFullYear();
+    const monthIndex = d.getUTCMonth();
+    const day = d.getUTCDate();
+    return new Date(Date.UTC(year, monthIndex, day, 12, 0, 0, 0));
   }
 
   async create(createFechasConfigDto: CreateFechasConfigDto): Promise<FechasConfig> {
