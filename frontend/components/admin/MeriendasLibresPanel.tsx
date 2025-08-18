@@ -38,21 +38,19 @@ function SuccessModal({ open, onClose, mensaje }: any) {
 }
 
 export default function MeriendasLibresPanel() {
-  // Helper function para formatear fechas sin problemas de timezone
+  // Helper para formatear fecha local a 'YYYY-MM-DD' SIN usar toISOString (evita corrimientos por timezone)
   const formatDateForBackend = (date: Date): string => {
-    // Usar toISOString() y extraer solo la parte de la fecha para evitar problemas de timezone
-    const fechaISO = date.toISOString();
-    const fechaPart = fechaISO.split('T')[0]; // Obtener solo YYYY-MM-DD
-    
-    console.log('🔍 formatDateForBackend debug:', {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    const out = `${y}-${m}-${d}`;
+    console.log('🔍 formatDateForBackend (local) debug:', {
       fechaEntrada: date,
+      yyyyMmDd: out,
       fechaEntradaISO: date.toISOString(),
-      fechaEntradaLocal: date.toLocaleDateString('es-ES'),
-      fechaPart,
-      resultado: fechaPart
+      fechaEntradaLocal: date.toLocaleDateString('es-ES')
     });
-    
-    return fechaPart;
+    return out;
   };
 
   // Helper function para parsear fechas del backend sin problemas de timezone
@@ -681,7 +679,7 @@ export default function MeriendasLibresPanel() {
                 <td className={styles.meriendasTd} data-label="Fecha">
                   <div className={reservarStyles.datePickerContainer}>
                     <DatePicker
-                      selected={nuevaFecha.fecha ? parseDateFromBackend(nuevaFecha.fecha.toISOString().split('T')[0]) : null}
+                      selected={nuevaFecha.fecha || null}
                       onChange={(date: Date | null) => handleNuevaFechaChange('fecha', date || new Date())}
                       className={reservarStyles.datePicker}
                       placeholderText="Seleccionar fecha"

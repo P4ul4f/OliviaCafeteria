@@ -24,6 +24,7 @@ export default function ReservarALaCarta() {
   const [loadingCupos, setLoadingCupos] = useState(false);
   const [cuposDisponibles, setCuposDisponibles] = useState(0);
   const [maxPersonas, setMaxPersonas] = useState(0);
+  const [fechasDisponibles, setFechasDisponibles] = useState<Date[]>([]);
 
   // Cerrar dropdown cuando se hace clic fuera
   useEffect(() => {
@@ -77,6 +78,20 @@ export default function ReservarALaCarta() {
   };
 
   const horariosDisponibles = generarHorarios();
+
+  // Cargar fechas disponibles (backend aplica exclusión de Meriendas Libres)
+  useEffect(() => {
+    const loadFechas = async () => {
+      try {
+        const fechas = await apiService.getFechasDisponibles('a-la-carta');
+        setFechasDisponibles(fechas);
+      } catch (e) {
+        console.error('Error cargando fechas disponibles (a la carta):', e);
+        setFechasDisponibles([]);
+      }
+    };
+    loadFechas();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -209,14 +224,16 @@ export default function ReservarALaCarta() {
     }
   };
 
-  // Función para filtrar fechas en el DatePicker (solo fechas futuras)
+  // Permitir solo fechas marcadas como disponibles por backend
   const filterDate = (date: Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dateToCheck = new Date(date);
-    dateToCheck.setHours(0, 0, 0, 0);
-    
-    return dateToCheck >= today;
+    if (!fechasDisponibles || fechasDisponibles.length === 0) return false;
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return fechasDisponibles.some(f => {
+      const f0 = new Date(f);
+      f0.setHours(0, 0, 0, 0);
+      return d.getTime() === f0.getTime();
+    });
   };
 
   // Función para cargar cupos disponibles
@@ -332,7 +349,7 @@ export default function ReservarALaCarta() {
                   filterDate={filterDate}
                   dateFormat="yyyy-MM-dd"
                   placeholderText="Selecciona una fecha"
-                  minDate={new Date()}
+                  // minDate no es necesario si filterDate controla todo
                 />
               </div>
               {errors.fecha && <div className={styles.error}>{errors.fecha}</div>}

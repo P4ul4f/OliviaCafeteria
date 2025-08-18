@@ -12,29 +12,32 @@ export class FechasConfigService {
   ) {}
 
   // Normaliza una fecha evitando problemas de timezone.
-  // Acepta 'YYYY-MM-DD' o Date y la fija a las 12:00 hora local.
+  // Acepta 'YYYY-MM-DD' o Date y la fija a las 00:00:00 LOCAL.
   private normalizeDateOnly(input: string | Date): Date {
     if (!input) return null as any;
-    // Construir SIEMPRE a mediodía UTC para evitar corrimientos por zona horaria
+    // Construir SIEMPRE con componentes locales para persistir el día exacto
     if (typeof input === 'string') {
       const match = input.match(/^(\d{4})-(\d{2})-(\d{2})$/);
       if (match) {
         const year = Number(match[1]);
         const monthIndex = Number(match[2]) - 1;
         const day = Number(match[3]);
-        return new Date(Date.UTC(year, monthIndex, day, 12, 0, 0, 0));
+        const d = new Date(year, monthIndex, day, 12, 0, 0, 0);
+        // Fijar a medianoche local para almacenamiento
+        d.setHours(0, 0, 0, 0);
+        return d;
       }
       const parsed = new Date(input);
-      const year = parsed.getUTCFullYear();
-      const monthIndex = parsed.getUTCMonth();
-      const day = parsed.getUTCDate();
-      return new Date(Date.UTC(year, monthIndex, day, 12, 0, 0, 0));
+      const year = parsed.getFullYear();
+      const monthIndex = parsed.getMonth();
+      const day = parsed.getDate();
+      const d = new Date(year, monthIndex, day, 12, 0, 0, 0);
+      d.setHours(0, 0, 0, 0);
+      return d;
     }
     const d = new Date(input);
-    const year = d.getUTCFullYear();
-    const monthIndex = d.getUTCMonth();
-    const day = d.getUTCDate();
-    return new Date(Date.UTC(year, monthIndex, day, 12, 0, 0, 0));
+    d.setHours(0, 0, 0, 0);
+    return d;
   }
 
   async create(createFechasConfigDto: CreateFechasConfigDto): Promise<FechasConfig> {

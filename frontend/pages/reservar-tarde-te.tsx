@@ -29,6 +29,7 @@ export default function ReservarTardeTe() {
   const [loadingCupos, setLoadingCupos] = useState(false);
   const [cuposDisponibles, setCuposDisponibles] = useState(0);
   const [maxPersonas, setMaxPersonas] = useState(0);
+  const [fechasDisponibles, setFechasDisponibles] = useState<Date[]>([]);
 
   // Cerrar dropdown cuando se hace clic fuera
   useEffect(() => {
@@ -62,6 +63,20 @@ export default function ReservarTardeTe() {
       setHorariosConCupos([]);
     }
   }, [formData.fecha]);
+
+  // Cargar fechas válidas desde backend (excluye merienda libre)
+  useEffect(() => {
+    const loadFechas = async () => {
+      try {
+        const fechas = await apiService.getFechasDisponibles('tarde-te');
+        setFechasDisponibles(fechas);
+      } catch (e) {
+        console.error('Error cargando fechas disponibles (tarde-te):', e);
+        setFechasDisponibles([]);
+      }
+    };
+    loadFechas();
+  }, []);
 
   // Función para cargar cupos disponibles
   const loadCuposDisponibles = async (fecha: Date, horario: string) => {
@@ -336,7 +351,16 @@ export default function ReservarTardeTe() {
                   selected={formData.fecha}
                   onChange={handleDateChange}
                   className={styles.datePicker}
-                  minDate={new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)}
+                  filterDate={(date: Date) => {
+                    if (!fechasDisponibles || fechasDisponibles.length === 0) return false;
+                    const d = new Date(date);
+                    d.setHours(0,0,0,0);
+                    return fechasDisponibles.some(f => {
+                      const f0 = new Date(f);
+                      f0.setHours(0,0,0,0);
+                      return d.getTime() === f0.getTime();
+                    });
+                  }}
                   dateFormat="yyyy-MM-dd"
                   placeholderText="Selecciona una fecha"
                 />
