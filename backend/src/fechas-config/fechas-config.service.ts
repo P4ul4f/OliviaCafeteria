@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DeepPartial } from 'typeorm';
 import { FechasConfig } from './fechas-config.entity';
 import { CreateFechasConfigDto } from './dto/create-fechas-config.dto';
 
@@ -36,12 +36,12 @@ export class FechasConfigService {
 
   async create(createFechasConfigDto: CreateFechasConfigDto): Promise<FechasConfig> {
     try {
-      const payload: any = { ...createFechasConfigDto };
+      const payload: DeepPartial<FechasConfig> = { ...createFechasConfigDto } as DeepPartial<FechasConfig>;
       if (createFechasConfigDto.fecha) {
         payload.fecha = this.normalizeDateOnly(createFechasConfigDto.fecha as any);
       }
-      const fechasConfig = this.fechasConfigRepository.create(payload);
-      return await this.fechasConfigRepository.save(fechasConfig);
+      const fechasConfig: FechasConfig = this.fechasConfigRepository.create(payload) as FechasConfig;
+      return await this.fechasConfigRepository.save(fechasConfig as FechasConfig);
     } catch (error) {
       console.error('❌ Error creating FechasConfig:', error);
       throw new InternalServerErrorException('Error creating date configuration');
@@ -111,7 +111,7 @@ export class FechasConfigService {
   async update(id: number, updateFechasConfigDto: Partial<CreateFechasConfigDto>): Promise<FechasConfig> {
     try {
       const fechasConfig = await this.findOne(id);
-      const payload: any = { ...updateFechasConfigDto };
+      const payload: DeepPartial<FechasConfig> = { ...updateFechasConfigDto } as DeepPartial<FechasConfig>;
       if (updateFechasConfigDto.fecha) {
         payload.fecha = this.normalizeDateOnly(updateFechasConfigDto.fecha as any);
       }
