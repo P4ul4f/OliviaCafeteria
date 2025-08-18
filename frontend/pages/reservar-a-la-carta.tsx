@@ -368,10 +368,8 @@ export default function ReservarALaCarta() {
                       key={horario}
                       className={styles.customSelectOption}
                       onClick={() => {
-                        setFormData(prev => ({ ...prev, turno: horario }));
-                        if (errors.turno) {
-                          setErrors(prev => ({ ...prev, turno: '' }));
-                        }
+                        // Usar el handler que además carga los cupos disponibles
+                        handleHorarioChange(horario);
                         const dropdown = document.getElementById('horarioDropdown');
                         dropdown?.classList.remove(styles.show);
                       }}
