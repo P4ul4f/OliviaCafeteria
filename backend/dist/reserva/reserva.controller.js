@@ -191,8 +191,16 @@ let ReservaController = class ReservaController {
     confirmarPago(id, body) {
         return this.reservaService.confirmarPago(Number(id), body.idPagoExterno, body.metodoPago);
     }
-    findAll() {
-        return this.reservaService.findAll();
+    async findAll() {
+        try {
+            const reservas = await this.reservaService.findAll();
+            console.log(`📋 Obtenidas ${reservas.length} reservas para el dashboard admin`);
+            return reservas;
+        }
+        catch (error) {
+            console.error('❌ Error obteniendo reservas para admin:', error);
+            throw new common_1.BadRequestException(`Error al obtener las reservas: ${error.message}`);
+        }
     }
     findOne(id) {
         return this.reservaService.findOne(Number(id));
@@ -297,7 +305,7 @@ __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], ReservaController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),

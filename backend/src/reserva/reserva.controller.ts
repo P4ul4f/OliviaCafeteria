@@ -262,8 +262,15 @@ export class ReservaController {
 
   // Generic routes MUST come after specific routes to avoid conflicts
   @Get()
-  findAll() {
-    return this.reservaService.findAll();
+  async findAll() {
+    try {
+      const reservas = await this.reservaService.findAll();
+      console.log(`📋 Obtenidas ${reservas.length} reservas para el dashboard admin`);
+      return reservas;
+    } catch (error) {
+      console.error('❌ Error obteniendo reservas para admin:', error);
+      throw new BadRequestException(`Error al obtener las reservas: ${error.message}`);
+    }
   }
 
   @Get(':id')
@@ -279,17 +286,5 @@ export class ReservaController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.reservaService.remove(Number(id));
-  }
-
-  @Get()
-  async findAll() {
-    try {
-      const reservas = await this.reservaService.findAll();
-      console.log(`📋 Obtenidas ${reservas.length} reservas para el dashboard admin`);
-      return reservas;
-    } catch (error) {
-      console.error('❌ Error obteniendo reservas para admin:', error);
-      throw new BadRequestException(`Error al obtener las reservas: ${error.message}`);
-    }
   }
 } 

@@ -22,16 +22,19 @@ const mercadopago_config_1 = require("../config/mercadopago.config");
 const mercadopago_1 = require("mercadopago");
 const reserva_service_1 = require("../reserva/reserva.service");
 const giftcard_service_1 = require("../giftcard/giftcard.service");
+const whatsapp_service_1 = require("../whatsapp/whatsapp.service");
 let PagoService = PagoService_1 = class PagoService {
     pagoRepository;
     reservaService;
     giftCardService;
+    whatsappService;
     logger = new common_1.Logger(PagoService_1.name);
     mercadopago;
-    constructor(pagoRepository, reservaService, giftCardService) {
+    constructor(pagoRepository, reservaService, giftCardService, whatsappService) {
         this.pagoRepository = pagoRepository;
         this.reservaService = reservaService;
         this.giftCardService = giftCardService;
+        this.whatsappService = whatsappService;
         this.initializeMercadoPago();
     }
     initializeMercadoPago() {
@@ -402,6 +405,13 @@ let PagoService = PagoService_1 = class PagoService {
             });
             await this.pagoRepository.save(nuevoPago);
             this.logger.log(`✅ Reserva creada exitosamente para pago con tarjeta: ID ${nuevaReserva.id}`);
+            try {
+                await this.whatsappService.enviarConfirmacionReserva(nuevaReserva);
+                this.logger.log(`📱 Mensaje de confirmación WhatsApp enviado para reserva ${nuevaReserva.id}`);
+            }
+            catch (whatsappError) {
+                this.logger.error(`❌ Error enviando mensaje WhatsApp: ${whatsappError.message}`);
+            }
             return nuevaReserva;
         }
         catch (error) {
@@ -684,6 +694,7 @@ exports.PagoService = PagoService = PagoService_1 = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(pago_entity_1.Pago)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         reserva_service_1.ReservaService,
-        giftcard_service_1.GiftCardService])
+        giftcard_service_1.GiftCardService,
+        whatsapp_service_1.WhatsappService])
 ], PagoService);
 //# sourceMappingURL=pago.service.js.map

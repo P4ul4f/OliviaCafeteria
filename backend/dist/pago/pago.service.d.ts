@@ -4,13 +4,15 @@ import { CreatePagoDto } from './dto/create-pago.dto';
 import { UpdatePagoDto } from './dto/update-pago.dto';
 import { ReservaService } from '../reserva/reserva.service';
 import { GiftCardService } from '../giftcard/giftcard.service';
+import { WhatsappService } from '../whatsapp/whatsapp.service';
 export declare class PagoService {
     private pagoRepository;
     private reservaService;
     private giftCardService;
+    private whatsappService;
     private readonly logger;
     private mercadopago;
-    constructor(pagoRepository: Repository<Pago>, reservaService: ReservaService, giftCardService: GiftCardService);
+    constructor(pagoRepository: Repository<Pago>, reservaService: ReservaService, giftCardService: GiftCardService, whatsappService: WhatsappService);
     private initializeMercadoPago;
     isMercadoPagoConfigured(): boolean;
     crearPreferenciaMercadoPago(reservaData: any, monto: number, descripcion: string): Promise<{

@@ -22,10 +22,74 @@ let FechasConfigService = class FechasConfigService {
     constructor(fechasConfigRepository) {
         this.fechasConfigRepository = fechasConfigRepository;
     }
+    normalizeDateOnly(input) {
+        if (!input)
+            return null;
+        if (typeof input === 'string') {
+            const match = input.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (match) {
+                const year = Number(match[1]);
+                const monthIndex = Number(match[2]) - 1;
+                const day = Number(match[3]);
+                const d = new Date(Date.UTC(year, monthIndex, day, 12, 0, 0, 0));
+                console.log(`🌍 Fecha normalizada (UTC): ${input} -> ${d.toISOString()} (día UTC: ${d.getUTCDate()})`);
+                return d;
+            }
+            const parsed = new Date(input);
+            if (!isNaN(parsed.getTime())) {
+                const year = parsed.getFullYear();
+                const monthIndex = parsed.getMonth();
+                const day = parsed.getDate();
+                const d = new Date(Date.UTC(year, monthIndex, day, 12, 0, 0, 0));
+                console.log(`🌍 Fecha normalizada desde string (UTC): ${input} -> ${d.toISOString()}`);
+                return d;
+            }
+        }
+        if (input instanceof Date) {
+            const year = input.getFullYear();
+            const monthIndex = input.getMonth();
+            const day = input.getDate();
+            const d = new Date(Date.UTC(year, monthIndex, day, 12, 0, 0, 0));
+            console.log(`🌍 Fecha normalizada desde Date (UTC): ${input.toISOString()} -> ${d.toISOString()}`);
+            return d;
+        }
+        const d = new Date();
+        d.setUTCHours(12, 0, 0, 0);
+        return d;
+    }
     async create(createFechasConfigDto) {
         try {
-            const fechasConfig = this.fechasConfigRepository.create(createFechasConfigDto);
-            return await this.fechasConfigRepository.save(fechasConfig);
+            console.log('🔍 === DEBUG TIMEZONE - CREATE FECHA ===');
+            console.log('📥 Fecha recibida del frontend:', createFechasConfigDto.fecha);
+            console.log('🌍 Servidor timezone info:', {
+                currentDate: new Date(),
+                utcDate: new Date().toISOString(),
+                localDate: new Date().toLocaleDateString('es-ES'),
+                timezoneOffset: new Date().getTimezoneOffset(),
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            });
+            const payload = { ...createFechasConfigDto };
+            if (createFechasConfigDto.fecha) {
+                const fechaNormalizada = this.normalizeDateOnly(createFechasConfigDto.fecha);
+                console.log('🔄 Fecha después de normalizar:', {
+                    original: createFechasConfigDto.fecha,
+                    normalizada: fechaNormalizada,
+                    normalizadaISO: fechaNormalizada.toISOString(),
+                    normalizadaLocal: fechaNormalizada.toLocaleDateString('es-ES'),
+                    normalizadaUTCDate: fechaNormalizada.getUTCDate(),
+                    normalizadaLocalDate: fechaNormalizada.getDate()
+                });
+                payload.fecha = fechaNormalizada;
+            }
+            const fechasConfig = this.fechasConfigRepository.create(payload);
+            const resultado = await this.fechasConfigRepository.save(fechasConfig);
+            console.log('💾 Fecha guardada en DB:', {
+                fechaGuardada: resultado.fecha,
+                fechaGuardadaISO: resultado.fecha?.toISOString(),
+                fechaGuardadaLocal: resultado.fecha?.toLocaleDateString('es-ES')
+            });
+            console.log('🔍 === FIN DEBUG TIMEZONE ===');
+            return resultado;
         }
         catch (error) {
             console.error('❌ Error creating FechasConfig:', error);
@@ -33,10 +97,20 @@ let FechasConfigService = class FechasConfigService {
         }
     }
     serializeFechas(fechas) {
-        return fechas.map(fecha => ({
-            ...fecha,
-            fecha: fecha.fecha ? fecha.fecha.toISOString().split('T')[0] : null
-        }));
+        return fechas.map(fecha => {
+            let fechaSerializada = null;
+            if (fecha.fecha) {
+                const year = fecha.fecha.getUTCFullYear();
+                const month = String(fecha.fecha.getUTCMonth() + 1).padStart(2, '0');
+                const day = String(fecha.fecha.getUTCDate()).padStart(2, '0');
+                fechaSerializada = `${year}-${month}-${day}`;
+                console.log(`📤 Serializando fecha: ${fecha.fecha.toISOString()} -> ${fechaSerializada} (día UTC: ${fecha.fecha.getUTCDate()})`);
+            }
+            return {
+                ...fecha,
+                fecha: fechaSerializada
+            };
+        });
     }
     async findAll() {
         try {
@@ -45,6 +119,13 @@ let FechasConfigService = class FechasConfigService {
                 order: { fecha: 'ASC' }
             });
             console.log('📅 Fechas encontradas:', result.length);
+            console.log('🌍 Servidor timezone info (findAll):', {
+                currentDate: new Date(),
+                utcDate: new Date().toISOString(),
+                localDate: new Date().toLocaleDateString('es-ES'),
+                timezoneOffset: new Date().getTimezoneOffset(),
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            });
             result.forEach((fecha, index) => {
                 console.log(`📅 Fecha ${index + 1}:`, {
                     id: fecha.id,
@@ -52,6 +133,8 @@ let FechasConfigService = class FechasConfigService {
                     fechaType: typeof fecha.fecha,
                     fechaISO: fecha.fecha?.toISOString(),
                     fechaLocal: fecha.fecha?.toLocaleDateString('es-ES'),
+                    fechaUTCDate: fecha.fecha?.getUTCDate(),
+                    fechaLocalDate: fecha.fecha?.getDate(),
                     activo: fecha.activo,
                     tipoReserva: fecha.tipoReserva,
                     turnos: fecha.turnos
@@ -87,7 +170,11 @@ let FechasConfigService = class FechasConfigService {
     async update(id, updateFechasConfigDto) {
         try {
             const fechasConfig = await this.findOne(id);
-            Object.assign(fechasConfig, updateFechasConfigDto);
+            const payload = { ...updateFechasConfigDto };
+            if (updateFechasConfigDto.fecha) {
+                payload.fecha = this.normalizeDateOnly(updateFechasConfigDto.fecha);
+            }
+            Object.assign(fechasConfig, payload);
             return await this.fechasConfigRepository.save(fechasConfig);
         }
         catch (error) {

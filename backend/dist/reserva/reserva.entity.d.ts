@@ -28,4 +28,5 @@ export declare class Reserva {
     fechaCreacion: Date;
     idPagoExterno: string;
     metodoPago: string;
+    recordatorio48hEnviado: boolean;
 }

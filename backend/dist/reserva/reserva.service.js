@@ -124,6 +124,17 @@ let ReservaService = class ReservaService {
         fechaInicio.setHours(0, 0, 0, 0);
         const fechaFin = new Date(fecha);
         fechaFin.setHours(23, 59, 59, 999);
+        if (tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA || tipoReserva === reserva_entity_1.TipoReserva.TARDE_TE) {
+            const esMeriendaLibre = await this.esDiaMeriendaLibre(fechaInicio);
+            if (esMeriendaLibre) {
+                return {
+                    disponible: false,
+                    capacidadDisponible: 0,
+                    reservasExistentes: 0,
+                    mensaje: 'No se permiten reservas de A la Carta ni Tardes de Té en días de Meriendas Libres',
+                };
+            }
+        }
         const reservasExistentes = await this.reservaRepository.find({
             where: {
                 fechaHora: (0, typeorm_2.Between)(fechaInicio, fechaFin),
@@ -308,6 +319,12 @@ let ReservaService = class ReservaService {
         return fechasConCupos;
     }
     async getHorariosDisponibles(fecha, tipoReserva) {
+        if (tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA || tipoReserva === reserva_entity_1.TipoReserva.TARDE_TE) {
+            const esMeriendaLibre = await this.esDiaMeriendaLibre(fecha);
+            if (esMeriendaLibre) {
+                return [];
+            }
+        }
         if (tipoReserva === reserva_entity_1.TipoReserva.MERIENDA_LIBRE) {
             return ['16:30-18:30', '19:00-21:00'];
         }
@@ -371,6 +388,9 @@ let ReservaService = class ReservaService {
             return horariosConCupos;
         }
         else if (tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA || tipoReserva === reserva_entity_1.TipoReserva.TARDE_TE) {
+            if (horariosBase.length === 0) {
+                return [];
+            }
             const horariosConCupos = [];
             for (const horario of horariosBase) {
                 const capacidadCompartida = await this.calcularCapacidadCompartida(fecha, horario);
@@ -419,52 +439,63 @@ let ReservaService = class ReservaService {
             };
         }
         else if (tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA || tipoReserva === reserva_entity_1.TipoReserva.TARDE_TE) {
-            console.log(`🔍 === INICIO getCuposDisponibles para ${tipoReserva} ===`);
+            const esMeriendaLibre = await this.esDiaMeriendaLibre(fechaInicio);
+            if (esMeriendaLibre) {
+                return {
+                    cuposDisponibles: 0,
+                    capacidadMaxima: 0,
+                    capacidadOcupada: 0,
+                    reservasExistentes: 0,
+                };
+            }
+            console.log(`🔍 === INICIO getCuposDisponibles para ${tipoReserva} (SISTEMA POR HORAS) ===`);
             console.log(`📅 Fecha recibida:`, {
                 fecha: fecha.toISOString(),
                 fechaLocal: fecha.toLocaleDateString('es-ES'),
                 timestamp: fecha.getTime()
             });
             console.log(`🕒 Turno: ${turno}`);
-            const reservasCompartidas = await this.reservaRepository.find({
+            const bloqueHorario = this.obtenerBloqueHorario(turno);
+            console.log(`⏰ Bloque horario calculado: ${bloqueHorario}`);
+            const todasReservasDelDia = await this.reservaRepository.find({
                 where: {
                     fechaHora: (0, typeorm_2.Between)(fechaInicio, fechaFin),
                     tipoReserva: (0, typeorm_2.In)([reserva_entity_1.TipoReserva.A_LA_CARTA, reserva_entity_1.TipoReserva.TARDE_TE]),
                     estado: reserva_entity_1.EstadoReserva.CONFIRMADA,
                 },
             });
-            console.log(`📊 Reservas encontradas:`, reservasCompartidas.length);
-            if (reservasCompartidas.length > 0) {
-                console.log(`📋 Detalles de reservas:`, reservasCompartidas.map(r => ({
-                    id: r.id,
-                    tipo: r.tipoReserva,
-                    personas: r.cantidadPersonas,
-                    fecha: r.fechaHora.toISOString(),
-                    turno: r.turno
-                })));
-            }
-            const capacidadOcupada = reservasCompartidas.reduce((total, reserva) => total + reserva.cantidadPersonas, 0);
+            console.log(`📊 Total reservas del día encontradas:`, todasReservasDelDia.length);
+            const reservasPorBloque = this.agruparReservasPorBloqueHorario(todasReservasDelDia);
+            console.log(`📋 Reservas agrupadas por bloque:`, Object.keys(reservasPorBloque).map(bloque => ({
+                bloque,
+                reservas: reservasPorBloque[bloque].length,
+                personas: reservasPorBloque[bloque].reduce((sum, r) => sum + r.cantidadPersonas, 0)
+            })));
+            const reservasDelBloque = reservasPorBloque[bloqueHorario] || [];
+            const capacidadOcupada = reservasDelBloque.reduce((total, reserva) => total + reserva.cantidadPersonas, 0);
             const capacidadMaxima = await this.preciosConfigService.getCapacidadMaximaCompartida();
             console.log(`🏢 Capacidad máxima obtenida del servicio: ${capacidadMaxima}`);
             const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadOcupada);
-            console.log(`🔍 Cupos para ${tipoReserva} en ${fecha.toDateString()}:`, {
+            console.log(`🔍 Cupos para ${tipoReserva} en bloque ${bloqueHorario}:00:`, {
+                bloqueHorario: `${bloqueHorario}:00`,
                 capacidadMaxima,
                 capacidadOcupada,
                 cuposDisponibles,
-                reservasExistentes: reservasCompartidas.length,
-                reservas: reservasCompartidas.map(r => ({
+                reservasEnBloque: reservasDelBloque.length,
+                totalReservasDelDia: todasReservasDelDia.length,
+                reservasDelBloque: reservasDelBloque.map(r => ({
                     id: r.id,
                     tipo: r.tipoReserva,
                     personas: r.cantidadPersonas,
-                    hora: r.fechaHora.toTimeString()
+                    turno: r.turno
                 }))
             });
-            console.log(`🔍 === FIN getCuposDisponibles para ${tipoReserva} ===`);
+            console.log(`🔍 === FIN getCuposDisponibles para ${tipoReserva} (SISTEMA POR HORAS) ===`);
             return {
                 cuposDisponibles,
                 capacidadMaxima,
                 capacidadOcupada,
-                reservasExistentes: reservasCompartidas.length,
+                reservasExistentes: reservasDelBloque.length,
             };
         }
         else {
@@ -503,6 +534,19 @@ let ReservaService = class ReservaService {
         });
         return capacidadOcupada;
     }
+    async esDiaMeriendaLibre(fecha) {
+        const inicio = new Date(fecha);
+        inicio.setHours(0, 0, 0, 0);
+        const fin = new Date(fecha);
+        fin.setHours(23, 59, 59, 999);
+        const count = await this.fechasConfigRepository.count({
+            where: {
+                fecha: (0, typeorm_2.Between)(inicio, fin),
+                activo: true,
+            },
+        });
+        return count > 0;
+    }
     async calcularPrecio(tipoReserva, cantidadPersonas) {
         if (tipoReserva === reserva_entity_1.TipoReserva.A_LA_CARTA) {
             const precioALaCarta = await this.preciosConfigService.getPrecioALaCarta();
@@ -520,6 +564,39 @@ let ReservaService = class ReservaService {
         reserva.idPagoExterno = idPagoExterno;
         reserva.metodoPago = metodoPago;
         return this.reservaRepository.save(reserva);
+    }
+    obtenerBloqueHorario(turno) {
+        try {
+            const match = turno.match(/^(\d{1,2}):(\d{2})/);
+            if (!match) {
+                console.warn(`⚠️ Formato de turno no reconocido: ${turno}, usando bloque 12`);
+                return "12";
+            }
+            const horaInicio = parseInt(match[1], 10);
+            const minutoInicio = parseInt(match[2], 10);
+            const bloqueHora = minutoInicio >= 30 ? horaInicio : horaInicio;
+            console.log(`🕒 Turno "${turno}" → Bloque horario: ${bloqueHora}`);
+            return bloqueHora.toString();
+        }
+        catch (error) {
+            console.error(`❌ Error procesando turno ${turno}:`, error);
+            return "12";
+        }
+    }
+    agruparReservasPorBloqueHorario(reservas) {
+        const agrupadas = {};
+        for (const reserva of reservas) {
+            const bloqueHorario = this.obtenerBloqueHorario(reserva.turno);
+            if (!agrupadas[bloqueHorario]) {
+                agrupadas[bloqueHorario] = [];
+            }
+            agrupadas[bloqueHorario].push(reserva);
+        }
+        Object.keys(agrupadas).forEach(bloque => {
+            const personasEnBloque = agrupadas[bloque].reduce((sum, r) => sum + r.cantidadPersonas, 0);
+            console.log(`📊 Bloque ${bloque}:00 - ${agrupadas[bloque].length} reservas, ${personasEnBloque} personas`);
+        });
+        return agrupadas;
     }
 };
 exports.ReservaService = ReservaService;

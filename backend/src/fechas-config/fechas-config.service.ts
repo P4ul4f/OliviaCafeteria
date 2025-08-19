@@ -105,7 +105,7 @@ export class FechasConfigService {
   // SOLUCIÓN RAILWAY: Usar métodos UTC para mantener consistencia
   private serializeFechas(fechas: FechasConfig[]): any[] {
     return fechas.map(fecha => {
-      let fechaSerializada = null;
+      let fechaSerializada: string | null = null;
       if (fecha.fecha) {
         // Usar getUTCFullYear, getUTCMonth, getUTCDate para mantener el día correcto
         const year = fecha.fecha.getUTCFullYear();
@@ -117,7 +117,7 @@ export class FechasConfigService {
       
       return {
         ...fecha,
-        fecha: fechaSerializada
+        fecha: fechaSerializada as any
       };
     });
   }

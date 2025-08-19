@@ -44,6 +44,7 @@ let Reserva = class Reserva {
     fechaCreacion;
     idPagoExterno;
     metodoPago;
+    recordatorio48hEnviado;
 };
 exports.Reserva = Reserva;
 __decorate([
@@ -113,6 +114,10 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Reserva.prototype, "metodoPago", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'boolean', default: false }),
+    __metadata("design:type", Boolean)
+], Reserva.prototype, "recordatorio48hEnviado", void 0);
 exports.Reserva = Reserva = __decorate([
     (0, typeorm_1.Entity)()
 ], Reserva);

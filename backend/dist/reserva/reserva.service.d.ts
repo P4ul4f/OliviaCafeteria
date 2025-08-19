@@ -44,6 +44,9 @@ export declare class ReservaService {
         reservasExistentes: number;
     }>;
     private calcularCapacidadCompartida;
+    private esDiaMeriendaLibre;
     private calcularPrecio;
     confirmarPago(id: number, idPagoExterno: string, metodoPago: string): Promise<Reserva>;
+    private obtenerBloqueHorario;
+    private agruparReservasPorBloqueHorario;
 }

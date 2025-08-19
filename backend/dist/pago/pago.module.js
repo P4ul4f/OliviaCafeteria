@@ -14,6 +14,7 @@ const pago_controller_1 = require("./pago.controller");
 const pago_entity_1 = require("./pago.entity");
 const reserva_module_1 = require("../reserva/reserva.module");
 const giftcard_module_1 = require("../giftcard/giftcard.module");
+const whatsapp_module_1 = require("../whatsapp/whatsapp.module");
 let PagoModule = class PagoModule {
 };
 exports.PagoModule = PagoModule;
@@ -23,6 +24,7 @@ exports.PagoModule = PagoModule = __decorate([
             typeorm_1.TypeOrmModule.forFeature([pago_entity_1.Pago]),
             reserva_module_1.ReservaModule,
             giftcard_module_1.GiftCardModule,
+            whatsapp_module_1.WhatsappModule,
         ],
         controllers: [pago_controller_1.PagoController],
         providers: [pago_service_1.PagoService],

@@ -32,6 +32,8 @@ const giftcard_entity_1 = require("./giftcard/giftcard.entity");
 const giftcard_module_1 = require("./giftcard/giftcard.module");
 const contenido_config_entity_1 = require("./contenido-config/contenido-config.entity");
 const contenido_config_module_1 = require("./contenido-config/contenido-config.module");
+const whatsapp_module_1 = require("./whatsapp/whatsapp.module");
+const schedule_1 = require("@nestjs/schedule");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -103,6 +105,7 @@ exports.AppModule = AppModule = __decorate([
                     };
                 },
             }),
+            schedule_1.ScheduleModule.forRoot(),
             reserva_module_1.ReservaModule,
             pago_module_1.PagoModule,
             administrador_module_1.AdministradorModule,
@@ -113,6 +116,7 @@ exports.AppModule = AppModule = __decorate([
             precios_config_module_1.PreciosConfigModule,
             giftcard_module_1.GiftCardModule,
             contenido_config_module_1.ContenidoConfigModule,
+            whatsapp_module_1.WhatsappModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
