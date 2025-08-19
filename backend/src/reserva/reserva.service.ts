@@ -687,17 +687,39 @@ export class ReservaService {
     const bloqueHorario = this.obtenerBloqueHorario(turno);
     console.log(`⏰ Calculando capacidad para bloque horario: ${bloqueHorario} (turno: ${turno})`);
 
-    // Buscar TODAS las reservas de a la carta Y tardes de té para esa fecha
-    const todasReservasDelDia = await this.reservaRepository.find({
+    // BÚSQUEDA AMPLIADA: Buscar reservas tanto del día solicitado como del día siguiente
+    // (para encontrar reservas guardadas con el desfase de +1 día anterior)
+    const fechaInicioAmpliada = new Date(fecha);
+    fechaInicioAmpliada.setHours(0, 0, 0, 0);
+    
+    const fechaFinAmpliada = new Date(fecha);
+    fechaFinAmpliada.setDate(fechaFinAmpliada.getDate() + 1); // +1 día
+    fechaFinAmpliada.setHours(23, 59, 59, 999);
+
+    console.log(`🔍 Buscando reservas en rango ampliado:`, {
+      desde: fechaInicioAmpliada.toISOString(),
+      hasta: fechaFinAmpliada.toISOString(),
+      fechaOriginal: fecha.toISOString()
+    });
+
+    const todasReservasDelRango = await this.reservaRepository.find({
       where: {
-        fechaHora: Between(fechaInicio, fechaFin),
+        fechaHora: Between(fechaInicioAmpliada, fechaFinAmpliada),
         tipoReserva: In([TipoReserva.A_LA_CARTA, TipoReserva.TARDE_TE]), // Ambos tipos comparten salón
         estado: EstadoReserva.CONFIRMADA,
       },
     });
 
+    console.log(`📋 Reservas encontradas en rango ampliado:`, todasReservasDelRango.map(r => ({
+      id: r.id,
+      fechaHora: r.fechaHora.toISOString(),
+      turno: r.turno,
+      personas: r.cantidadPersonas,
+      tipo: r.tipoReserva
+    })));
+
     // Agrupar reservas por bloque horario
-    const reservasPorBloque = this.agruparReservasPorBloqueHorario(todasReservasDelDia);
+    const reservasPorBloque = this.agruparReservasPorBloqueHorario(todasReservasDelRango);
     
     // Obtener solo las reservas del bloque horario específico
     const reservasDelBloque = reservasPorBloque[bloqueHorario] || [];
@@ -712,7 +734,7 @@ export class ReservaService {
       fecha: fecha.toDateString(),
       turno,
       bloqueHorario,
-      totalReservasDelDia: todasReservasDelDia.length,
+      totalReservasEnRango: todasReservasDelRango.length,
       reservasEnEsteBloque: reservasDelBloque.length,
       capacidadOcupada,
       detallesBloque: reservasDelBloque.map(r => ({
@@ -720,7 +742,8 @@ export class ReservaService {
         tipo: r.tipoReserva,
         turno: r.turno,
         personas: r.cantidadPersonas,
-        bloqueCalculado: this.obtenerBloqueHorario(r.turno)
+        bloqueCalculado: this.obtenerBloqueHorario(r.turno),
+        fechaHora: r.fechaHora.toISOString()
       }))
     });
 

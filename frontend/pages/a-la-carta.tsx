@@ -80,9 +80,6 @@ export default function ALaCarta() {
           <div className={styles.heroContent}>
             <h1 className={styles.heroTitle}>A la Carta</h1>
             <div className={styles.heroSubtitle}>¡Reserva tu mesa y disfruta de nuestra carta completa!</div>
-            <div className={styles.heroDescription}>
-              Reservas sin anticipación
-            </div>
           </div>
         </div>
       </section>
@@ -93,14 +90,14 @@ export default function ALaCarta() {
           <div className={styles.sectionCard}>
             <h2 className={styles.sectionTitle}>
               <IconoMesa />
-              Reserva Individual
+              Reserva A la Carta
             </h2>
             
             <div className={styles.descripcionContent}>
               <div className={styles.caracteristicasGrid}>
                 <div className={styles.caracteristicaItem}>
                   <IconoPersonas />
-                  <span>Hasta 10 personas</span>
+                  <span>Reservas sin anticipación</span>
                 </div>
                 <div className={styles.caracteristicaItem}>
                   <IconoCheck />
