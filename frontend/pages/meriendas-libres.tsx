@@ -141,13 +141,8 @@ const comoReservarItems = [
 // Helper para mostrar fechas al usuario en su horario local
 function formatDateForDisplay(date: Date): string {
   try {
-    // Usar los componentes UTC para mostrar la fecha correcta
-    const year = date.getUTCFullYear();
-    const month = date.getUTCMonth();
-    const day = date.getUTCDate();
-    // Crear nueva fecha local con los componentes UTC
-    const localDate = new Date(year, month, day);
-    return localDate.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+    // Mostrar la fecha tal como está (ya ajustada por safeParseDate)
+    return date.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
   } catch (error) {
     console.error('Error formateando fecha para display:', error);
     return 'Fecha inválida';
@@ -173,9 +168,11 @@ function safeParseDate(fecha: any): Date {
       // Si es un string YYYY-MM-DD
       if (/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
         const [year, month, day] = fecha.split('-').map(Number);
-        // SOLUCIÓN RAILWAY: Crear fecha en UTC para mantener consistencia
-        const d = new Date(Date.UTC(year, month - 1, day, 12, 0, 0, 0));
-        console.log(`🌍 Meriendas parseando fecha UTC: ${fecha} -> ${d.toISOString()} (día UTC: ${d.getUTCDate()})`);
+        // Crear fecha local
+        const d = new Date(year, month - 1, day, 12, 0, 0, 0);
+        // SOLUCIÓN RAILWAY: Restar 1 día para compensar el +1 que se agregó al enviar
+        d.setDate(d.getDate() - 1);
+        console.log(`🌍 Meriendas parseando fecha (-1 día): ${fecha} -> ${d.toLocaleDateString('es-ES')}`);
         return d;
       }
     }

@@ -115,7 +115,7 @@ __decorate([
     __metadata("design:type", String)
 ], Reserva.prototype, "metodoPago", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'boolean', default: false }),
+    (0, typeorm_1.Column)({ type: 'boolean', default: false, nullable: true }),
     __metadata("design:type", Boolean)
 ], Reserva.prototype, "recordatorio48hEnviado", void 0);
 exports.Reserva = Reserva = __decorate([

@@ -38,51 +38,48 @@ function SuccessModal({ open, onClose, mensaje }: any) {
 }
 
 export default function MeriendasLibresPanel() {
-  // Helper para formatear fecha a 'YYYY-MM-DD' usando UTC para consistencia con Railway
+  // Helper para formatear fecha a 'YYYY-MM-DD' - SOLUCIÓN RAILWAY: Agregar 1 día
   const formatDateForBackend = (date: Date): string => {
-    // SOLUCIÓN RAILWAY: Usar métodos UTC para mantener consistencia
-    const y = date.getUTCFullYear();
-    const m = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const d = String(date.getUTCDate()).padStart(2, '0');
+    // SOLUCIÓN DIRECTA: Agregar 1 día para compensar el problema de zona horaria en Railway
+    const fechaAjustada = new Date(date);
+    fechaAjustada.setDate(fechaAjustada.getDate() + 1);
+    
+    const y = fechaAjustada.getFullYear();
+    const m = String(fechaAjustada.getMonth() + 1).padStart(2, '0');
+    const d = String(fechaAjustada.getDate()).padStart(2, '0');
     const out = `${y}-${m}-${d}`;
-    console.log('🔍 formatDateForBackend (UTC) debug:', {
-      fechaEntrada: date,
+    
+    console.log('🔍 formatDateForBackend (+1 día) debug:', {
+      fechaOriginal: date,
+      fechaOriginalLocal: date.toLocaleDateString('es-ES'),
+      fechaAjustada: fechaAjustada,
+      fechaAjustadaLocal: fechaAjustada.toLocaleDateString('es-ES'),
       yyyyMmDd: out,
-      fechaEntradaISO: date.toISOString(),
-      fechaEntradaLocal: date.toLocaleDateString('es-ES'),
-      hora: date.getHours(),
-      minutos: date.getMinutes(),
-      timezoneOffset: date.getTimezoneOffset(),
-      utcDate: date.getUTCDate(),
-      localDate: date.getDate(),
-      usandoUTC: 'SÍ'
+      ajuste: '+1 día aplicado'
     });
     return out;
   };
 
-  // Helper function para parsear fechas del backend sin problemas de timezone
-  // SOLUCIÓN RAILWAY: Usar UTC de forma consistente
+  // Helper function para parsear fechas del backend - SOLUCIÓN RAILWAY: Restar 1 día
   const parseDateFromBackend = (dateString: string): Date => {
     if (!dateString) return new Date();
     
     // Parsear la fecha del string YYYY-MM-DD
     const [year, month, day] = dateString.split('-').map(Number);
-    // NUEVO: Crear fecha en UTC para mantener consistencia con Railway
-    const d = new Date(Date.UTC(year, month - 1, day, 12, 0, 0, 0));
-    console.log(`🌍 Admin parseando fecha UTC: ${dateString} -> ${d.toISOString()} (día UTC: ${d.getUTCDate()})`);
+    // Crear fecha local
+    const d = new Date(year, month - 1, day, 12, 0, 0, 0);
+    // SOLUCIÓN DIRECTA: Restar 1 día para compensar el +1 que agregamos al enviar
+    d.setDate(d.getDate() - 1);
+    
+    console.log(`🌍 Admin parseando fecha (-1 día): ${dateString} -> ${d.toLocaleDateString('es-ES')}`);
     return d;
   };
 
   // Helper para mostrar fechas al usuario en su horario local
   const formatDateForDisplay = (date: Date): string => {
     try {
-      // Usar los componentes UTC para mostrar la fecha correcta
-      const year = date.getUTCFullYear();
-      const month = date.getUTCMonth();
-      const day = date.getUTCDate();
-      // Crear nueva fecha local con los componentes UTC
-      const localDate = new Date(year, month, day);
-      return localDate.toLocaleDateString('es-ES');
+      // Mostrar la fecha tal como está (ya ajustada por parseDateFromBackend)
+      return date.toLocaleDateString('es-ES');
     } catch (error) {
       console.error('Error formateando fecha para display:', error);
       return 'Fecha inválida';

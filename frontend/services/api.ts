@@ -245,16 +245,18 @@ class ApiService {
   }
 
   // Helper para parsear fechas del backend de forma segura
-  // SOLUCIÓN RAILWAY: Usar UTC de forma consistente
+  // SOLUCIÓN RAILWAY: Restar 1 día para compensar el ajuste
   private parseBackendDate(dateString: string): Date {
     if (!dateString) return new Date();
     
     // Si es un string YYYY-MM-DD
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
       const [year, month, day] = dateString.split('-').map(Number);
-      // NUEVO: Crear fecha en UTC para mantener consistencia con Railway
-      const d = new Date(Date.UTC(year, month - 1, day, 12, 0, 0, 0));
-      console.log(`🌍 Frontend parseando fecha UTC: ${dateString} -> ${d.toISOString()} (día UTC: ${d.getUTCDate()})`);
+      // Crear fecha local
+      const d = new Date(year, month - 1, day, 12, 0, 0, 0);
+      // SOLUCIÓN RAILWAY: Restar 1 día para compensar el +1 que se agregó al enviar
+      d.setDate(d.getDate() - 1);
+      console.log(`🌍 Frontend parseando fecha (-1 día): ${dateString} -> ${d.toLocaleDateString('es-ES')}`);
       return d;
     }
     

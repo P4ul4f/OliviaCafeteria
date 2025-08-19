@@ -31,8 +31,8 @@ let FechasConfigService = class FechasConfigService {
                 const year = Number(match[1]);
                 const monthIndex = Number(match[2]) - 1;
                 const day = Number(match[3]);
-                const d = new Date(Date.UTC(year, monthIndex, day, 12, 0, 0, 0));
-                console.log(`🌍 Fecha normalizada (UTC): ${input} -> ${d.toISOString()} (día UTC: ${d.getUTCDate()})`);
+                const d = new Date(year, monthIndex, day, 12, 0, 0, 0);
+                console.log(`📅 Fecha normalizada: ${input} -> ${d.toISOString()} (día local: ${d.getDate()})`);
                 return d;
             }
             const parsed = new Date(input);
@@ -40,8 +40,7 @@ let FechasConfigService = class FechasConfigService {
                 const year = parsed.getFullYear();
                 const monthIndex = parsed.getMonth();
                 const day = parsed.getDate();
-                const d = new Date(Date.UTC(year, monthIndex, day, 12, 0, 0, 0));
-                console.log(`🌍 Fecha normalizada desde string (UTC): ${input} -> ${d.toISOString()}`);
+                const d = new Date(year, monthIndex, day, 12, 0, 0, 0);
                 return d;
             }
         }
@@ -49,12 +48,11 @@ let FechasConfigService = class FechasConfigService {
             const year = input.getFullYear();
             const monthIndex = input.getMonth();
             const day = input.getDate();
-            const d = new Date(Date.UTC(year, monthIndex, day, 12, 0, 0, 0));
-            console.log(`🌍 Fecha normalizada desde Date (UTC): ${input.toISOString()} -> ${d.toISOString()}`);
+            const d = new Date(year, monthIndex, day, 12, 0, 0, 0);
             return d;
         }
         const d = new Date();
-        d.setUTCHours(12, 0, 0, 0);
+        d.setHours(12, 0, 0, 0);
         return d;
     }
     async create(createFechasConfigDto) {
@@ -100,11 +98,8 @@ let FechasConfigService = class FechasConfigService {
         return fechas.map(fecha => {
             let fechaSerializada = null;
             if (fecha.fecha) {
-                const year = fecha.fecha.getUTCFullYear();
-                const month = String(fecha.fecha.getUTCMonth() + 1).padStart(2, '0');
-                const day = String(fecha.fecha.getUTCDate()).padStart(2, '0');
-                fechaSerializada = `${year}-${month}-${day}`;
-                console.log(`📤 Serializando fecha: ${fecha.fecha.toISOString()} -> ${fechaSerializada} (día UTC: ${fecha.fecha.getUTCDate()})`);
+                fechaSerializada = fecha.fecha.toISOString().split('T')[0];
+                console.log(`📤 Serializando fecha: ${fecha.fecha.toISOString()} -> ${fechaSerializada}`);
             }
             return {
                 ...fecha,

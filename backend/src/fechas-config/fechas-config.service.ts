@@ -13,7 +13,6 @@ export class FechasConfigService {
 
   // Normaliza una fecha evitando problemas de timezone.
   // Acepta 'YYYY-MM-DD' o Date y la fija a las 12:00:00 LOCAL para evitar cambios de día.
-  // SOLUCIÓN RAILWAY: Usar UTC de forma consistente para evitar diferencias de zona horaria
   private normalizeDateOnly(input: string | Date): Date {
     if (!input) return null as any;
     
@@ -24,38 +23,35 @@ export class FechasConfigService {
         const monthIndex = Number(match[2]) - 1;
         const day = Number(match[3]);
         
-        // NUEVO: Crear fecha en UTC para evitar problemas de zona horaria
-        // Esto asegura que el día se mantenga consistente independientemente del servidor
-        const d = new Date(Date.UTC(year, monthIndex, day, 12, 0, 0, 0));
-        console.log(`🌍 Fecha normalizada (UTC): ${input} -> ${d.toISOString()} (día UTC: ${d.getUTCDate()})`);
+        // Crear fecha local a mediodía
+        const d = new Date(year, monthIndex, day, 12, 0, 0, 0);
+        console.log(`📅 Fecha normalizada: ${input} -> ${d.toISOString()} (día local: ${d.getDate()})`);
         return d;
       }
       
-      // Para otros formatos de string, extraer componentes y usar UTC
+      // Para otros formatos de string
       const parsed = new Date(input);
       if (!isNaN(parsed.getTime())) {
         const year = parsed.getFullYear();
         const monthIndex = parsed.getMonth();
         const day = parsed.getDate();
-        const d = new Date(Date.UTC(year, monthIndex, day, 12, 0, 0, 0));
-        console.log(`🌍 Fecha normalizada desde string (UTC): ${input} -> ${d.toISOString()}`);
+        const d = new Date(year, monthIndex, day, 12, 0, 0, 0);
         return d;
       }
     }
     
-    // Para objetos Date, extraer componentes locales y crear en UTC
+    // Para objetos Date
     if (input instanceof Date) {
       const year = input.getFullYear();
       const monthIndex = input.getMonth();
       const day = input.getDate();
-      const d = new Date(Date.UTC(year, monthIndex, day, 12, 0, 0, 0));
-      console.log(`🌍 Fecha normalizada desde Date (UTC): ${input.toISOString()} -> ${d.toISOString()}`);
+      const d = new Date(year, monthIndex, day, 12, 0, 0, 0);
       return d;
     }
     
     // Fallback
     const d = new Date();
-    d.setUTCHours(12, 0, 0, 0);
+    d.setHours(12, 0, 0, 0);
     return d;
   }
 
@@ -102,17 +98,13 @@ export class FechasConfigService {
   }
 
   // Función para serializar fechas a strings YYYY-MM-DD
-  // SOLUCIÓN RAILWAY: Usar métodos UTC para mantener consistencia
   private serializeFechas(fechas: FechasConfig[]): any[] {
     return fechas.map(fecha => {
       let fechaSerializada: string | null = null;
       if (fecha.fecha) {
-        // Usar getUTCFullYear, getUTCMonth, getUTCDate para mantener el día correcto
-        const year = fecha.fecha.getUTCFullYear();
-        const month = String(fecha.fecha.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(fecha.fecha.getUTCDate()).padStart(2, '0');
-        fechaSerializada = `${year}-${month}-${day}`;
-        console.log(`📤 Serializando fecha: ${fecha.fecha.toISOString()} -> ${fechaSerializada} (día UTC: ${fecha.fecha.getUTCDate()})`);
+        // Usar toISOString y split para obtener YYYY-MM-DD
+        fechaSerializada = fecha.fecha.toISOString().split('T')[0];
+        console.log(`📤 Serializando fecha: ${fecha.fecha.toISOString()} -> ${fechaSerializada}`);
       }
       
       return {
