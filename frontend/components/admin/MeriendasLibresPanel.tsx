@@ -60,18 +60,16 @@ export default function MeriendasLibresPanel() {
     return out;
   };
 
-  // Helper function para parsear fechas del backend - SOLUCIÓN RAILWAY: Restar 1 día
+  // Helper function para parsear fechas del backend
   const parseDateFromBackend = (dateString: string): Date => {
     if (!dateString) return new Date();
     
     // Parsear la fecha del string YYYY-MM-DD
     const [year, month, day] = dateString.split('-').map(Number);
-    // Crear fecha local
+    // Crear fecha local a mediodía (SIN ajuste, el backend ya guardó correctamente)
     const d = new Date(year, month - 1, day, 12, 0, 0, 0);
-    // SOLUCIÓN DIRECTA: Restar 1 día para compensar el +1 que agregamos al enviar
-    d.setDate(d.getDate() - 1);
     
-    console.log(`🌍 Admin parseando fecha (-1 día): ${dateString} -> ${d.toLocaleDateString('es-ES')}`);
+    console.log(`🌍 Admin parseando fecha: ${dateString} -> ${d.toLocaleDateString('es-ES')}`);
     return d;
   };
 

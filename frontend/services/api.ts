@@ -245,18 +245,15 @@ class ApiService {
   }
 
   // Helper para parsear fechas del backend de forma segura
-  // SOLUCIÓN RAILWAY: Restar 1 día para compensar el ajuste
   private parseBackendDate(dateString: string): Date {
     if (!dateString) return new Date();
     
     // Si es un string YYYY-MM-DD
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
       const [year, month, day] = dateString.split('-').map(Number);
-      // Crear fecha local
+      // Crear fecha local a mediodía (SIN ajuste, ya que el backend la guardó correctamente)
       const d = new Date(year, month - 1, day, 12, 0, 0, 0);
-      // SOLUCIÓN RAILWAY: Restar 1 día para compensar el +1 que se agregó al enviar
-      d.setDate(d.getDate() - 1);
-      console.log(`🌍 Frontend parseando fecha (-1 día): ${dateString} -> ${d.toLocaleDateString('es-ES')}`);
+      console.log(`🌍 Frontend parseando fecha: ${dateString} -> ${d.toLocaleDateString('es-ES')}`);
       return d;
     }
     

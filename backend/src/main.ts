@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DatabaseInitializer } from './database/init-database';
+import { ensureWhatsAppColumn } from './database/ensure-whatsapp-column';
 
 async function bootstrap() {
   try {
@@ -26,9 +27,22 @@ async function bootstrap() {
       await dbInitializer.initialize();
       clearTimeout(timeout);
       console.log('✅ Database initialized successfully with DatabaseInitializer');
+      
+      // Asegurar que la columna de WhatsApp existe
+      console.log('🔧 Ensuring WhatsApp column exists...');
+      await ensureWhatsAppColumn(dataSource);
+      
     } catch (error) {
       console.log('⚠️ Database initialization failed, but continuing...');
       console.log('⚠️ Error:', error.message);
+      
+      // Intentar crear la columna aunque la inicialización falle
+      try {
+        const dataSource = app.get('DataSource');
+        await ensureWhatsAppColumn(dataSource);
+      } catch (columnError) {
+        console.log('⚠️ WhatsApp column creation also failed:', columnError.message);
+      }
     }
     
     // Configuración específica de CORS para permitir Vercel

@@ -195,6 +195,8 @@ let ReservaService = class ReservaService {
                 const hoy = new Date();
                 hoy.setHours(0, 0, 0, 0);
                 const fechaLimite = new Date(hoy.getTime() + 90 * 24 * 60 * 60 * 1000);
+                fechaLimite.setHours(23, 59, 59, 999);
+                console.log(`🔍 Buscando fechas meriendas libres entre ${hoy.toISOString()} y ${fechaLimite.toISOString()}`);
                 const fechasConfig = await this.fechasConfigRepository.find({
                     where: {
                         activo: true,
@@ -204,10 +206,21 @@ let ReservaService = class ReservaService {
                         fecha: 'ASC'
                     }
                 });
+                console.log(`📅 Fechas encontradas en DB: ${fechasConfig.length}`);
+                fechasConfig.forEach((fc, i) => {
+                    console.log(`  ${i + 1}. ${fc.fecha.toISOString()} (día: ${fc.fecha.getDate()})`);
+                });
                 const fechasDisponibles = fechasConfig
                     .map(fechaConfig => fechaConfig.fecha)
-                    .filter(fecha => fecha >= hoy)
+                    .filter(fecha => {
+                    const fechaSoloDia = new Date(fecha);
+                    fechaSoloDia.setHours(0, 0, 0, 0);
+                    const hoySoloDia = new Date();
+                    hoySoloDia.setHours(0, 0, 0, 0);
+                    return fechaSoloDia >= hoySoloDia;
+                })
                     .sort((a, b) => a.getTime() - b.getTime());
+                console.log(`✅ Fechas disponibles después de filtrar: ${fechasDisponibles.length}`);
                 return fechasDisponibles;
             }
             const fechasDisponibles = [];

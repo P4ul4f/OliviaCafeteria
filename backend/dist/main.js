@@ -4,6 +4,7 @@ require("dotenv/config");
 const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const init_database_1 = require("./database/init-database");
+const ensure_whatsapp_column_1 = require("./database/ensure-whatsapp-column");
 async function bootstrap() {
     try {
         console.log('🚀 Starting Olivia Backend...');
@@ -21,10 +22,19 @@ async function bootstrap() {
             await dbInitializer.initialize();
             clearTimeout(timeout);
             console.log('✅ Database initialized successfully with DatabaseInitializer');
+            console.log('🔧 Ensuring WhatsApp column exists...');
+            await (0, ensure_whatsapp_column_1.ensureWhatsAppColumn)(dataSource);
         }
         catch (error) {
             console.log('⚠️ Database initialization failed, but continuing...');
             console.log('⚠️ Error:', error.message);
+            try {
+                const dataSource = app.get('DataSource');
+                await (0, ensure_whatsapp_column_1.ensureWhatsAppColumn)(dataSource);
+            }
+            catch (columnError) {
+                console.log('⚠️ WhatsApp column creation also failed:', columnError.message);
+            }
         }
         app.enableCors({
             origin: [
