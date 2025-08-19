@@ -59,8 +59,8 @@ export default function MeriendasLibresPanel() {
     
     // Parsear la fecha del string YYYY-MM-DD
     const [year, month, day] = dateString.split('-').map(Number);
-    // Crear fecha a mediodía para evitar problemas de zona horaria
-    return new Date(year, month - 1, day, 12, 0, 0, 0);
+    // Agregar un día para compensar problemas de UTC (igual que en el backend)
+    return new Date(year, month - 1, day + 1, 12, 0, 0, 0);
   };
 
   // FUNCIÓN DE SEGURIDAD: Parsear cualquier fecha de forma segura

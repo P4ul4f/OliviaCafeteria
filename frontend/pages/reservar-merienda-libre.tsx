@@ -254,12 +254,9 @@ export default function ReservarMeriendaLibre() {
       // Guardar los datos en localStorage y redirigir a pago
       const reservaDataForPayment = {
         nombre: formData.nombre,
+        telefono: formData.telefono,
         cantidadPersonas: formData.cantidadPersonas,
-        fecha: formData.fecha ? formData.fecha.toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        }) : '',
+        fecha: formData.fecha ? formData.fecha.toISOString().split('T')[0] : '',
         turno: formData.turno,
         tipoReserva: formData.tipoReserva,
       };
