@@ -13,6 +13,7 @@ export class FechasConfigService {
 
   // Normaliza una fecha evitando problemas de timezone.
   // Acepta 'YYYY-MM-DD' o Date y la fija a las 00:00:00 LOCAL.
+  // Para compensar problemas de UTC, se agrega un día cuando se recibe un string YYYY-MM-DD
   private normalizeDateOnly(input: string | Date): Date {
     if (!input) return null as any;
     // Construir SIEMPRE con componentes locales para persistir el día exacto
@@ -22,7 +23,8 @@ export class FechasConfigService {
         const year = Number(match[1]);
         const monthIndex = Number(match[2]) - 1;
         const day = Number(match[3]);
-        const d = new Date(year, monthIndex, day, 12, 0, 0, 0);
+        // Agregar un día para compensar problemas de UTC
+        const d = new Date(year, monthIndex, day + 1, 12, 0, 0, 0);
         // Fijar a medianoche local para almacenamiento
         d.setHours(0, 0, 0, 0);
         return d;
