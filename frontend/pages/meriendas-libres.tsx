@@ -138,6 +138,22 @@ const comoReservarItems = [
   "Se abona el TOTAL de todas las personas que asisten, con el fin de aprovechar al 100% el tiempo de consumición 😊"
 ];
 
+// Helper para mostrar fechas al usuario en su horario local
+function formatDateForDisplay(date: Date): string {
+  try {
+    // Usar los componentes UTC para mostrar la fecha correcta
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    const day = date.getUTCDate();
+    // Crear nueva fecha local con los componentes UTC
+    const localDate = new Date(year, month, day);
+    return localDate.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+  } catch (error) {
+    console.error('Error formateando fecha para display:', error);
+    return 'Fecha inválida';
+  }
+}
+
 // FUNCIÓN DE SEGURIDAD: Parsear cualquier fecha de forma segura
 function safeParseDate(fecha: any): Date {
   try {
@@ -157,8 +173,10 @@ function safeParseDate(fecha: any): Date {
       // Si es un string YYYY-MM-DD
       if (/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
         const [year, month, day] = fecha.split('-').map(Number);
-        // Crear fecha a mediodía para evitar problemas de zona horaria
-        return new Date(year, month - 1, day, 12, 0, 0, 0);
+        // SOLUCIÓN RAILWAY: Crear fecha en UTC para mantener consistencia
+        const d = new Date(Date.UTC(year, month - 1, day, 12, 0, 0, 0));
+        console.log(`🌍 Meriendas parseando fecha UTC: ${fecha} -> ${d.toISOString()} (día UTC: ${d.getUTCDate()})`);
+        return d;
       }
     }
     
@@ -301,7 +319,7 @@ export default function MeriendasLibres() {
                       {(() => {
                         try {
                           const fechaObj = safeParseDate(f.fecha);
-                          return fechaObj.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' }).replace(/^\w/, c => c.toUpperCase());
+                          return formatDateForDisplay(fechaObj).replace(/^\w/, c => c.toUpperCase());
                         } catch (error) {
                           console.error('❌ Error renderizando fecha:', f.fecha, error);
                           return 'Fecha inválida';

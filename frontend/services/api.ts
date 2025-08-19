@@ -230,18 +230,44 @@ class ApiService {
   // Obtener fechas disponibles por tipo de reserva
   async getFechasDisponibles(tipoReserva: string): Promise<Date[]> {
     const fechas = await this.request<string[]>(`/reserva/fechas-disponibles/${tipoReserva}`);
-    // Convertir strings de fecha a objetos Date
-    return fechas.map(fecha => new Date(fecha));
+    // Convertir strings de fecha a objetos Date usando parsing seguro
+    return fechas.map(fecha => this.parseBackendDate(fecha));
   }
 
   // Obtener fechas disponibles con información de cupos
   async getFechasDisponiblesConCupos(tipoReserva: string): Promise<{ fecha: Date; disponible: boolean; cuposDisponibles: number }[]> {
     const fechasConCupos = await this.request<{ fecha: string; disponible: boolean; cuposDisponibles: number }[]>(`/reserva/fechas-disponibles-con-cupos/${tipoReserva}`);
-    // Convertir strings de fecha a objetos Date
+    // Convertir strings de fecha a objetos Date usando parsing seguro
     return fechasConCupos.map(item => ({
       ...item,
-      fecha: new Date(item.fecha)
+      fecha: this.parseBackendDate(item.fecha)
     }));
+  }
+
+  // Helper para parsear fechas del backend de forma segura
+  // SOLUCIÓN RAILWAY: Usar UTC de forma consistente
+  private parseBackendDate(dateString: string): Date {
+    if (!dateString) return new Date();
+    
+    // Si es un string YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      const [year, month, day] = dateString.split('-').map(Number);
+      // NUEVO: Crear fecha en UTC para mantener consistencia con Railway
+      const d = new Date(Date.UTC(year, month - 1, day, 12, 0, 0, 0));
+      console.log(`🌍 Frontend parseando fecha UTC: ${dateString} -> ${d.toISOString()} (día UTC: ${d.getUTCDate()})`);
+      return d;
+    }
+    
+    // Si es un string ISO completo, usar new Date pero con precaución
+    const parsed = new Date(dateString);
+    if (!isNaN(parsed.getTime())) {
+      console.log(`🌍 Frontend parseando fecha ISO: ${dateString} -> ${parsed.toISOString()}`);
+      return parsed;
+    }
+    
+    // Fallback: fecha actual
+    console.warn('⚠️ No se pudo parsear la fecha:', dateString, 'usando fecha actual');
+    return new Date();
   }
 
   // Obtener horarios disponibles para una fecha y tipo específicos

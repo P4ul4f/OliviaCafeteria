@@ -38,29 +38,55 @@ function SuccessModal({ open, onClose, mensaje }: any) {
 }
 
 export default function MeriendasLibresPanel() {
-  // Helper para formatear fecha local a 'YYYY-MM-DD' SIN usar toISOString (evita corrimientos por timezone)
+  // Helper para formatear fecha a 'YYYY-MM-DD' usando UTC para consistencia con Railway
   const formatDateForBackend = (date: Date): string => {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
+    // SOLUCIÓN RAILWAY: Usar métodos UTC para mantener consistencia
+    const y = date.getUTCFullYear();
+    const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(date.getUTCDate()).padStart(2, '0');
     const out = `${y}-${m}-${d}`;
-    console.log('🔍 formatDateForBackend (local) debug:', {
+    console.log('🔍 formatDateForBackend (UTC) debug:', {
       fechaEntrada: date,
       yyyyMmDd: out,
       fechaEntradaISO: date.toISOString(),
-      fechaEntradaLocal: date.toLocaleDateString('es-ES')
+      fechaEntradaLocal: date.toLocaleDateString('es-ES'),
+      hora: date.getHours(),
+      minutos: date.getMinutes(),
+      timezoneOffset: date.getTimezoneOffset(),
+      utcDate: date.getUTCDate(),
+      localDate: date.getDate(),
+      usandoUTC: 'SÍ'
     });
     return out;
   };
 
   // Helper function para parsear fechas del backend sin problemas de timezone
+  // SOLUCIÓN RAILWAY: Usar UTC de forma consistente
   const parseDateFromBackend = (dateString: string): Date => {
     if (!dateString) return new Date();
     
     // Parsear la fecha del string YYYY-MM-DD
     const [year, month, day] = dateString.split('-').map(Number);
-    // Crear fecha a mediodía para evitar problemas de zona horaria
-    return new Date(year, month - 1, day, 12, 0, 0, 0);
+    // NUEVO: Crear fecha en UTC para mantener consistencia con Railway
+    const d = new Date(Date.UTC(year, month - 1, day, 12, 0, 0, 0));
+    console.log(`🌍 Admin parseando fecha UTC: ${dateString} -> ${d.toISOString()} (día UTC: ${d.getUTCDate()})`);
+    return d;
+  };
+
+  // Helper para mostrar fechas al usuario en su horario local
+  const formatDateForDisplay = (date: Date): string => {
+    try {
+      // Usar los componentes UTC para mostrar la fecha correcta
+      const year = date.getUTCFullYear();
+      const month = date.getUTCMonth();
+      const day = date.getUTCDate();
+      // Crear nueva fecha local con los componentes UTC
+      const localDate = new Date(year, month, day);
+      return localDate.toLocaleDateString('es-ES');
+    } catch (error) {
+      console.error('Error formateando fecha para display:', error);
+      return 'Fecha inválida';
+    }
   };
 
   // FUNCIÓN DE SEGURIDAD: Parsear cualquier fecha de forma segura
@@ -315,7 +341,15 @@ export default function MeriendasLibresPanel() {
 
   // --- Fechas y turnos (edición en lote) ---
   const handleFechaEdit = (id: number, nuevaFecha: Date) => {
-    setFechasEdit(fechasEdit.map(f => f.id === id ? { ...f, fecha: nuevaFecha } : f));
+    // Normalizar la fecha a mediodía para evitar problemas de zona horaria
+    const fechaNormalizada = new Date(nuevaFecha.getFullYear(), nuevaFecha.getMonth(), nuevaFecha.getDate(), 12, 0, 0, 0);
+    console.log('🔄 handleFechaEdit - Fecha normalizada:', {
+      original: nuevaFecha,
+      normalizada: fechaNormalizada,
+      originalHours: nuevaFecha.getHours(),
+      normalizadaHours: fechaNormalizada.getHours()
+    });
+    setFechasEdit(fechasEdit.map(f => f.id === id ? { ...f, fecha: fechaNormalizada } : f));
   };
   const handleTurnoEdit = (id: number, turno: 'mañana'|'tarde', campo: string, valor: any) => {
     setFechasEdit(fechasEdit.map(f => {
@@ -413,7 +447,19 @@ export default function MeriendasLibresPanel() {
   };
 
   const handleNuevaFechaChange = (campo: string, valor: any) => {
-    setNuevaFecha(nuevaFecha ? { ...nuevaFecha, [campo]: valor } : null);
+    if (campo === 'fecha' && valor instanceof Date) {
+      // Normalizar la fecha a mediodía para evitar problemas de zona horaria
+      const fechaNormalizada = new Date(valor.getFullYear(), valor.getMonth(), valor.getDate(), 12, 0, 0, 0);
+      console.log('🔄 handleNuevaFechaChange - Fecha normalizada:', {
+        original: valor,
+        normalizada: fechaNormalizada,
+        originalHours: valor.getHours(),
+        normalizadaHours: fechaNormalizada.getHours()
+      });
+      setNuevaFecha(nuevaFecha ? { ...nuevaFecha, [campo]: fechaNormalizada } : null);
+    } else {
+      setNuevaFecha(nuevaFecha ? { ...nuevaFecha, [campo]: valor } : null);
+    }
   };
 
   const handleNuevaTurnoChange = (idx: number, valor: string) => {
