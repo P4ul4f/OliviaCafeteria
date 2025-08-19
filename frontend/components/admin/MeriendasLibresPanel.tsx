@@ -66,10 +66,12 @@ export default function MeriendasLibresPanel() {
     
     // Parsear la fecha del string YYYY-MM-DD
     const [year, month, day] = dateString.split('-').map(Number);
-    // Crear fecha local a mediodía (SIN ajuste, el backend ya guardó correctamente)
+    // Crear fecha local a mediodía
     const d = new Date(year, month - 1, day, 12, 0, 0, 0);
+    // RESTAR 1 día porque agregamos +1 al guardar (compensar Railway UTC)
+    d.setDate(d.getDate() - 1);
     
-    console.log(`🌍 Admin parseando fecha: ${dateString} -> ${d.toLocaleDateString('es-ES')}`);
+    console.log(`🌍 Admin parseando fecha (-1 día): ${dateString} -> ${d.toLocaleDateString('es-ES')}`);
     return d;
   };
 
