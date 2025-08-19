@@ -24,8 +24,8 @@ export interface WhatsAppMessage {
 export class WhatsappService {
   private readonly logger = new Logger(WhatsappService.name);
   private readonly apiUrl: string;
-  private readonly accessToken: string;
-  private readonly phoneNumberId: string;
+  private readonly accessToken: string | undefined;
+  private readonly phoneNumberId: string | undefined;
   private readonly isConfigured: boolean;
 
   constructor(
@@ -35,7 +35,9 @@ export class WhatsappService {
     // Configuración de WhatsApp Business API
     this.accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
     this.phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-    this.apiUrl = `https://graph.facebook.com/v18.0/${this.phoneNumberId}/messages`;
+    this.apiUrl = this.phoneNumberId 
+      ? `https://graph.facebook.com/v18.0/${this.phoneNumberId}/messages`
+      : '';
     
     this.isConfigured = !!(this.accessToken && this.phoneNumberId);
     
@@ -64,7 +66,7 @@ export class WhatsappService {
         mensaje,
         {
           headers: {
-            'Authorization': `Bearer ${this.accessToken}`,
+            'Authorization': `Bearer ${this.accessToken!}`,
             'Content-Type': 'application/json',
           },
         }
@@ -285,10 +287,10 @@ export class WhatsappService {
     try {
       // Hacer una petición de prueba para verificar la configuración
       const response = await axios.get(
-        `https://graph.facebook.com/v18.0/${this.phoneNumberId}`,
+        `https://graph.facebook.com/v18.0/${this.phoneNumberId!}`,
         {
           headers: {
-            'Authorization': `Bearer ${this.accessToken}`,
+            'Authorization': `Bearer ${this.accessToken!}`,
           },
         }
       );

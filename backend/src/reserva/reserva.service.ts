@@ -581,8 +581,10 @@ export class ReservaService {
           reservasExistentes: 0,
         };
       }
-      // Para a la carta y tardes de té: COMPARTEN el mismo salón (65 personas máximo por día)
-      console.log(`🔍 === INICIO getCuposDisponibles para ${tipoReserva} ===`);
+      
+      // Para a la carta y tardes de té: SISTEMA DE CUPOS POR HORAS
+      // Los cupos se renuevan cada hora, pero las reservas pueden hacerse cada 30 min
+      console.log(`🔍 === INICIO getCuposDisponibles para ${tipoReserva} (SISTEMA POR HORAS) ===`);
       console.log(`📅 Fecha recibida:`, {
         fecha: fecha.toISOString(),
         fechaLocal: fecha.toLocaleDateString('es-ES'),
@@ -590,7 +592,12 @@ export class ReservaService {
       });
       console.log(`🕒 Turno: ${turno}`);
       
-      const reservasCompartidas = await this.reservaRepository.find({
+      // Extraer la hora del turno para determinar el bloque horario
+      const bloqueHorario = this.obtenerBloqueHorario(turno);
+      console.log(`⏰ Bloque horario calculado: ${bloqueHorario}`);
+      
+      // Obtener todas las reservas del día completo para el salón compartido
+      const todasReservasDelDia = await this.reservaRepository.find({
         where: {
           fechaHora: Between(fechaInicio, fechaFin),
           tipoReserva: In([TipoReserva.A_LA_CARTA, TipoReserva.TARDE_TE]),
@@ -598,19 +605,19 @@ export class ReservaService {
         },
       });
 
-      console.log(`📊 Reservas encontradas:`, reservasCompartidas.length);
-      if (reservasCompartidas.length > 0) {
-        console.log(`📋 Detalles de reservas:`, reservasCompartidas.map(r => ({
-          id: r.id,
-          tipo: r.tipoReserva,
-          personas: r.cantidadPersonas,
-          fecha: r.fechaHora.toISOString(),
-          turno: r.turno
-        })));
-      }
-
-      // Calcular capacidad ocupada sumando todas las reservas del día (sin ventanas de tiempo complejas)
-      const capacidadOcupada = reservasCompartidas.reduce(
+      console.log(`📊 Total reservas del día encontradas:`, todasReservasDelDia.length);
+      
+      // Agrupar reservas por bloque horario y calcular ocupación
+      const reservasPorBloque = this.agruparReservasPorBloqueHorario(todasReservasDelDia);
+      console.log(`📋 Reservas agrupadas por bloque:`, Object.keys(reservasPorBloque).map(bloque => ({
+        bloque,
+        reservas: reservasPorBloque[bloque].length,
+        personas: reservasPorBloque[bloque].reduce((sum, r) => sum + r.cantidadPersonas, 0)
+      })));
+      
+      // Calcular capacidad ocupada para el bloque horario específico
+      const reservasDelBloque = reservasPorBloque[bloqueHorario] || [];
+      const capacidadOcupada = reservasDelBloque.reduce(
         (total, reserva) => total + reserva.cantidadPersonas,
         0
       );
@@ -619,26 +626,28 @@ export class ReservaService {
       console.log(`🏢 Capacidad máxima obtenida del servicio: ${capacidadMaxima}`);
       const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadOcupada);
 
-      console.log(`🔍 Cupos para ${tipoReserva} en ${fecha.toDateString()}:`, {
+      console.log(`🔍 Cupos para ${tipoReserva} en bloque ${bloqueHorario}:00:`, {
+        bloqueHorario: `${bloqueHorario}:00`,
         capacidadMaxima,
         capacidadOcupada,
         cuposDisponibles,
-        reservasExistentes: reservasCompartidas.length,
-        reservas: reservasCompartidas.map(r => ({
+        reservasEnBloque: reservasDelBloque.length,
+        totalReservasDelDia: todasReservasDelDia.length,
+        reservasDelBloque: reservasDelBloque.map(r => ({
           id: r.id,
           tipo: r.tipoReserva,
           personas: r.cantidadPersonas,
-          hora: r.fechaHora.toTimeString()
+          turno: r.turno
         }))
       });
       
-      console.log(`🔍 === FIN getCuposDisponibles para ${tipoReserva} ===`);
+      console.log(`🔍 === FIN getCuposDisponibles para ${tipoReserva} (SISTEMA POR HORAS) ===`);
 
       return {
         cuposDisponibles,
         capacidadMaxima,
         capacidadOcupada,
-        reservasExistentes: reservasCompartidas.length,
+        reservasExistentes: reservasDelBloque.length,
       };
     } else {
       // Para otros tipos de reserva que no están implementados
@@ -727,5 +736,64 @@ export class ReservaService {
     reserva.metodoPago = metodoPago;
 
     return this.reservaRepository.save(reserva);
+  }
+
+  /**
+   * Obtiene el bloque horario (hora en punto) para un turno dado
+   * Ejemplos:
+   * - "12:00-13:00" → "12"
+   * - "12:30-13:30" → "12" (se agrupa con el bloque de las 12)
+   * - "13:00-14:00" → "13"
+   * - "13:30-14:30" → "13" (se agrupa con el bloque de las 13)
+   */
+  private obtenerBloqueHorario(turno: string): string {
+    try {
+      // Extraer la hora de inicio del turno (formato: "HH:mm-HH:mm")
+      const match = turno.match(/^(\d{1,2}):(\d{2})/);
+      if (!match) {
+        console.warn(`⚠️ Formato de turno no reconocido: ${turno}, usando bloque 12`);
+        return "12"; // Fallback por defecto
+      }
+      
+      const horaInicio = parseInt(match[1], 10);
+      const minutoInicio = parseInt(match[2], 10);
+      
+      // Si es :30, pertenece al bloque de la hora anterior para el sistema de renovación
+      // Ejemplo: 12:30 pertenece al bloque "12" (que se renueva a las 13:00)
+      // Ejemplo: 13:30 pertenece al bloque "13" (que se renueva a las 14:00)
+      const bloqueHora = minutoInicio >= 30 ? horaInicio : horaInicio;
+      
+      console.log(`🕒 Turno "${turno}" → Bloque horario: ${bloqueHora}`);
+      return bloqueHora.toString();
+    } catch (error) {
+      console.error(`❌ Error procesando turno ${turno}:`, error);
+      return "12"; // Fallback seguro
+    }
+  }
+
+  /**
+   * Agrupa las reservas por bloque horario
+   * Cada bloque representa una hora en punto donde se renuevan los cupos
+   */
+  private agruparReservasPorBloqueHorario(reservas: Reserva[]): { [bloque: string]: Reserva[] } {
+    const agrupadas: { [bloque: string]: Reserva[] } = {};
+    
+    for (const reserva of reservas) {
+      const bloqueHorario = this.obtenerBloqueHorario(reserva.turno);
+      
+      if (!agrupadas[bloqueHorario]) {
+        agrupadas[bloqueHorario] = [];
+      }
+      
+      agrupadas[bloqueHorario].push(reserva);
+    }
+    
+    // Logging para debug
+    Object.keys(agrupadas).forEach(bloque => {
+      const personasEnBloque = agrupadas[bloque].reduce((sum, r) => sum + r.cantidadPersonas, 0);
+      console.log(`📊 Bloque ${bloque}:00 - ${agrupadas[bloque].length} reservas, ${personasEnBloque} personas`);
+    });
+    
+    return agrupadas;
   }
 } 
