@@ -72,6 +72,10 @@ export default function ReservarMeriendaLibre() {
   const [cuposDisponibles, setCuposDisponibles] = useState<number>(40);
   const [maxPersonas, setMaxPersonas] = useState<number>(40);
   const [loadingCupos, setLoadingCupos] = useState(false);
+  
+  // Estados para horarios con cupos
+  const [horariosConCupos, setHorariosConCupos] = useState<{ horario: string; disponible: boolean; cuposDisponibles: number }[]>([]);
+  const [loadingHorarios, setLoadingHorarios] = useState(false);
 
   // Cerrar dropdown cuando se hace clic fuera
   useEffect(() => {
@@ -87,10 +91,14 @@ export default function ReservarMeriendaLibre() {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
-  const turnos = [
-    { id: '16:30-18:30', label: '16:30 a 18:30' },
-    { id: '19:00-21:00', label: '19:00 a 21:00' }
-  ];
+  // Cargar horarios disponibles cuando cambie la fecha
+  useEffect(() => {
+    if (formData.fecha) {
+      loadHorariosDisponibles();
+    } else {
+      setHorariosConCupos([]);
+    }
+  }, [formData.fecha]);
 
   // Cargar fechas disponibles al montar el componente
   useEffect(() => {
@@ -133,6 +141,27 @@ export default function ReservarMeriendaLibre() {
       setMaxPersonas(0);
     } finally {
       setLoadingCupos(false);
+    }
+  };
+
+  // Función para cargar horarios disponibles con información de cupos
+  const loadHorariosDisponibles = async () => {
+    if (!formData.fecha) {
+      setHorariosConCupos([]);
+      return;
+    }
+
+    try {
+      setLoadingHorarios(true);
+      // Usar el endpoint que incluye información de cupos por turno
+      const horariosData = await apiService.getHorariosDisponiblesConCupos(formData.fecha, 'merienda-libre');
+      setHorariosConCupos(horariosData);
+      console.log('🕐 Horarios con cupos cargados:', horariosData);
+    } catch (error) {
+      console.error('Error cargando horarios disponibles:', error);
+      setHorariosConCupos([]);
+    } finally {
+      setLoadingHorarios(false);
     }
   };
 
@@ -388,16 +417,32 @@ export default function ReservarMeriendaLibre() {
                 Turno *
               </label>
               <div className={styles.turnosContainer}>
-                {turnos.map(turno => (
-                  <button
-                    key={turno.id}
-                    type="button"
-                    className={`${styles.turnoButton} ${formData.turno === turno.id ? styles.turnoButtonActive : ''}`}
-                    onClick={() => handleTurnoChange(turno.id)}
-                  >
-                    {turno.label}
-                  </button>
-                ))}
+                {loadingHorarios ? (
+                  <p>Cargando turnos disponibles...</p>
+                ) : horariosConCupos.length === 0 && formData.fecha ? (
+                  <p>No hay turnos disponibles para esta fecha</p>
+                ) : (
+                  horariosConCupos.map(horario => (
+                    <button
+                      key={horario.horario}
+                      type="button"
+                      className={`${styles.turnoButton} ${formData.turno === horario.horario ? styles.turnoButtonActive : ''} ${!horario.disponible ? styles.turnoButtonDisabled : ''}`}
+                      onClick={() => horario.disponible && handleTurnoChange(horario.horario)}
+                      disabled={!horario.disponible}
+                      title={horario.disponible ? `${horario.cuposDisponibles} lugares disponibles` : 'Sin cupos disponibles'}
+                    >
+                      {horario.horario} 
+                      {horario.disponible && (
+                        <span className={styles.cuposInfo}>
+                          ({horario.cuposDisponibles} lugares)
+                        </span>
+                      )}
+                      {!horario.disponible && (
+                        <span className={styles.sinCupos}>Sin cupos</span>
+                      )}
+                    </button>
+                  ))
+                )}
               </div>
               {errors.turno && <div className={styles.error}>{errors.turno}</div>}
             </div>

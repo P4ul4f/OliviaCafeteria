@@ -675,7 +675,7 @@ export class ReservaService {
     }
   }
 
-  // Método para calcular capacidad compartida considerando estadía variable
+  // Método para calcular capacidad compartida POR BLOQUE HORARIO (renovación cada hora)
   private async calcularCapacidadCompartida(fecha: Date, turno: string): Promise<number> {
     const fechaInicio = new Date(fecha);
     fechaInicio.setHours(0, 0, 0, 0);
@@ -683,31 +683,44 @@ export class ReservaService {
     const fechaFin = new Date(fecha);
     fechaFin.setHours(23, 59, 59, 999);
 
-    // Buscar reservas de a la carta Y tardes de té para esa fecha (COMPARTEN el mismo salón)
-    const reservasCompartidas = await this.reservaRepository.find({
+    // Extraer el bloque horario del turno solicitado
+    const bloqueHorario = this.obtenerBloqueHorario(turno);
+    console.log(`⏰ Calculando capacidad para bloque horario: ${bloqueHorario} (turno: ${turno})`);
+
+    // Buscar TODAS las reservas de a la carta Y tardes de té para esa fecha
+    const todasReservasDelDia = await this.reservaRepository.find({
       where: {
         fechaHora: Between(fechaInicio, fechaFin),
-        tipoReserva: In([TipoReserva.A_LA_CARTA, TipoReserva.TARDE_TE]), // Ambos tipos comparten
+        tipoReserva: In([TipoReserva.A_LA_CARTA, TipoReserva.TARDE_TE]), // Ambos tipos comparten salón
         estado: EstadoReserva.CONFIRMADA,
       },
     });
 
-    // SIMPLIFICADO: Sumar directamente la cantidad de personas de todas las reservas del día
-    const capacidadOcupada = reservasCompartidas.reduce(
+    // Agrupar reservas por bloque horario
+    const reservasPorBloque = this.agruparReservasPorBloqueHorario(todasReservasDelDia);
+    
+    // Obtener solo las reservas del bloque horario específico
+    const reservasDelBloque = reservasPorBloque[bloqueHorario] || [];
+    
+    // Calcular capacidad ocupada SOLO para este bloque horario
+    const capacidadOcupada = reservasDelBloque.reduce(
       (total, reserva) => total + reserva.cantidadPersonas,
       0
     );
 
-    console.log(`🔍 calcularCapacidadCompartida para ${fecha.toDateString()}:`, {
-      fecha: fecha.toISOString(),
+    console.log(`🔍 calcularCapacidadCompartida para bloque ${bloqueHorario}:`, {
+      fecha: fecha.toDateString(),
       turno,
-      reservasEncontradas: reservasCompartidas.length,
+      bloqueHorario,
+      totalReservasDelDia: todasReservasDelDia.length,
+      reservasEnEsteBloque: reservasDelBloque.length,
       capacidadOcupada,
-      detalles: reservasCompartidas.map(r => ({
+      detallesBloque: reservasDelBloque.map(r => ({
         id: r.id,
         tipo: r.tipoReserva,
+        turno: r.turno,
         personas: r.cantidadPersonas,
-        hora: r.fechaHora.toTimeString()
+        bloqueCalculado: this.obtenerBloqueHorario(r.turno)
       }))
     });
 

@@ -525,24 +525,31 @@ let ReservaService = class ReservaService {
         fechaInicio.setHours(0, 0, 0, 0);
         const fechaFin = new Date(fecha);
         fechaFin.setHours(23, 59, 59, 999);
-        const reservasCompartidas = await this.reservaRepository.find({
+        const bloqueHorario = this.obtenerBloqueHorario(turno);
+        console.log(`⏰ Calculando capacidad para bloque horario: ${bloqueHorario} (turno: ${turno})`);
+        const todasReservasDelDia = await this.reservaRepository.find({
             where: {
                 fechaHora: (0, typeorm_2.Between)(fechaInicio, fechaFin),
                 tipoReserva: (0, typeorm_2.In)([reserva_entity_1.TipoReserva.A_LA_CARTA, reserva_entity_1.TipoReserva.TARDE_TE]),
                 estado: reserva_entity_1.EstadoReserva.CONFIRMADA,
             },
         });
-        const capacidadOcupada = reservasCompartidas.reduce((total, reserva) => total + reserva.cantidadPersonas, 0);
-        console.log(`🔍 calcularCapacidadCompartida para ${fecha.toDateString()}:`, {
-            fecha: fecha.toISOString(),
+        const reservasPorBloque = this.agruparReservasPorBloqueHorario(todasReservasDelDia);
+        const reservasDelBloque = reservasPorBloque[bloqueHorario] || [];
+        const capacidadOcupada = reservasDelBloque.reduce((total, reserva) => total + reserva.cantidadPersonas, 0);
+        console.log(`🔍 calcularCapacidadCompartida para bloque ${bloqueHorario}:`, {
+            fecha: fecha.toDateString(),
             turno,
-            reservasEncontradas: reservasCompartidas.length,
+            bloqueHorario,
+            totalReservasDelDia: todasReservasDelDia.length,
+            reservasEnEsteBloque: reservasDelBloque.length,
             capacidadOcupada,
-            detalles: reservasCompartidas.map(r => ({
+            detallesBloque: reservasDelBloque.map(r => ({
                 id: r.id,
                 tipo: r.tipoReserva,
+                turno: r.turno,
                 personas: r.cantidadPersonas,
-                hora: r.fechaHora.toTimeString()
+                bloqueCalculado: this.obtenerBloqueHorario(r.turno)
             }))
         });
         return capacidadOcupada;
