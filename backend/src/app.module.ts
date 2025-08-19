@@ -23,6 +23,8 @@ import { GiftCard } from './giftcard/giftcard.entity';
 import { GiftCardModule } from './giftcard/giftcard.module';
 import { ContenidoConfig } from './contenido-config/contenido-config.entity';
 import { ContenidoConfigModule } from './contenido-config/contenido-config.module';
+import { WhatsappModule } from './whatsapp/whatsapp.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -96,6 +98,7 @@ import { ContenidoConfigModule } from './contenido-config/contenido-config.modul
         };
       },
     }),
+    ScheduleModule.forRoot(), // Para tareas programadas (cron jobs)
     ReservaModule,
     PagoModule,
     AdministradorModule,
@@ -106,6 +109,7 @@ import { ContenidoConfigModule } from './contenido-config/contenido-config.modul
     PreciosConfigModule,
     GiftCardModule,
     ContenidoConfigModule,
+    WhatsappModule,
   ],
   controllers: [AppController],
   providers: [

@@ -157,8 +157,8 @@ function safeParseDate(fecha: any): Date {
       // Si es un string YYYY-MM-DD
       if (/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
         const [year, month, day] = fecha.split('-').map(Number);
-        // Agregar un día para compensar problemas de UTC (igual que en el backend)
-        return new Date(year, month - 1, day + 1, 12, 0, 0, 0);
+        // Crear fecha a mediodía para evitar problemas de zona horaria
+        return new Date(year, month - 1, day, 12, 0, 0, 0);
       }
     }
     

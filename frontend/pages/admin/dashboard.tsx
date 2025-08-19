@@ -144,6 +144,7 @@ function AdminDashboard() {
     { id: 'inicio', label: 'Inicio', icon: '/home.png', type: 'single' },
     { id: 'reservas', label: 'Reservas', icon: '/cita.png', type: 'single' },
     { id: 'giftcards', label: 'Gift Cards', icon: '/tarjeta-de-regalo (1).png', type: 'single' },
+    { id: 'whatsapp', label: 'WhatsApp', icon: '/informacion.png', type: 'single' },
     { 
       id: 'editar', 
       label: 'Editar Información', 
@@ -168,6 +169,8 @@ function AdminDashboard() {
         return <ReservasSection />;
       case 'giftcards':
         return <GiftCardsSection />;
+      case 'whatsapp':
+        return <WhatsAppSection />;
       case 'info':
         return <InfoSection />;
       case 'menu':
@@ -1678,6 +1681,255 @@ function TardesSection() {
         onClose={() => setSuccessModalOpen(false)}
         mensaje={successMessage}
       />
+    </div>
+  );
+}
+
+// Sección de WhatsApp
+function WhatsAppSection() {
+  const [estado, setEstado] = useState<{ configurado: boolean; estado: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [testLoading, setTestLoading] = useState(false);
+  const [mensaje, setMensaje] = useState('');
+  const [testTelefono, setTestTelefono] = useState('');
+  const [testMensaje, setTestMensaje] = useState('Mensaje de prueba desde Olivia Café');
+
+  useEffect(() => {
+    cargarEstado();
+  }, []);
+
+  const cargarEstado = async () => {
+    try {
+      setLoading(true);
+      const estadoWhatsApp = await apiService.getWhatsAppEstado();
+      setEstado(estadoWhatsApp);
+    } catch (error) {
+      console.error('Error al cargar estado de WhatsApp:', error);
+      setMensaje('❌ Error al cargar el estado de WhatsApp');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const enviarMensajePrueba = async () => {
+    if (!testTelefono.trim() || !testMensaje.trim()) {
+      setMensaje('❌ Completar teléfono y mensaje para la prueba');
+      return;
+    }
+
+    try {
+      setTestLoading(true);
+      setMensaje('');
+      
+      const resultado = await apiService.testWhatsAppMensaje(testTelefono, testMensaje);
+      
+      if (resultado.exito) {
+        setMensaje('✅ Mensaje de prueba enviado exitosamente');
+        setTestTelefono('');
+        setTestMensaje('Mensaje de prueba desde Olivia Café');
+      } else {
+        setMensaje(`❌ Error al enviar mensaje: ${resultado.mensaje}`);
+      }
+    } catch (error) {
+      console.error('Error al enviar mensaje de prueba:', error);
+      setMensaje('❌ Error al enviar mensaje de prueba');
+    } finally {
+      setTestLoading(false);
+    }
+  };
+
+  return (
+    <div className={styles.section}>
+      <h2 className={styles.sectionTitle}>WhatsApp Business API</h2>
+      
+      {loading ? (
+        <div style={{ padding: '20px', textAlign: 'center' }}>
+          Cargando estado de WhatsApp...
+        </div>
+      ) : (
+        <>
+          {/* Estado de configuración */}
+          <div className={styles.configContainer}>
+            <h3 style={{ color: '#8b816a', marginBottom: '15px' }}>Estado de Configuración</h3>
+            
+            <div style={{ 
+              padding: '15px', 
+              borderRadius: '8px', 
+              backgroundColor: estado?.configurado ? '#d4edda' : '#f8d7da',
+              border: `1px solid ${estado?.configurado ? '#c3e6cb' : '#f5c6cb'}`,
+              marginBottom: '20px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                <span style={{ fontSize: '24px' }}>
+                  {estado?.configurado ? '✅' : '❌'}
+                </span>
+                <strong style={{ color: estado?.configurado ? '#155724' : '#721c24' }}>
+                  {estado?.configurado ? 'WhatsApp Configurado' : 'WhatsApp No Configurado'}
+                </strong>
+              </div>
+              <p style={{ margin: 0, color: estado?.configurado ? '#155724' : '#721c24' }}>
+                {estado?.estado}
+              </p>
+            </div>
+
+            {!estado?.configurado && (
+              <div style={{ 
+                padding: '15px', 
+                borderRadius: '8px', 
+                backgroundColor: '#fff3cd',
+                border: '1px solid #ffeaa7',
+                marginBottom: '20px'
+              }}>
+                <h4 style={{ color: '#856404', marginBottom: '10px' }}>📋 Para configurar WhatsApp:</h4>
+                <ol style={{ color: '#856404', paddingLeft: '20px' }}>
+                  <li>Ve a <a href="https://developers.facebook.com" target="_blank" rel="noopener noreferrer">developers.facebook.com</a></li>
+                  <li>Crea una aplicación de WhatsApp Business</li>
+                  <li>Obtén el Access Token y Phone Number ID</li>
+                  <li>Agrega las variables de entorno al servidor:
+                    <ul style={{ marginTop: '5px' }}>
+                      <li><code>WHATSAPP_ACCESS_TOKEN</code></li>
+                      <li><code>WHATSAPP_PHONE_NUMBER_ID</code></li>
+                    </ul>
+                  </li>
+                  <li>Reinicia el servidor backend</li>
+                </ol>
+              </div>
+            )}
+
+            {/* Funcionalidades automáticas */}
+            <div style={{ marginBottom: '20px' }}>
+              <h3 style={{ color: '#8b816a', marginBottom: '15px' }}>🤖 Mensajes Automáticos</h3>
+              
+              <div style={{ display: 'grid', gap: '15px' }}>
+                <div style={{ 
+                  padding: '15px', 
+                  borderRadius: '8px', 
+                  backgroundColor: '#f8f9fa',
+                  border: '1px solid #dee2e6'
+                }}>
+                  <h4 style={{ color: '#495057', marginBottom: '8px' }}>🎉 Confirmación de Reserva</h4>
+                  <p style={{ margin: 0, color: '#6c757d', fontSize: '14px' }}>
+                    Se envía automáticamente cuando se completa el pago de una reserva.
+                    Incluye todos los detalles: fecha, turno, cantidad de personas y monto.
+                  </p>
+                </div>
+                
+                <div style={{ 
+                  padding: '15px', 
+                  borderRadius: '8px', 
+                  backgroundColor: '#f8f9fa',
+                  border: '1px solid #dee2e6'
+                }}>
+                  <h4 style={{ color: '#495057', marginBottom: '8px' }}>⏰ Recordatorio 48 Horas</h4>
+                  <p style={{ margin: 0, color: '#6c757d', fontSize: '14px' }}>
+                    Se envía automáticamente 48 horas antes de la fecha de reserva.
+                    El sistema verifica cada 6 horas si hay reservas próximas.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Sección de prueba */}
+            {estado?.configurado && (
+              <div style={{ marginBottom: '20px' }}>
+                <h3 style={{ color: '#8b816a', marginBottom: '15px' }}>🧪 Probar Envío de Mensaje</h3>
+                
+                <div style={{ display: 'grid', gap: '15px', maxWidth: '500px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '5px', color: '#495057', fontWeight: '500' }}>
+                      Número de teléfono:
+                    </label>
+                    <input
+                      type="text"
+                      value={testTelefono}
+                      onChange={(e) => setTestTelefono(e.target.value)}
+                      placeholder="+5491123456789"
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        border: '1px solid #ced4da',
+                        borderRadius: '4px',
+                        fontSize: '14px'
+                      }}
+                    />
+                    <small style={{ color: '#6c757d' }}>
+                      Formatos aceptados: +5491123456789, 1123456789, 01123456789
+                    </small>
+                  </div>
+                  
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '5px', color: '#495057', fontWeight: '500' }}>
+                      Mensaje:
+                    </label>
+                    <textarea
+                      value={testMensaje}
+                      onChange={(e) => setTestMensaje(e.target.value)}
+                      rows={3}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        border: '1px solid #ced4da',
+                        borderRadius: '4px',
+                        fontSize: '14px',
+                        resize: 'vertical'
+                      }}
+                    />
+                  </div>
+                  
+                  <button
+                    onClick={enviarMensajePrueba}
+                    disabled={testLoading}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: '#c2d29b',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: testLoading ? 'not-allowed' : 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500'
+                    }}
+                  >
+                    {testLoading ? 'Enviando...' : 'Enviar Mensaje de Prueba'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Mensajes de estado */}
+            {mensaje && (
+              <div style={{ 
+                padding: '10px 15px', 
+                borderRadius: '4px', 
+                backgroundColor: mensaje.includes('❌') ? '#f8d7da' : '#d4edda',
+                border: `1px solid ${mensaje.includes('❌') ? '#f5c6cb' : '#c3e6cb'}`,
+                color: mensaje.includes('❌') ? '#721c24' : '#155724',
+                marginTop: '15px'
+              }}>
+                {mensaje}
+              </div>
+            )}
+
+            {/* Botón de recarga */}
+            <div style={{ marginTop: '20px' }}>
+              <button
+                onClick={cargarEstado}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#6c757d',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                🔄 Recargar Estado
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

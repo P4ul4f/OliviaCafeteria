@@ -9,6 +9,7 @@ import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import { ReservaService } from '../reserva/reserva.service';
 import { TipoReserva } from '../reserva/reserva.entity';
 import { GiftCardService } from '../giftcard/giftcard.service';
+import { WhatsappService } from '../whatsapp/whatsapp.service';
 
 @Injectable()
 export class PagoService {
@@ -20,6 +21,7 @@ export class PagoService {
     private pagoRepository: Repository<Pago>,
     private reservaService: ReservaService,
     private giftCardService: GiftCardService,
+    private whatsappService: WhatsappService,
   ) {
     this.initializeMercadoPago();
   }
@@ -504,6 +506,15 @@ export class PagoService {
       await this.pagoRepository.save(nuevoPago);
 
       this.logger.log(`✅ Reserva creada exitosamente para pago con tarjeta: ID ${nuevaReserva.id}`);
+
+      // Enviar mensaje de confirmación por WhatsApp
+      try {
+        await this.whatsappService.enviarConfirmacionReserva(nuevaReserva);
+        this.logger.log(`📱 Mensaje de confirmación WhatsApp enviado para reserva ${nuevaReserva.id}`);
+      } catch (whatsappError) {
+        this.logger.error(`❌ Error enviando mensaje WhatsApp: ${whatsappError.message}`);
+        // No fallar la transacción por error de WhatsApp
+      }
 
       return nuevaReserva;
     } catch (error) {

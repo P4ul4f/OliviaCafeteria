@@ -72,4 +72,7 @@ export class Reserva {
 
   @Column({ nullable: true })
   metodoPago: string; // 'mercadopago', 'stripe', etc.
+
+  @Column({ type: 'boolean', default: false })
+  recordatorio48hEnviado: boolean; // Trackear si el recordatorio de 48h fue enviado
 } 

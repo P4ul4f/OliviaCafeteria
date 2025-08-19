@@ -126,6 +126,21 @@ class ApiService {
     });
   }
 
+  // WhatsApp API methods
+  async getWhatsAppEstado(): Promise<{ configurado: boolean; estado: string }> {
+    return this.request('/whatsapp/estado');
+  }
+
+  async testWhatsAppMensaje(telefono: string, mensaje: string): Promise<{ exito: boolean; mensaje: string }> {
+    return this.request('/whatsapp/test-mensaje', {
+      method: 'POST',
+      body: JSON.stringify({
+        telefono,
+        mensaje,
+      }),
+    });
+  }
+
   // Crear preferencia de pago para GiftCard
   async crearPreferenciaGiftCard(
     giftCardData: GiftCardData, 
