@@ -65,8 +65,7 @@ function IconoInfo() {
 
 const comoReservarItems = [
   "Nombre completo",
-  "Fecha y turno preferido", 
-  "Cantidad de personas (hasta 10)",
+  "Fecha y turno preferido",
   "Se pide a la carta una vez que estás en el lugar 😊"
 ];
 
@@ -82,7 +81,7 @@ export default function ALaCarta() {
             <h1 className={styles.heroTitle}>A la Carta</h1>
             <div className={styles.heroSubtitle}>¡Reserva tu mesa y disfruta de nuestra carta completa!</div>
             <div className={styles.heroDescription}>
-              Reservas hasta 10 personas
+              Reservas sin anticipación
             </div>
           </div>
         </div>
