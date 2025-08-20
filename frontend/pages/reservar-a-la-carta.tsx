@@ -290,9 +290,31 @@ export default function ReservarALaCarta() {
         fechaLocal: formData.fecha.toLocaleDateString('es-ES')
       });
       
-      const horariosData = await apiService.getHorariosDisponiblesConCupos(formData.fecha, 'a-la-carta');
-      setHorariosConCupos(horariosData);
-      console.log('🕐 Frontend - Horarios con cupos cargados:', horariosData);
+      // Generar horarios individuales como en tardes de té
+      const horariosIndividuales = generarHorarios();
+      const horariosConEstado: HorarioConCupos[] = [];
+      
+      // Verificar disponibilidad para cada horario individual
+      for (const horario of horariosIndividuales) {
+        try {
+          const cuposData = await apiService.getCuposDisponibles(formData.fecha, horario, 'a-la-carta');
+          horariosConEstado.push({
+            horario: horario,
+            disponible: cuposData.cuposDisponibles > 0,
+            cuposDisponibles: cuposData.cuposDisponibles
+          });
+        } catch (error) {
+          console.error(`Error verificando disponibilidad para ${horario}:`, error);
+          horariosConEstado.push({
+            horario: horario,
+            disponible: false,
+            cuposDisponibles: 0
+          });
+        }
+      }
+      
+      setHorariosConCupos(horariosConEstado);
+      console.log('🕐 Frontend - Horarios individuales con cupos cargados:', horariosConEstado);
     } catch (error) {
       console.error('Error cargando horarios disponibles:', error);
       setHorariosConCupos([]);
@@ -481,7 +503,7 @@ export default function ReservarALaCarta() {
                         />
                         <span>
                           {horario.horario} 
-                          {horario.disponible ? ` (${horario.cuposDisponibles} lugares)` : ' (No disponible)'}
+                          {horario.disponible ? '' : ' (No disponible)'}
                         </span>
                       </div>
                     ))
