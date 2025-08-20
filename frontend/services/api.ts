@@ -280,8 +280,11 @@ class ApiService {
 
   // Obtener horarios disponibles con información de cupos
   async getHorariosDisponiblesConCupos(fecha: Date | string, tipoReserva: string): Promise<{ horario: string; disponible: boolean; cuposDisponibles: number }[]> {
-    // Convertir Date a string ISO si es necesario
-    const fechaStr = fecha instanceof Date ? fecha.toISOString() : fecha;
+    // Convertir Date a string YYYY-MM-DD sin timezone para evitar desfases UTC
+    const fechaStr = fecha instanceof Date 
+      ? `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`
+      : fecha;
+    console.log('📅 getHorariosDisponiblesConCupos enviando fecha:', { original: fecha, enviada: fechaStr });
     return this.request(`/reserva/horarios-disponibles-con-cupos?fecha=${encodeURIComponent(fechaStr)}&tipoReserva=${encodeURIComponent(tipoReserva)}`);
   }
 
@@ -292,8 +295,11 @@ class ApiService {
     capacidadOcupada: number;
     reservasExistentes: number;
   }> {
-    // Convertir Date a string ISO si es necesario
-    const fechaStr = fecha instanceof Date ? fecha.toISOString() : fecha;
+    // Convertir Date a string YYYY-MM-DD sin timezone para evitar desfases UTC
+    const fechaStr = fecha instanceof Date 
+      ? `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`
+      : fecha;
+    console.log('📅 getCuposDisponibles enviando fecha:', { original: fecha, enviada: fechaStr });
     return this.request(`/reserva/cupos-disponibles?fecha=${encodeURIComponent(fechaStr)}&turno=${encodeURIComponent(turno)}&tipoReserva=${encodeURIComponent(tipoReserva)}`);
   }
 
