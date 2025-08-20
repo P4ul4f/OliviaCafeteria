@@ -5,6 +5,12 @@ import "react-datepicker/dist/react-datepicker.css";
 import styles from '../styles/reservar.module.css';
 import { apiService } from '../services/api';
 
+interface HorarioConCupos {
+  horario: string;
+  disponible: boolean;
+  cuposDisponibles: number;
+}
+
 export default function ReservarALaCarta() {
   const [formData, setFormData] = useState({
     nombre: '',
@@ -78,6 +84,15 @@ export default function ReservarALaCarta() {
   };
 
   const horariosDisponibles = generarHorarios();
+
+  // Cargar horarios disponibles cuando cambie la fecha
+  useEffect(() => {
+    if (formData.fecha) {
+      loadHorariosDisponibles();
+    } else {
+      setHorariosConCupos([]);
+    }
+  }, [formData.fecha]);
 
   // Cargar fechas disponibles (backend aplica exclusión de Meriendas Libres)
   useEffect(() => {
@@ -191,6 +206,16 @@ export default function ReservarALaCarta() {
 
     if (!formData.turno) {
       newErrors.turno = 'El turno es requerido';
+    } else {
+      // Verificar que el turno seleccionado tenga cupos disponibles
+      const horarioSeleccionado = horariosConCupos.find(h => h.horario === formData.turno);
+      if (!horarioSeleccionado) {
+        newErrors.turno = 'El horario seleccionado no está disponible';
+      } else if (!horarioSeleccionado.disponible) {
+        newErrors.turno = 'Este horario ya no tiene cupos disponibles';
+      } else if (horarioSeleccionado.cuposDisponibles < 1) {
+        newErrors.turno = `Este horario ya no tiene reservas disponibles`;
+      }
     }
 
     setErrors(newErrors);
@@ -249,6 +274,31 @@ export default function ReservarALaCarta() {
       f0.setHours(0, 0, 0, 0);
       return d.getTime() === f0.getTime();
     });
+  };
+
+  // Función para cargar horarios disponibles con información de cupos
+  const loadHorariosDisponibles = async () => {
+    if (!formData.fecha) {
+      setHorariosConCupos([]);
+      return;
+    }
+
+    try {
+      setLoadingHorarios(true);
+      console.log('🔍 Frontend - Cargando horarios para fecha:', {
+        fecha: formData.fecha.toISOString(),
+        fechaLocal: formData.fecha.toLocaleDateString('es-ES')
+      });
+      
+      const horariosData = await apiService.getHorariosDisponiblesConCupos(formData.fecha, 'a-la-carta');
+      setHorariosConCupos(horariosData);
+      console.log('🕐 Frontend - Horarios con cupos cargados:', horariosData);
+    } catch (error) {
+      console.error('Error cargando horarios disponibles:', error);
+      setHorariosConCupos([]);
+    } finally {
+      setLoadingHorarios(false);
+    }
   };
 
   // Función para cargar cupos disponibles
@@ -395,25 +445,65 @@ export default function ReservarALaCarta() {
                   <div className={styles.customSelectArrow}>▼</div>
                 </div>
                 <div id="horarioDropdown" className={styles.customSelectDropdown}>
-                  {horariosDisponibles.map(horario => (
-                    <div
-                      key={horario}
-                      className={styles.customSelectOption}
-                      onClick={() => {
-                        // Usar el handler que además carga los cupos disponibles
-                        handleHorarioChange(horario);
-                        const dropdown = document.getElementById('horarioDropdown');
-                        dropdown?.classList.remove(styles.show);
-                      }}
-                    >
+                  {loadingHorarios ? (
+                    <div className={styles.customSelectOption}>
                       <img 
                         src="/reloj.png" 
                         alt="horario" 
                         className={styles.selectIconLeft}
                       />
-                      <span>{horario}</span>
+                      <span>⏳ Cargando horarios disponibles...</span>
                     </div>
-                  ))}
+                  ) : horariosConCupos.length > 0 ? (
+                    horariosConCupos.map(horario => (
+                      <div
+                        key={horario.horario}
+                        className={`${styles.customSelectOption} ${!horario.disponible ? styles.optionDisabled : ''}`}
+                        onClick={() => {
+                          if (horario.disponible) {
+                            setFormData(prev => ({ ...prev, turno: horario.horario }));
+                            if (errors.turno) {
+                              setErrors(prev => ({ ...prev, turno: '' }));
+                            }
+                            // Cargar cupos disponibles cuando se selecciona un horario
+                            if (formData.fecha) {
+                              loadCuposDisponibles(formData.fecha, horario.horario);
+                            }
+                            const dropdown = document.getElementById('horarioDropdown');
+                            dropdown?.classList.remove(styles.show);
+                          }
+                        }}
+                      >
+                        <img 
+                          src="/reloj.png" 
+                          alt="horario" 
+                          className={styles.selectIconLeft}
+                        />
+                        <span>
+                          {horario.horario} 
+                          {horario.disponible ? ` (${horario.cuposDisponibles} lugares)` : ' (No disponible)'}
+                        </span>
+                      </div>
+                    ))
+                  ) : formData.fecha ? (
+                    <div className={styles.customSelectOption}>
+                      <img 
+                        src="/reloj.png" 
+                        alt="horario" 
+                        className={styles.selectIconLeft}
+                      />
+                      <span>No hay horarios disponibles para esta fecha</span>
+                    </div>
+                  ) : (
+                    <div className={styles.customSelectOption}>
+                      <img 
+                        src="/reloj.png" 
+                        alt="horario" 
+                        className={styles.selectIconLeft}
+                      />
+                      <span>Primero selecciona una fecha válida</span>
+                    </div>
+                  )}
                 </div>
               </div>
               {errors.turno && <div className={styles.error}>{errors.turno}</div>}

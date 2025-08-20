@@ -66,6 +66,34 @@ export class ReservaService {
   }
 
   /**
+   * HACK RAILWAY: Normaliza una fecha aplicando +1 día para consistencia con creación de reservas
+   * Usada para filtrado y comparaciones con fechas guardadas en DB
+   */
+  private normalizeDateWithHack(input: string | Date): Date {
+    let baseDate: Date;
+    
+    if (typeof input === 'string') {
+      const match = input.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (match) {
+        const year = Number(match[1]);
+        const monthIndex = Number(match[2]) - 1;
+        const day = Number(match[3]);
+        baseDate = new Date(year, monthIndex, day, 12, 0, 0, 0);
+      } else {
+        baseDate = new Date(input);
+      }
+    } else {
+      baseDate = new Date(input);
+    }
+    
+    // HACK RAILWAY: Agregar 1 día para coincidir con fechas guardadas
+    baseDate.setDate(baseDate.getDate() + 1);
+    
+    console.log(`📅 HACK RAILWAY - Fecha normalizada: ${input} -> ${baseDate.toISOString()} (+1 día)`);
+    return baseDate;
+  }
+
+  /**
    * Obtiene el rango de fechas para consultas del día completo
    * HACK RAILWAY: Aplicar el mismo ajuste que en la creación de reservas
    */
@@ -361,9 +389,10 @@ export class ReservaService {
       console.log('🔍 Días de meriendas libres encontrados:', diasMeriendasLibres.length);
       
       // Crear un Set con las fechas de meriendas libres para búsqueda rápida
+      // HACK RAILWAY: Usar normalización con hack para coincidir con fechas guardadas
       const fechasMeriendasLibres = new Set(
         diasMeriendasLibres.map(fechaConfig => {
-          const fechaNormalizada = this.normalizeDateOnly(fechaConfig.fecha);
+          const fechaNormalizada = this.normalizeDateWithHack(fechaConfig.fecha);
           return fechaNormalizada.getTime(); // Usar timestamp para comparación más confiable
         })
       );
@@ -371,8 +400,8 @@ export class ReservaService {
       console.log('📅 Fechas de meriendas libres a excluir:', Array.from(fechasMeriendasLibres).map(timestamp => new Date(timestamp).toISOString().split('T')[0]));
 
       for (let fecha = new Date(hoy); fecha <= fechaLimite; fecha.setDate(fecha.getDate() + 1)) {
-        // Normalizar la fecha de iteración
-        const fechaIteracion = this.normalizeDateOnly(fecha);
+        // HACK RAILWAY: Normalizar la fecha de iteración con hack para comparar correctamente
+        const fechaIteracion = this.normalizeDateWithHack(fecha);
         
         // Excluir domingos
         if (fechaIteracion.getDay() !== 0) {
@@ -382,17 +411,20 @@ export class ReservaService {
           console.log(`🔍 Verificando fecha: ${fechaIteracion.toISOString().split('T')[0]} - ¿Es de meriendas libres? ${fechasMeriendasLibres.has(fechaTimestamp)}`);
           
           if (!fechasMeriendasLibres.has(fechaTimestamp)) {
+            // HACK RAILWAY: Crear fecha sin hack para devolver al frontend
+            const fechaParaFrontend = new Date(fecha);
+            
             // Para a la carta, no hay restricción de anticipación
             if (tipoReserva === TipoReserva.A_LA_CARTA) {
-              fechasDisponibles.push(new Date(fechaIteracion));
+              fechasDisponibles.push(fechaParaFrontend);
             } else {
               // Para tardes de té, verificar que haya al menos 48 horas de anticipación
               const fechaMinima = new Date();
               fechaMinima.setDate(fechaMinima.getDate() + 2);
-              const fechaMinimaNormalizada = this.normalizeDateOnly(fechaMinima);
+              const fechaMinimaNormalizada = this.normalizeDateWithHack(fechaMinima);
               
               if (fechaIteracion >= fechaMinimaNormalizada) {
-                fechasDisponibles.push(new Date(fechaIteracion));
+                fechasDisponibles.push(fechaParaFrontend);
               }
             }
           } else {
