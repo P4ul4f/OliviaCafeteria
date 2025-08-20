@@ -144,7 +144,6 @@ function formatDateForDisplay(date: Date): string {
     // Mostrar la fecha tal como está (ya ajustada por safeParseDate)
     return date.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
   } catch (error) {
-    console.error('Error formateando fecha para display:', error);
     return 'Fecha inválida';
   }
 }
@@ -172,7 +171,6 @@ function safeParseDate(fecha: any): Date {
         const d = new Date(year, month - 1, day, 12, 0, 0, 0);
         // HACK RAILWAY: RESTAR 1 día porque agregamos +1 al guardar (compensar Railway UTC)
         d.setDate(d.getDate() - 1);
-        console.log(`🌍 Meriendas parseando fecha (-1 día): ${fecha} -> ${d.toLocaleDateString('es-ES')}`);
         return d;
       }
     }
@@ -186,11 +184,9 @@ function safeParseDate(fecha: any): Date {
     }
     
     // Fallback: fecha actual
-    console.warn('⚠️ No se pudo parsear la fecha:', fecha, 'usando fecha actual');
     return new Date();
     
   } catch (error) {
-    console.error('❌ Error parseando fecha:', fecha, error);
     return new Date();
   }
 }
@@ -205,7 +201,6 @@ function agruparFechasPorSemana(fechas) {
       const fechaB = safeParseDate(b.fecha);
       return fechaA.getTime() - fechaB.getTime();
     } catch (error) {
-      console.error('❌ Error ordenando fechas:', error);
       return 0;
     }
   });
@@ -227,7 +222,6 @@ function agruparFechasPorSemana(fechas) {
       }
       grupo.push(f);
     } catch (error) {
-      console.error('❌ Error procesando fecha:', f.fecha, error);
       // Continuar con la siguiente fecha
     }
   }
@@ -318,7 +312,6 @@ export default function MeriendasLibres() {
                           const fechaObj = safeParseDate(f.fecha);
                           return formatDateForDisplay(fechaObj).replace(/^\w/, c => c.toUpperCase());
                         } catch (error) {
-                          console.error('❌ Error renderizando fecha:', f.fecha, error);
                           return 'Fecha inválida';
                         }
                       })()}

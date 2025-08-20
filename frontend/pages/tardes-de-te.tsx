@@ -239,7 +239,7 @@ export default function TardesDeTe() {
 
         {/* Qué Incluye Promo Olivia */}
         <section className={styles.queIncluyeSection}>
-          <div className={styles.sectionCard}>
+          <div className={`${styles.sectionCard} ${styles.queIncluyeCard}`}>
             <h2 className={styles.sectionTitle}>¿Qué incluye la Promo Olivia?</h2>
             
             <div className={styles.categoriasGrid}>
@@ -324,7 +324,7 @@ export default function TardesDeTe() {
 
         {/* Qué Incluye Promo Básica */}
         <section className={styles.queIncluyeSection}>
-          <div className={styles.sectionCard}>
+          <div className={`${styles.sectionCard} ${styles.queIncluyeCard}`}>
             <h2 className={styles.sectionTitle}>¿Qué incluye la Promo Básica?</h2>
             
             <div className={styles.categoriasGrid}>

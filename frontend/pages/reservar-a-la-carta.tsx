@@ -101,7 +101,6 @@ export default function ReservarALaCarta() {
         const fechas = await apiService.getFechasDisponibles('a-la-carta');
         setFechasDisponibles(fechas);
       } catch (e) {
-        console.error('Error cargando fechas disponibles (a la carta):', e);
         setFechasDisponibles([]);
       }
     };
@@ -250,7 +249,6 @@ export default function ReservarALaCarta() {
       window.location.href = '/pago';
       
     } catch (error) {
-      console.error('Error al procesar la reserva:', error);
       setErrors({ submit: 'Error al procesar la reserva. Por favor, inténtalo de nuevo.' });
     } finally {
       setIsSubmitting(false);
@@ -285,17 +283,11 @@ export default function ReservarALaCarta() {
 
     try {
       setLoadingHorarios(true);
-      console.log('🔍 Frontend - Cargando horarios para fecha:', {
-        fecha: formData.fecha.toISOString(),
-        fechaLocal: formData.fecha.toLocaleDateString('es-ES')
-      });
       
       // Usar el mismo endpoint rápido que tardes de té
       const horariosData = await apiService.getHorariosDisponiblesConCupos(formData.fecha, 'a-la-carta');
       setHorariosConCupos(horariosData);
-      console.log('🕐 Frontend - Horarios con cupos cargados:', horariosData);
     } catch (error) {
-      console.error('Error cargando horarios disponibles:', error);
       setHorariosConCupos([]);
     } finally {
       setLoadingHorarios(false);
@@ -308,28 +300,13 @@ export default function ReservarALaCarta() {
     
     try {
       setLoadingCupos(true);
-      console.log('🔍 Cargando cupos para:', { 
-        fecha: fecha.toISOString(), 
-        fechaLocal: fecha.toLocaleDateString('es-ES'),
-        horario, 
-        tipoReserva: 'a-la-carta' 
-      });
       
       const cuposData = await apiService.getCuposDisponibles(fecha, horario, 'a-la-carta');
-      console.log('📊 Datos de cupos recibidos del backend:', cuposData);
       
       setCuposDisponibles(cuposData.cuposDisponibles);
       // Para a la carta: usar la capacidad real disponible (hasta 65 personas)
       setMaxPersonas(cuposData.cuposDisponibles);
-      
-      console.log('✅ Cupos configurados en frontend:', { 
-        cuposDisponibles: cuposData.cuposDisponibles, 
-        maxPersonas: cuposData.cuposDisponibles,
-        fecha: fecha.toLocaleDateString('es-ES'),
-        horario
-      });
     } catch (error) {
-      console.error('❌ Error cargando cupos disponibles:', error);
       setCuposDisponibles(0);
       setMaxPersonas(0);
     } finally {

@@ -345,16 +345,13 @@
 }
 
 /* Sección Qué Incluye - Rediseñada */
-.queIncluyeSection {
+.queIncluyeCard {
   background: linear-gradient(135deg, 
     rgba(194, 210, 155, 0.15) 0%, 
-    rgba(176, 205, 125, 0.1) 50%,
-    rgba(194, 210, 155, 0.08) 100%
-  );
-  border-radius: 20px;
-  padding: 1.5rem;
-  margin-bottom: 3rem;
-  border: 1px solid rgba(194, 210, 155, 0.2);
+    rgba(194, 210, 155, 0.1) 50%,
+    rgba(194, 210, 155, 0.12) 100%
+  ) !important;
+  border: 1px solid rgba(194, 210, 155, 0.3) !important;
 }
 
 .categoriasGrid {
@@ -365,18 +362,17 @@
 
 .categoriaCard {
   background: linear-gradient(135deg, 
-    rgba(255, 255, 255, 0.9) 0%, 
-    rgba(248, 239, 220, 0.7) 50%,
-    rgba(255, 255, 255, 0.8) 100%
+    rgba(194, 210, 155, 0.08) 0%, 
+    rgba(248, 239, 220, 0.4) 50%,
+    rgba(255, 255, 255, 0.6) 100%
   );
   backdrop-filter: blur(15px);
   border-radius: 16px;
   padding: 1.5rem;
-  border: 2px solid rgba(194, 210, 155, 0.3);
+  border: 2px solid rgba(194, 210, 155, 0.2);
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(194, 210, 155, 0.1);
 }
 
 .categoriaCard::before {

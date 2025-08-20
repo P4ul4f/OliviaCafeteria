@@ -64,7 +64,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout();
       return false;
     } catch (error) {
-      console.error('Error verificando autenticación:', error);
       logout();
       return false;
     }
@@ -90,6 +89,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.push('/admin/login');
     }
   };
+
+  // Función de seguridad adicional: limpiar token si no estamos en ruta admin
+  const securityCheck = () => {
+    if (typeof window !== 'undefined') {
+      const currentPath = window.location.pathname;
+      if (!currentPath.startsWith('/admin')) {
+        const adminToken = localStorage.getItem('adminToken');
+        if (adminToken) {
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('adminData');
+          setAdmin(null);
+          setToken(null);
+        }
+      }
+    }
+  };
+
+  // Ejecutar verificación de seguridad cada 5 segundos
+  useEffect(() => {
+    const interval = setInterval(securityCheck, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <AuthContext.Provider

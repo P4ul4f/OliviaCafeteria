@@ -43,11 +43,9 @@ function safeParseDate(fecha: any): Date {
     }
     
     // Fallback: fecha actual
-    console.warn('⚠️ No se pudo parsear la fecha:', fecha, 'usando fecha actual');
     return new Date();
     
   } catch (error) {
-    console.error('❌ Error parseando fecha:', fecha, error);
     return new Date();
   }
 }
@@ -118,7 +116,6 @@ export default function ReservarMeriendaLibre() {
       
       setFechasConCupos(fechasFuturas);
     } catch (error) {
-      console.error('Error cargando fechas disponibles:', error);
       setFechasConCupos([]);
     } finally {
       setLoading(false);
@@ -131,27 +128,14 @@ export default function ReservarMeriendaLibre() {
     
     try {
       setLoadingCupos(true);
-      console.log('🔍 Frontend - Cargando cupos para:', {
-        fecha: fecha.toISOString(),
-        fechaLocal: fecha.toLocaleDateString('es-ES'),
-        turno,
-        tipoReserva: 'merienda-libre'
-      });
       
       const cuposData = await apiService.getCuposDisponibles(fecha, turno, 'merienda-libre');
-      console.log('📊 Frontend - Datos de cupos recibidos:', cuposData);
       
       setCuposDisponibles(cuposData.cuposDisponibles);
       // Para meriendas libres: máximo es la disponibilidad real del día, pero no más de 40 personas
       const maxPersonasCalculado = Math.min(cuposData.cuposDisponibles, 40);
       setMaxPersonas(maxPersonasCalculado);
-      
-      console.log('✅ Frontend - Estados actualizados:', {
-        cuposDisponibles: cuposData.cuposDisponibles,
-        maxPersonas: maxPersonasCalculado
-      });
     } catch (error) {
-      console.error('❌ Frontend - Error cargando cupos disponibles:', error);
       setCuposDisponibles(0);
       setMaxPersonas(0);
     } finally {
@@ -169,16 +153,10 @@ export default function ReservarMeriendaLibre() {
     try {
       setLoadingHorarios(true);
       // Usar el endpoint que incluye información de cupos por turno
-      console.log('🔍 Frontend - Cargando horarios para fecha:', {
-        fecha: formData.fecha.toISOString(),
-        fechaLocal: formData.fecha.toLocaleDateString('es-ES')
-      });
       
       const horariosData = await apiService.getHorariosDisponiblesConCupos(formData.fecha, 'merienda-libre');
       setHorariosConCupos(horariosData);
-      console.log('🕐 Frontend - Horarios con cupos cargados:', horariosData);
     } catch (error) {
-      console.error('Error cargando horarios disponibles:', error);
       setHorariosConCupos([]);
     } finally {
       setLoadingHorarios(false);
@@ -318,7 +296,6 @@ export default function ReservarMeriendaLibre() {
       window.location.href = '/pago';
       
     } catch (error) {
-      console.error('Error al procesar la reserva:', error);
       setErrors({ submit: 'Error al procesar la reserva. Por favor, inténtalo de nuevo.' });
     } finally {
       setIsSubmitting(false);

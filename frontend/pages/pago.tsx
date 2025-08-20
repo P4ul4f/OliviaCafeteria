@@ -46,7 +46,7 @@ export default function Pago() {
         const parsedData = JSON.parse(storedReservaData);
         setReservaData(parsedData);
       } catch (error) {
-        console.error('Error al parsear datos de reserva:', error);
+
         router.push('/');
       }
     } else {

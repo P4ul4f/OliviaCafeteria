@@ -74,7 +74,6 @@ class ApiService {
       const text = await response.text();
       return text ? JSON.parse(text) : null;
     } catch (error) {
-      console.error(`API Error (${endpoint}):`, error);
       throw error;
     }
   }
@@ -255,19 +254,16 @@ class ApiService {
       const d = new Date(year, month - 1, day, 12, 0, 0, 0);
       // HACK RAILWAY: RESTAR 1 día porque agregamos +1 al guardar (compensar Railway UTC)
       d.setDate(d.getDate() - 1);
-      console.log(`🌍 Frontend parseando fecha (-1 día): ${dateString} -> ${d.toLocaleDateString('es-ES')}`);
       return d;
     }
     
     // Si es un string ISO completo, usar new Date pero con precaución
     const parsed = new Date(dateString);
     if (!isNaN(parsed.getTime())) {
-      console.log(`🌍 Frontend parseando fecha ISO: ${dateString} -> ${parsed.toISOString()}`);
       return parsed;
     }
     
     // Fallback: fecha actual
-    console.warn('⚠️ No se pudo parsear la fecha:', dateString, 'usando fecha actual');
     return new Date();
   }
 
@@ -284,7 +280,6 @@ class ApiService {
     const fechaStr = fecha instanceof Date 
       ? `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`
       : fecha;
-    console.log('📅 getHorariosDisponiblesConCupos enviando fecha:', { original: fecha, enviada: fechaStr });
     return this.request(`/reserva/horarios-disponibles-con-cupos?fecha=${encodeURIComponent(fechaStr)}&tipoReserva=${encodeURIComponent(tipoReserva)}`);
   }
 
@@ -299,7 +294,6 @@ class ApiService {
     const fechaStr = fecha instanceof Date 
       ? `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`
       : fecha;
-    console.log('📅 getCuposDisponibles enviando fecha:', { original: fecha, enviada: fechaStr });
     return this.request(`/reserva/cupos-disponibles?fecha=${encodeURIComponent(fechaStr)}&turno=${encodeURIComponent(turno)}&tipoReserva=${encodeURIComponent(tipoReserva)}`);
   }
 
