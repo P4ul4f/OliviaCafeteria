@@ -714,8 +714,9 @@
   background: #c2d29b;
 }
 
-/* Hacer que el dropdown de cantidad se despliegue hacia arriba */
-#cantidadDropdown {
+/* Hacer que los dropdowns se desplieguen hacia arriba */
+#cantidadDropdown,
+#horarioDropdown {
   top: auto;
   bottom: 100%;
   border-top: 2px solid #ccbb94;
