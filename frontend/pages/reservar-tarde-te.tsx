@@ -355,6 +355,13 @@ export default function ReservarTardeTe() {
                   className={styles.datePicker}
                   filterDate={(date: Date) => {
                     if (!fechasDisponibles || fechasDisponibles.length === 0) return false;
+                    
+                    // Excluir domingos (local cerrado)
+                    const dayOfWeek = date.getDay();
+                    if (dayOfWeek === 0) { // 0 = domingo
+                      return false;
+                    }
+                    
                     const d = new Date(date);
                     d.setHours(0,0,0,0);
                     return fechasDisponibles.some(f => {

@@ -181,6 +181,12 @@ export default function ReservarALaCarta() {
       if (selectedDate < today) {
         newErrors.fecha = 'La fecha no puede ser anterior a hoy';
       }
+      
+      // Verificar que no sea domingo (local cerrado)
+      const dayOfWeek = selectedDate.getDay();
+      if (dayOfWeek === 0) { // 0 = domingo
+        newErrors.fecha = 'No se realizan reservas los domingos (local cerrado)';
+      }
     }
 
     if (!formData.turno) {
@@ -229,6 +235,13 @@ export default function ReservarALaCarta() {
   // Permitir solo fechas marcadas como disponibles por backend
   const filterDate = (date: Date) => {
     if (!fechasDisponibles || fechasDisponibles.length === 0) return false;
+    
+    // Excluir domingos (local cerrado)
+    const dayOfWeek = date.getDay();
+    if (dayOfWeek === 0) { // 0 = domingo
+      return false;
+    }
+    
     const d = new Date(date);
     d.setHours(0, 0, 0, 0);
     return fechasDisponibles.some(f => {

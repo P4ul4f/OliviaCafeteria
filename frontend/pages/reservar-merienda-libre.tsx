@@ -321,6 +321,12 @@ export default function ReservarMeriendaLibre() {
     const dateToCheck = safeParseDate(date);
     dateToCheck.setHours(0, 0, 0, 0);
     
+    // Excluir domingos (local cerrado)
+    const dayOfWeek = dateToCheck.getDay();
+    if (dayOfWeek === 0) { // 0 = domingo
+      return false;
+    }
+    
     return fechasConCupos.some(fecha => {
       const availableDate = safeParseDate(fecha.fecha);
       availableDate.setHours(0, 0, 0, 0);
