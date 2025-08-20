@@ -558,15 +558,24 @@ export class ReservaService {
           0
         );
 
-        const cuposMaximos = await this.preciosConfigService.getCuposMeriendasLibres();
-        const cuposDisponibles = cuposMaximos - capacidadOcupada;
-        const disponible = cuposDisponibles > 0;
+              const cuposMaximos = await this.preciosConfigService.getCuposMeriendasLibres();
+      const cuposDisponibles = Math.max(0, cuposMaximos - capacidadOcupada);
+      const disponible = cuposDisponibles > 0;
 
-        horariosConCupos.push({
-          horario: turno,
-          disponible,
-          cuposDisponibles,
-        });
+      console.log(`🔍 Merienda Libre - Turno ${turno}:`, {
+        reservasEncontradas: reservasExistentes.length,
+        capacidadOcupada,
+        cuposMaximos,
+        cuposDisponibles,
+        disponible,
+        fechaConsulta: `${fechaInicio.toISOString()} - ${fechaFin.toISOString()}`
+      });
+
+      horariosConCupos.push({
+        horario: turno,
+        disponible,
+        cuposDisponibles,
+      });
       }
 
       return horariosConCupos;
@@ -639,6 +648,22 @@ export class ReservaService {
 
       const capacidadMaxima = await this.preciosConfigService.getCuposMeriendasLibres();
       const cuposDisponibles = Math.max(0, capacidadMaxima - capacidadOcupada);
+
+      console.log(`🔍 getCuposDisponibles - Merienda Libre resultado:`, {
+        turno,
+        fechaConsulta: `${fechaInicio.toISOString()} - ${fechaFin.toISOString()}`,
+        reservasEncontradas: reservasExistentes.length,
+        reservasDetalle: reservasExistentes.map(r => ({
+          id: r.id,
+          nombres: r.nombreCliente,
+          personas: r.cantidadPersonas,
+          turno: r.turno,
+          fechaHora: r.fechaHora.toISOString()
+        })),
+        capacidadOcupada,
+        capacidadMaxima,
+        cuposDisponibles
+      });
 
       return {
         cuposDisponibles,
