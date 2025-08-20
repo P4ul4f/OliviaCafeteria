@@ -265,14 +265,11 @@ export class PagoService {
       this.logger.log(`🎯 Creando reserva para: ${reservaData.nombre}`);
 
       // Crear la reserva usando el servicio de reservas
-      // AJUSTE: Restar 1 día porque el frontend envía fecha con +1 día
-      const fechaOriginal = new Date(reservaData.fecha);
-      fechaOriginal.setDate(fechaOriginal.getDate() - 1);
-      
+      // Frontend ya envía fecha ajustada (+1 día para Railway), usar directamente
       const nuevaReserva = await this.reservaService.createConPago({
         nombreCliente: reservaData.nombre,
         telefono: reservaData.telefono || '',
-        fechaHora: fechaOriginal,
+        fechaHora: new Date(reservaData.fecha),
         turno: reservaData.turno,
         cantidadPersonas: typeof reservaData.cantidadPersonas === 'string' 
           ? parseInt(reservaData.cantidadPersonas) 
@@ -482,14 +479,11 @@ export class PagoService {
       this.logger.log(`🎯 Creando reserva para pago con tarjeta: ${reservaData.nombre}`);
 
       // Crear la reserva usando el servicio de reservas
-      // AJUSTE: Restar 1 día porque el frontend envía fecha con +1 día
-      const fechaOriginal = new Date(reservaData.fecha);
-      fechaOriginal.setDate(fechaOriginal.getDate() - 1);
-      
+      // Frontend ya envía fecha ajustada (+1 día para Railway), usar directamente
       const nuevaReserva = await this.reservaService.createConPago({
         nombreCliente: reservaData.nombre,
         telefono: reservaData.telefono || '',
-        fechaHora: fechaOriginal,
+        fechaHora: new Date(reservaData.fecha),
         turno: reservaData.turno,
         cantidadPersonas: typeof reservaData.cantidadPersonas === 'string' 
           ? parseInt(reservaData.cantidadPersonas) 

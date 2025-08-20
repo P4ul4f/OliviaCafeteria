@@ -212,12 +212,10 @@ let PagoService = PagoService_1 = class PagoService {
         try {
             const reservaData = JSON.parse(paymentData.metadata?.reserva_data || '{}');
             this.logger.log(`🎯 Creando reserva para: ${reservaData.nombre}`);
-            const fechaOriginal = new Date(reservaData.fecha);
-            fechaOriginal.setDate(fechaOriginal.getDate() - 1);
             const nuevaReserva = await this.reservaService.createConPago({
                 nombreCliente: reservaData.nombre,
                 telefono: reservaData.telefono || '',
-                fechaHora: fechaOriginal,
+                fechaHora: new Date(reservaData.fecha),
                 turno: reservaData.turno,
                 cantidadPersonas: typeof reservaData.cantidadPersonas === 'string'
                     ? parseInt(reservaData.cantidadPersonas)
@@ -383,12 +381,10 @@ let PagoService = PagoService_1 = class PagoService {
     async crearReservaConPago(reservaData, paymentData, monto) {
         try {
             this.logger.log(`🎯 Creando reserva para pago con tarjeta: ${reservaData.nombre}`);
-            const fechaOriginal = new Date(reservaData.fecha);
-            fechaOriginal.setDate(fechaOriginal.getDate() - 1);
             const nuevaReserva = await this.reservaService.createConPago({
                 nombreCliente: reservaData.nombre,
                 telefono: reservaData.telefono || '',
-                fechaHora: fechaOriginal,
+                fechaHora: new Date(reservaData.fecha),
                 turno: reservaData.turno,
                 cantidadPersonas: typeof reservaData.cantidadPersonas === 'string'
                     ? parseInt(reservaData.cantidadPersonas)
