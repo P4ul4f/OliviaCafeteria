@@ -677,40 +677,32 @@ export class ReservaService {
 
   // Método para calcular capacidad compartida POR BLOQUE HORARIO (renovación cada hora)
   private async calcularCapacidadCompartida(fecha: Date, turno: string): Promise<number> {
+    // Extraer el bloque horario del turno solicitado
+    const bloqueHorario = this.obtenerBloqueHorario(turno);
+    console.log(`⏰ Calculando capacidad para bloque horario: ${bloqueHorario} (turno: ${turno})`);
+
+    // BÚSQUEDA PRECISA: Buscar reservas solo del día exacto solicitado
     const fechaInicio = new Date(fecha);
     fechaInicio.setHours(0, 0, 0, 0);
     
     const fechaFin = new Date(fecha);
     fechaFin.setHours(23, 59, 59, 999);
 
-    // Extraer el bloque horario del turno solicitado
-    const bloqueHorario = this.obtenerBloqueHorario(turno);
-    console.log(`⏰ Calculando capacidad para bloque horario: ${bloqueHorario} (turno: ${turno})`);
-
-    // BÚSQUEDA AMPLIADA: Buscar reservas tanto del día solicitado como del día siguiente
-    // (para encontrar reservas guardadas con el desfase de +1 día anterior)
-    const fechaInicioAmpliada = new Date(fecha);
-    fechaInicioAmpliada.setHours(0, 0, 0, 0);
-    
-    const fechaFinAmpliada = new Date(fecha);
-    fechaFinAmpliada.setDate(fechaFinAmpliada.getDate() + 1); // +1 día
-    fechaFinAmpliada.setHours(23, 59, 59, 999);
-
-    console.log(`🔍 Buscando reservas en rango ampliado:`, {
-      desde: fechaInicioAmpliada.toISOString(),
-      hasta: fechaFinAmpliada.toISOString(),
+    console.log(`🔍 Buscando reservas para fecha exacta:`, {
+      desde: fechaInicio.toISOString(),
+      hasta: fechaFin.toISOString(),
       fechaOriginal: fecha.toISOString()
     });
 
-    const todasReservasDelRango = await this.reservaRepository.find({
+    const todasReservasDelDia = await this.reservaRepository.find({
       where: {
-        fechaHora: Between(fechaInicioAmpliada, fechaFinAmpliada),
+        fechaHora: Between(fechaInicio, fechaFin),
         tipoReserva: In([TipoReserva.A_LA_CARTA, TipoReserva.TARDE_TE]), // Ambos tipos comparten salón
         estado: EstadoReserva.CONFIRMADA,
       },
     });
 
-    console.log(`📋 Reservas encontradas en rango ampliado:`, todasReservasDelRango.map(r => ({
+    console.log(`📋 Reservas encontradas para la fecha:`, todasReservasDelDia.map(r => ({
       id: r.id,
       fechaHora: r.fechaHora.toISOString(),
       turno: r.turno,
@@ -719,7 +711,7 @@ export class ReservaService {
     })));
 
     // Agrupar reservas por bloque horario
-    const reservasPorBloque = this.agruparReservasPorBloqueHorario(todasReservasDelRango);
+    const reservasPorBloque = this.agruparReservasPorBloqueHorario(todasReservasDelDia);
     
     // Obtener solo las reservas del bloque horario específico
     const reservasDelBloque = reservasPorBloque[bloqueHorario] || [];
@@ -734,7 +726,7 @@ export class ReservaService {
       fecha: fecha.toDateString(),
       turno,
       bloqueHorario,
-      totalReservasEnRango: todasReservasDelRango.length,
+      totalReservasDelDia: todasReservasDelDia.length,
       reservasEnEsteBloque: reservasDelBloque.length,
       capacidadOcupada,
       detallesBloque: reservasDelBloque.map(r => ({

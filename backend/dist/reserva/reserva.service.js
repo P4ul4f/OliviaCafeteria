@@ -521,44 +521,39 @@ let ReservaService = class ReservaService {
         }
     }
     async calcularCapacidadCompartida(fecha, turno) {
+        const bloqueHorario = this.obtenerBloqueHorario(turno);
+        console.log(`⏰ Calculando capacidad para bloque horario: ${bloqueHorario} (turno: ${turno})`);
         const fechaInicio = new Date(fecha);
         fechaInicio.setHours(0, 0, 0, 0);
         const fechaFin = new Date(fecha);
         fechaFin.setHours(23, 59, 59, 999);
-        const bloqueHorario = this.obtenerBloqueHorario(turno);
-        console.log(`⏰ Calculando capacidad para bloque horario: ${bloqueHorario} (turno: ${turno})`);
-        const fechaInicioAmpliada = new Date(fecha);
-        fechaInicioAmpliada.setHours(0, 0, 0, 0);
-        const fechaFinAmpliada = new Date(fecha);
-        fechaFinAmpliada.setDate(fechaFinAmpliada.getDate() + 1);
-        fechaFinAmpliada.setHours(23, 59, 59, 999);
-        console.log(`🔍 Buscando reservas en rango ampliado:`, {
-            desde: fechaInicioAmpliada.toISOString(),
-            hasta: fechaFinAmpliada.toISOString(),
+        console.log(`🔍 Buscando reservas para fecha exacta:`, {
+            desde: fechaInicio.toISOString(),
+            hasta: fechaFin.toISOString(),
             fechaOriginal: fecha.toISOString()
         });
-        const todasReservasDelRango = await this.reservaRepository.find({
+        const todasReservasDelDia = await this.reservaRepository.find({
             where: {
-                fechaHora: (0, typeorm_2.Between)(fechaInicioAmpliada, fechaFinAmpliada),
+                fechaHora: (0, typeorm_2.Between)(fechaInicio, fechaFin),
                 tipoReserva: (0, typeorm_2.In)([reserva_entity_1.TipoReserva.A_LA_CARTA, reserva_entity_1.TipoReserva.TARDE_TE]),
                 estado: reserva_entity_1.EstadoReserva.CONFIRMADA,
             },
         });
-        console.log(`📋 Reservas encontradas en rango ampliado:`, todasReservasDelRango.map(r => ({
+        console.log(`📋 Reservas encontradas para la fecha:`, todasReservasDelDia.map(r => ({
             id: r.id,
             fechaHora: r.fechaHora.toISOString(),
             turno: r.turno,
             personas: r.cantidadPersonas,
             tipo: r.tipoReserva
         })));
-        const reservasPorBloque = this.agruparReservasPorBloqueHorario(todasReservasDelRango);
+        const reservasPorBloque = this.agruparReservasPorBloqueHorario(todasReservasDelDia);
         const reservasDelBloque = reservasPorBloque[bloqueHorario] || [];
         const capacidadOcupada = reservasDelBloque.reduce((total, reserva) => total + reserva.cantidadPersonas, 0);
         console.log(`🔍 calcularCapacidadCompartida para bloque ${bloqueHorario}:`, {
             fecha: fecha.toDateString(),
             turno,
             bloqueHorario,
-            totalReservasEnRango: todasReservasDelRango.length,
+            totalReservasDelDia: todasReservasDelDia.length,
             reservasEnEsteBloque: reservasDelBloque.length,
             capacidadOcupada,
             detallesBloque: reservasDelBloque.map(r => ({
