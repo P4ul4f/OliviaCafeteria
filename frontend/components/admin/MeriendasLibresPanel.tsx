@@ -38,24 +38,17 @@ function SuccessModal({ open, onClose, mensaje }: any) {
 }
 
 export default function MeriendasLibresPanel() {
-  // Helper para formatear fecha a 'YYYY-MM-DD' - SOLUCIÓN RAILWAY: Agregar 1 día
+  // Helper para formatear fecha a 'YYYY-MM-DD'
   const formatDateForBackend = (date: Date): string => {
-    // SOLUCIÓN DIRECTA: Agregar 1 día para compensar el problema de zona horaria en Railway
-    const fechaAjustada = new Date(date);
-    fechaAjustada.setDate(fechaAjustada.getDate() + 1);
-    
-    const y = fechaAjustada.getFullYear();
-    const m = String(fechaAjustada.getMonth() + 1).padStart(2, '0');
-    const d = String(fechaAjustada.getDate()).padStart(2, '0');
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
     const out = `${y}-${m}-${d}`;
     
-    console.log('🔍 formatDateForBackend (+1 día) debug:', {
+    console.log('🔍 formatDateForBackend debug:', {
       fechaOriginal: date,
       fechaOriginalLocal: date.toLocaleDateString('es-ES'),
-      fechaAjustada: fechaAjustada,
-      fechaAjustadaLocal: fechaAjustada.toLocaleDateString('es-ES'),
-      yyyyMmDd: out,
-      ajuste: '+1 día aplicado'
+      yyyyMmDd: out
     });
     return out;
   };
@@ -66,12 +59,10 @@ export default function MeriendasLibresPanel() {
     
     // Parsear la fecha del string YYYY-MM-DD
     const [year, month, day] = dateString.split('-').map(Number);
-    // Crear fecha local a mediodía
+    // Crear fecha local a mediodía (sin ajustes de timezone)
     const d = new Date(year, month - 1, day, 12, 0, 0, 0);
-    // RESTAR 1 día porque agregamos +1 al guardar (compensar Railway UTC)
-    d.setDate(d.getDate() - 1);
     
-    console.log(`🌍 Admin parseando fecha (-1 día): ${dateString} -> ${d.toLocaleDateString('es-ES')}`);
+    console.log(`🌍 Admin parseando fecha: ${dateString} -> ${d.toLocaleDateString('es-ES')}`);
     return d;
   };
 

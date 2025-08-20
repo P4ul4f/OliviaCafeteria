@@ -26,6 +26,52 @@ export class PagoService {
     this.initializeMercadoPago();
   }
 
+  /**
+   * Normaliza una fecha para evitar problemas de timezone
+   * Acepta 'YYYY-MM-DD' o Date y la fija a las 12:00:00 LOCAL para evitar cambios de día.
+   */
+  private normalizeDateOnly(input: string | Date): Date {
+    if (!input) return null as any;
+    
+    if (typeof input === 'string') {
+      const match = input.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (match) {
+        const year = Number(match[1]);
+        const monthIndex = Number(match[2]) - 1;
+        const day = Number(match[3]);
+        
+        // Crear fecha local a mediodía
+        const d = new Date(year, monthIndex, day, 12, 0, 0, 0);
+        console.log(`📅 Fecha normalizada en PagoService: ${input} -> ${d.toISOString()} (día local: ${d.getDate()})`);
+        return d;
+      }
+      
+      // Para otros formatos de string
+      const parsed = new Date(input);
+      if (!isNaN(parsed.getTime())) {
+        const year = parsed.getFullYear();
+        const monthIndex = parsed.getMonth();
+        const day = parsed.getDate();
+        const d = new Date(year, monthIndex, day, 12, 0, 0, 0);
+        return d;
+      }
+    }
+    
+    // Para objetos Date
+    if (input instanceof Date) {
+      const year = input.getFullYear();
+      const monthIndex = input.getMonth();
+      const day = input.getDate();
+      const d = new Date(year, monthIndex, day, 12, 0, 0, 0);
+      return d;
+    }
+    
+    // Fallback
+    const d = new Date();
+    d.setHours(12, 0, 0, 0);
+    return d;
+  }
+
   private initializeMercadoPago() {
     try {
       if (!mercadopagoConfig.isConfigured()) {
@@ -479,11 +525,12 @@ export class PagoService {
       this.logger.log(`🎯 Creando reserva para pago con tarjeta: ${reservaData.nombre}`);
 
       // Crear la reserva usando el servicio de reservas
-      // Frontend ya envía fecha ajustada (+1 día para Railway), usar directamente
+      // Normalizar la fecha para evitar problemas de timezone
+      const fechaNormalizada = this.normalizeDateOnly(reservaData.fecha);
       const nuevaReserva = await this.reservaService.createConPago({
         nombreCliente: reservaData.nombre,
         telefono: reservaData.telefono || '',
-        fechaHora: new Date(reservaData.fecha),
+        fechaHora: fechaNormalizada,
         turno: reservaData.turno,
         cantidadPersonas: typeof reservaData.cantidadPersonas === 'string' 
           ? parseInt(reservaData.cantidadPersonas) 

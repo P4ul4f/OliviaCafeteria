@@ -168,11 +168,9 @@ function safeParseDate(fecha: any): Date {
       // Si es un string YYYY-MM-DD
       if (/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
         const [year, month, day] = fecha.split('-').map(Number);
-        // Crear fecha local a mediodía
+        // Crear fecha local a mediodía (sin ajustes de timezone)
         const d = new Date(year, month - 1, day, 12, 0, 0, 0);
-        // RESTAR 1 día porque agregamos +1 al guardar (compensar Railway UTC)
-        d.setDate(d.getDate() - 1);
-        console.log(`🌍 Meriendas parseando fecha (-1 día): ${fecha} -> ${d.toLocaleDateString('es-ES')}`);
+        console.log(`🌍 Meriendas parseando fecha: ${fecha} -> ${d.toLocaleDateString('es-ES')}`);
         return d;
       }
     }
