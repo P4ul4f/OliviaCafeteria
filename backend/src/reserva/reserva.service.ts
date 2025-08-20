@@ -19,6 +19,79 @@ export class ReservaService {
     private preciosConfigService: PreciosConfigService,
   ) {}
 
+  /**
+   * Normaliza una fecha para evitar problemas de timezone
+   * Acepta 'YYYY-MM-DD' o Date y la fija a las 12:00:00 LOCAL para evitar cambios de día.
+   */
+  private normalizeDateOnly(input: string | Date): Date {
+    if (!input) return null as any;
+    
+    if (typeof input === 'string') {
+      const match = input.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (match) {
+        const year = Number(match[1]);
+        const monthIndex = Number(match[2]) - 1;
+        const day = Number(match[3]);
+        
+        // Crear fecha local a mediodía
+        const d = new Date(year, monthIndex, day, 12, 0, 0, 0);
+        console.log(`📅 Fecha normalizada en ReservaService: ${input} -> ${d.toISOString()} (día local: ${d.getDate()})`);
+        return d;
+      }
+      
+      // Para otros formatos de string
+      const parsed = new Date(input);
+      if (!isNaN(parsed.getTime())) {
+        const year = parsed.getFullYear();
+        const monthIndex = parsed.getMonth();
+        const day = parsed.getDate();
+        const d = new Date(year, monthIndex, day, 12, 0, 0, 0);
+        return d;
+      }
+    }
+    
+    // Para objetos Date
+    if (input instanceof Date) {
+      const year = input.getFullYear();
+      const monthIndex = input.getMonth();
+      const day = input.getDate();
+      const d = new Date(year, monthIndex, day, 12, 0, 0, 0);
+      return d;
+    }
+    
+    // Fallback
+    const d = new Date();
+    d.setHours(12, 0, 0, 0);
+    return d;
+  }
+
+  /**
+   * Obtiene el rango de fechas para consultas del día completo
+   * considerando la zona horaria correcta
+   */
+  private getFechaRangoDelDia(fecha: Date): { fechaInicio: Date; fechaFin: Date } {
+    // Normalizar la fecha base
+    const fechaNormalizada = this.normalizeDateOnly(fecha);
+    
+    // Crear inicio del día (00:00:00 local)
+    const fechaInicio = new Date(fechaNormalizada);
+    fechaInicio.setHours(0, 0, 0, 0);
+    
+    // Crear fin del día (23:59:59 local)
+    const fechaFin = new Date(fechaNormalizada);
+    fechaFin.setHours(23, 59, 59, 999);
+    
+    console.log(`🗓️ Rango de fechas para consulta:`, {
+      fechaOriginal: fecha.toISOString(),
+      fechaNormalizada: fechaNormalizada.toISOString(),
+      fechaInicio: fechaInicio.toISOString(),
+      fechaFin: fechaFin.toISOString(),
+      rangoLocal: `${fechaInicio.toLocaleDateString('es-ES')} - ${fechaFin.toLocaleDateString('es-ES')}`
+    });
+    
+    return { fechaInicio, fechaFin };
+  }
+
   // Precios por persona
   private readonly PRECIOS = {
     [TipoReserva.A_LA_CARTA]: 0, // No hay precio fijo, se paga a la carta
@@ -143,12 +216,8 @@ export class ReservaService {
   }> {
     const { fecha, turno, tipoReserva, cantidadPersonas } = dto;
 
-    // Obtener la fecha de inicio y fin del día
-    const fechaInicio = new Date(fecha);
-    fechaInicio.setHours(0, 0, 0, 0);
-    
-    const fechaFin = new Date(fecha);
-    fechaFin.setHours(23, 59, 59, 999);
+    // Obtener el rango de fechas del día considerando timezone
+    const { fechaInicio, fechaFin } = this.getFechaRangoDelDia(fecha);
 
     // Bloquear A LA CARTA y TARDES DE TÉ en días de Meriendas Libres
     if (tipoReserva === TipoReserva.A_LA_CARTA || tipoReserva === TipoReserva.TARDE_TE) {
@@ -258,14 +327,12 @@ export class ReservaService {
         });
         
         // Filtrar solo fechas futuras (comparar solo el día, no la hora)
+        const hoyNormalizado = this.normalizeDateOnly(new Date());
         const fechasDisponibles = fechasConfig
           .map(fechaConfig => fechaConfig.fecha)
           .filter(fecha => {
-            const fechaSoloDia = new Date(fecha);
-            fechaSoloDia.setHours(0, 0, 0, 0);
-            const hoySoloDia = new Date();
-            hoySoloDia.setHours(0, 0, 0, 0);
-            return fechaSoloDia >= hoySoloDia;
+            const fechaNormalizada = this.normalizeDateOnly(fecha);
+            return fechaNormalizada >= hoyNormalizado;
           })
           .sort((a, b) => a.getTime() - b.getTime());
         
@@ -275,8 +342,7 @@ export class ReservaService {
 
       // Para a la carta y tardes de té, generar fechas disponibles (excluyendo domingos, fechas pasadas Y días de meriendas libres)
       const fechasDisponibles: Date[] = [];
-      const hoy = new Date();
-      hoy.setHours(0, 0, 0, 0); // Normalizar a inicio del día
+      const hoy = this.normalizeDateOnly(new Date());
       const fechaLimite = new Date();
       fechaLimite.setMonth(fechaLimite.getMonth() + 3); // 3 meses hacia adelante
 
@@ -293,9 +359,8 @@ export class ReservaService {
       // Crear un Set con las fechas de meriendas libres para búsqueda rápida
       const fechasMeriendasLibres = new Set(
         diasMeriendasLibres.map(fechaConfig => {
-          const fecha = new Date(fechaConfig.fecha);
-          fecha.setHours(0, 0, 0, 0); // Normalizar a inicio del día
-          return fecha.getTime(); // Usar timestamp para comparación más confiable
+          const fechaNormalizada = this.normalizeDateOnly(fechaConfig.fecha);
+          return fechaNormalizada.getTime(); // Usar timestamp para comparación más confiable
         })
       );
       
@@ -303,8 +368,7 @@ export class ReservaService {
 
       for (let fecha = new Date(hoy); fecha <= fechaLimite; fecha.setDate(fecha.getDate() + 1)) {
         // Normalizar la fecha de iteración
-        const fechaIteracion = new Date(fecha);
-        fechaIteracion.setHours(0, 0, 0, 0);
+        const fechaIteracion = this.normalizeDateOnly(fecha);
         
         // Excluir domingos
         if (fechaIteracion.getDay() !== 0) {
@@ -321,9 +385,9 @@ export class ReservaService {
               // Para tardes de té, verificar que haya al menos 48 horas de anticipación
               const fechaMinima = new Date();
               fechaMinima.setDate(fechaMinima.getDate() + 2);
-              fechaMinima.setHours(0, 0, 0, 0);
+              const fechaMinimaNormalizada = this.normalizeDateOnly(fechaMinima);
               
-              if (fechaIteracion >= fechaMinima) {
+              if (fechaIteracion >= fechaMinimaNormalizada) {
                 fechasDisponibles.push(new Date(fechaIteracion));
               }
             }
@@ -354,11 +418,7 @@ export class ReservaService {
     const fechasConCupos: { fecha: Date; disponible: boolean; cuposDisponibles: number }[] = [];
 
     for (const fecha of fechasBase) {
-      const fechaInicio = new Date(fecha);
-      fechaInicio.setHours(0, 0, 0, 0);
-      
-      const fechaFin = new Date(fecha);
-      fechaFin.setHours(23, 59, 59, 999);
+      const { fechaInicio, fechaFin } = this.getFechaRangoDelDia(fecha);
 
       // Obtener horarios disponibles para esta fecha
       const horarios = await this.getHorariosDisponibles(fecha, tipoReserva);
@@ -477,11 +537,7 @@ export class ReservaService {
     if (tipoReserva === TipoReserva.MERIENDA_LIBRE) {
       // Para meriendas libres: verificar cupos por turno (espacio independiente)
       const horariosConCupos: { horario: string; disponible: boolean; cuposDisponibles: number }[] = [];
-      const fechaInicio = new Date(fecha);
-      fechaInicio.setHours(0, 0, 0, 0);
-      
-      const fechaFin = new Date(fecha);
-      fechaFin.setHours(23, 59, 59, 999);
+      const { fechaInicio, fechaFin } = this.getFechaRangoDelDia(fecha);
 
       const turnos = ['16:30-18:30', '19:00-21:00'];
       
@@ -554,11 +610,16 @@ export class ReservaService {
     capacidadOcupada: number;
     reservasExistentes: number;
   }> {
-    const fechaInicio = new Date(fecha);
-    fechaInicio.setHours(0, 0, 0, 0);
-    
-    const fechaFin = new Date(fecha);
-    fechaFin.setHours(23, 59, 59, 999);
+    console.log(`🔍 === INICIO getCuposDisponibles para ${tipoReserva} ===`);
+    console.log(`📅 Fecha recibida:`, {
+      fecha: fecha.toISOString(),
+      fechaLocal: fecha.toLocaleDateString('es-ES'),
+      timestamp: fecha.getTime()
+    });
+    console.log(`🕒 Turno: ${turno}`);
+
+    // Obtener el rango de fechas del día considerando timezone
+    const { fechaInicio, fechaFin } = this.getFechaRangoDelDia(fecha);
 
     if (tipoReserva === TipoReserva.MERIENDA_LIBRE) {
       // Para meriendas libres: calcular cupos disponibles (espacio independiente)
@@ -682,11 +743,7 @@ export class ReservaService {
     console.log(`⏰ Calculando capacidad para bloque horario: ${bloqueHorario} (turno: ${turno})`);
 
     // BÚSQUEDA PRECISA: Buscar reservas solo del día exacto solicitado
-    const fechaInicio = new Date(fecha);
-    fechaInicio.setHours(0, 0, 0, 0);
-    
-    const fechaFin = new Date(fecha);
-    fechaFin.setHours(23, 59, 59, 999);
+    const { fechaInicio, fechaFin } = this.getFechaRangoDelDia(fecha);
 
     console.log(`🔍 Buscando reservas para fecha exacta:`, {
       desde: fechaInicio.toISOString(),
@@ -744,10 +801,7 @@ export class ReservaService {
 
   // Verificar si una fecha es día de Meriendas Libres
   private async esDiaMeriendaLibre(fecha: Date): Promise<boolean> {
-    const inicio = new Date(fecha);
-    inicio.setHours(0, 0, 0, 0);
-    const fin = new Date(fecha);
-    fin.setHours(23, 59, 59, 999);
+    const { fechaInicio: inicio, fechaFin: fin } = this.getFechaRangoDelDia(fecha);
 
     const count = await this.fechasConfigRepository.count({
       where: {
