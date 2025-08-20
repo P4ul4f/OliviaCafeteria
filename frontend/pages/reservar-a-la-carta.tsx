@@ -290,31 +290,10 @@ export default function ReservarALaCarta() {
         fechaLocal: formData.fecha.toLocaleDateString('es-ES')
       });
       
-      // Generar horarios individuales como en tardes de té
-      const horariosIndividuales = generarHorarios();
-      const horariosConEstado: HorarioConCupos[] = [];
-      
-      // Verificar disponibilidad para cada horario individual
-      for (const horario of horariosIndividuales) {
-        try {
-          const cuposData = await apiService.getCuposDisponibles(formData.fecha, horario, 'a-la-carta');
-          horariosConEstado.push({
-            horario: horario,
-            disponible: cuposData.cuposDisponibles > 0,
-            cuposDisponibles: cuposData.cuposDisponibles
-          });
-        } catch (error) {
-          console.error(`Error verificando disponibilidad para ${horario}:`, error);
-          horariosConEstado.push({
-            horario: horario,
-            disponible: false,
-            cuposDisponibles: 0
-          });
-        }
-      }
-      
-      setHorariosConCupos(horariosConEstado);
-      console.log('🕐 Frontend - Horarios individuales con cupos cargados:', horariosConEstado);
+      // Usar el mismo endpoint rápido que tardes de té
+      const horariosData = await apiService.getHorariosDisponiblesConCupos(formData.fecha, 'a-la-carta');
+      setHorariosConCupos(horariosData);
+      console.log('🕐 Frontend - Horarios con cupos cargados:', horariosData);
     } catch (error) {
       console.error('Error cargando horarios disponibles:', error);
       setHorariosConCupos([]);
@@ -502,8 +481,12 @@ export default function ReservarALaCarta() {
                           className={styles.selectIconLeft}
                         />
                         <span>
-                          {horario.horario} 
-                          {horario.disponible ? '' : ' (No disponible)'}
+                          {horario.horario}
+                          {!horario.disponible && (
+                            <span className={styles.cuposAgotados}>
+                              {' '}(No disponible)
+                            </span>
+                          )}
                         </span>
                       </div>
                     ))

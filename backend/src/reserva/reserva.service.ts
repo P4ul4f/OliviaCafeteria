@@ -529,7 +529,30 @@ export class ReservaService {
     }
 
     if (tipoReserva === TipoReserva.A_LA_CARTA) {
-      return ['12:00-14:00', '14:00-16:00', '16:00-18:00', '18:00-20:00', '20:00-22:00'];
+      // Para a la carta, generar horarios individuales como tardes de té
+      const horarios: string[] = [];
+      
+      // Horarios de mañana: 9:00 - 13:00 (cada 30 minutos)
+      for (let hora = 9; hora <= 12; hora++) {
+        for (let minuto = 0; minuto < 60; minuto += 30) {
+          if (hora === 12 && minuto === 30) break;
+          const horaStr = hora.toString().padStart(2, '0');
+          const minutoStr = minuto.toString().padStart(2, '0');
+          horarios.push(`${horaStr}:${minutoStr}`);
+        }
+      }
+      
+      // Horarios de tarde: 16:00 - 20:00 (cada 30 minutos)
+      for (let hora = 16; hora <= 20; hora++) {
+        for (let minuto = 0; minuto < 60; minuto += 30) {
+          if (hora === 20 && minuto === 30) break;
+          const horaStr = hora.toString().padStart(2, '0');
+          const minutoStr = minuto.toString().padStart(2, '0');
+          horarios.push(`${horaStr}:${minutoStr}`);
+        }
+      }
+      
+      return horarios;
     }
 
     // Para tardes de té, verificar que la fecha cumpla con la anticipación mínima
