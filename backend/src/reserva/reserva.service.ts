@@ -67,26 +67,30 @@ export class ReservaService {
 
   /**
    * Obtiene el rango de fechas para consultas del día completo
-   * considerando la zona horaria correcta
+   * HACK RAILWAY: Aplicar el mismo ajuste que en la creación de reservas
    */
   private getFechaRangoDelDia(fecha: Date): { fechaInicio: Date; fechaFin: Date } {
-    // Normalizar la fecha base
-    const fechaNormalizada = this.normalizeDateOnly(fecha);
+    // HACK RAILWAY: Agregar 1 día para buscar en el mismo día donde están guardadas las reservas
+    // Esto mantiene la consistencia con el hack del frontend (+1 día al crear)
+    const fechaAjustada = new Date(fecha);
+    fechaAjustada.setDate(fechaAjustada.getDate() + 1);
     
-    // Crear inicio del día (00:00:00 local)
-    const fechaInicio = new Date(fechaNormalizada);
-    fechaInicio.setHours(0, 0, 0, 0);
+    // Crear inicio del día (00:00:00 UTC, pero del día ajustado)
+    const fechaInicio = new Date(fechaAjustada);
+    fechaInicio.setUTCHours(0, 0, 0, 0);
     
-    // Crear fin del día (23:59:59 local)
-    const fechaFin = new Date(fechaNormalizada);
-    fechaFin.setHours(23, 59, 59, 999);
+    // Crear fin del día (23:59:59 UTC, pero del día ajustado)
+    const fechaFin = new Date(fechaAjustada);
+    fechaFin.setUTCHours(23, 59, 59, 999);
     
-    console.log(`🗓️ Rango de fechas para consulta:`, {
+    console.log(`🗓️ Rango de fechas para consulta (HACK RAILWAY +1 día):`, {
       fechaOriginal: fecha.toISOString(),
-      fechaNormalizada: fechaNormalizada.toISOString(),
+      fechaAjustada: fechaAjustada.toISOString(),
       fechaInicio: fechaInicio.toISOString(),
       fechaFin: fechaFin.toISOString(),
-      rangoLocal: `${fechaInicio.toLocaleDateString('es-ES')} - ${fechaFin.toLocaleDateString('es-ES')}`
+      fechaOriginalLocal: fecha.toLocaleDateString('es-ES'),
+      fechaAjustadaLocal: fechaAjustada.toLocaleDateString('es-ES'),
+      ajuste: '+1 día aplicado'
     });
     
     return { fechaInicio, fechaFin };

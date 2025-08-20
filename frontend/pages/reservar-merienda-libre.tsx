@@ -305,7 +305,12 @@ export default function ReservarMeriendaLibre() {
         nombre: formData.nombre,
         telefono: formData.telefono,
         cantidadPersonas: formData.cantidadPersonas,
-        fecha: formData.fecha ? formData.fecha.toISOString().split('T')[0] : '',
+        fecha: formData.fecha ? (() => {
+          // HACK RAILWAY: Agregar 1 día para compensar timezone UTC vs Argentina
+          const fechaAjustada = new Date(formData.fecha);
+          fechaAjustada.setDate(fechaAjustada.getDate() + 1);
+          return fechaAjustada.toISOString().split('T')[0];
+        })() : '',
         turno: formData.turno,
         tipoReserva: formData.tipoReserva,
       };

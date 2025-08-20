@@ -525,12 +525,12 @@ export class PagoService {
       this.logger.log(`🎯 Creando reserva para pago con tarjeta: ${reservaData.nombre}`);
 
       // Crear la reserva usando el servicio de reservas
-      // Normalizar la fecha para evitar problemas de timezone
-      const fechaNormalizada = this.normalizeDateOnly(reservaData.fecha);
+      // HACK RAILWAY: Frontend envía fecha ajustada (+1 día), usar directamente
+      // Esto es necesario para compensar UTC vs timezone Argentina en Railway
       const nuevaReserva = await this.reservaService.createConPago({
         nombreCliente: reservaData.nombre,
         telefono: reservaData.telefono || '',
-        fechaHora: fechaNormalizada,
+        fechaHora: new Date(reservaData.fecha),
         turno: reservaData.turno,
         cantidadPersonas: typeof reservaData.cantidadPersonas === 'string' 
           ? parseInt(reservaData.cantidadPersonas) 
